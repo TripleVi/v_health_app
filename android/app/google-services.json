@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "231780000645",
+    "project_id": "v-health-c5b6e",
+    "storage_bucket": "v-health-c5b6e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:231780000645:android:bb6c2c24c4b6ce480cdaec",
+        "android_client_info": {
+          "package_name": "com.example.v_health"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXtC3LeZwCo_We6rTVfo7r3tCPM-0OQuA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
