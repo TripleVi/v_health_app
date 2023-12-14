@@ -5,19 +5,21 @@ import 'user.dart';
 class Comment extends BaseEntity {
   String content;
   DateTime createdDate;
+  String path;
   User author;
-  Comment? parent;
+  Comment? replyTo;
 
   Comment({
     super.id,
     required this.content,
     required this.createdDate,
+    required this.path,
     User? author,
-    this.parent,
+    this.replyTo,
   }) : author = author ?? User.empty();
 
   factory Comment.empty() {
-    return Comment(content: "", createdDate: DateTime.now(), author: User.empty());
+    return Comment(content: "", createdDate: DateTime.now(), path: "", author: User.empty());
   }
 
   Map<String, dynamic> toMap() {
@@ -25,6 +27,7 @@ class Comment extends BaseEntity {
       "cid": id,
       "content": content,
       "createdDate": createdDate.millisecondsSinceEpoch,
+      "path": path,
     };
   }
 
@@ -33,11 +36,12 @@ class Comment extends BaseEntity {
       id: map["cid"],
       content: map["content"],
       createdDate: DateTime.fromMillisecondsSinceEpoch(map["createdDate"]),
+      path: map["path"],
     );
   }
 
   @override
   String toString() {
-    return "Comment{id: $id, content: $content, createdDate: $createdDate, author: $author, parent: $parent}";
+    return "Comment{id: $id, content: $content, createdDate: $createdDate, path: $path, author: $author, replyTo: $replyTo}";
   }
 }

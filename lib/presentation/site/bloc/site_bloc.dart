@@ -13,6 +13,8 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     on<UserFetched>(_onUserFetched);
     on<NavbarTabSelected>(_onNavbarTabSelected);
     on<PreviousTapShown>(_onPreviousTabShown);
+    on<NavbarShown>(_onNavbarShown);
+    on<NavbarHidden>(_onNavbarHidden);
     // registerNotification();
     add(UserFetched());
 
@@ -40,11 +42,11 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     ));
   }
 
-  void _onNavbarHidden(Emitter<SiteState> emit) {
+  void _onNavbarHidden(NavbarHidden event, Emitter<SiteState> emit) {
     emit(state.copyWith(navBarVisible: false));
   }
 
-  void _onNavbarShown(Emitter<SiteState> emit) {
+  void _onNavbarShown(NavbarShown event, Emitter<SiteState> emit) {
     emit(state.copyWith(navBarVisible: true));
   }
 

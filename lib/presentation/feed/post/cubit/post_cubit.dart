@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as ta;
@@ -11,28 +12,29 @@ import '../../../../domain/entities/post.dart';
 part 'post_state.dart';
 
 class PostCubit extends Cubit<PostState> {
-  final Post _post;
+  final Post post;
+  var isProcessing = false;
 
-  PostCubit(this._post) : super(const PostLoading()) {
+  PostCubit(this.post) : super(const PostLoading()) {
     _processPost();
   }
 
   Future<void> _processPost() async {
     final service = PostService();
-    final map = await service.countLikes(_post.id);
-    final comments = await service.countComments(_post.id);
+    final map = await service.countLikes(post.id);
+    final comments = await service.countComments(post.id);
     var address = "";
     try {
       final geoResponse = await LocationService.getAddressFromPosition(
-        latitude: _post.latitude!,
-        longitude: _post.longitude!,
+        latitude: post.latitude!,
+        longitude: post.longitude!,
       );
       address = "${geoResponse.administrativeArea}, ${geoResponse.country}";
     } on PlatformException catch (e) {
       print(e);
     }
-    final txtDate = ta.format(_post.createdDate, locale: "en");
-    final record = _post.record;
+    final txtDate = ta.format(post.createdDate, locale: "en");
+    final record = post.record;
     final rDuration = record.endDate.difference(record.startDate);
     String rTime = "";
     final hours = rDuration.inHours;
@@ -48,7 +50,7 @@ class PostCubit extends Cubit<PostState> {
     }
 
     emit(PostLoaded(
-      post: _post,
+      post: post,
       isLiked: map["isLiked"],
       likes: map["likes"],
       comments: comments,
@@ -58,54 +60,22 @@ class PostCubit extends Cubit<PostState> {
     ));
   }
 
-  Future<void> handleLikePost() async {
-    // final user = await _userFuture;
-    // final curtState = state as PostLoaded;
-    // try {
-    //   if(curtState.isLiked) {
-    //     final deletePostReactionUseCase = GetIt.instance<DeletePostReactionUseCase>();
-    //     await deletePostReactionUseCase(
-    //       params: DeletePostReactionParams(
-    //         postId: _post.id,
-    //         userId: user.id,
-    //       ),
-    //     );
-    //     return emit(PostLoaded(
-    //       post: _post,
-    //       isLiked: false,
-    //       likes: curtState.likes-1,
-    //       comments: curtState.comments,
-    //       createdAt: curtState.createdAt,
-    //       recordTime: curtState.recordTime,
-    //       address: curtState.address,
-    //     ));
-    //   }
-    //   final addPostReactionUseCase = GetIt.instance<AddPostReactionUseCase>();
-    //   await addPostReactionUseCase(
-    //     params: AddPostReactionParams(
-    //       postId: _post.id, 
-    //       reaction: Reaction(
-    //         userId: user.id, 
-    //         type: ReactionType.like.index, 
-    //         firstName: user.firstName, 
-    //         lastName: user.lastName,
-    //         username: user.username,
-    //         avatarUrl: user.avatarUrl,
-    //       ),
-    //     ),
-    //   );
-    //   emit(PostLoaded(
-    //     post: _post,
-    //     isLiked: true,
-    //     likes: curtState.likes+1,
-    //     comments: curtState.comments,
-    //     createdAt: curtState.createdAt,
-    //     recordTime: curtState.recordTime,
-    //     address: curtState.address,
-    //   ));
-    // } catch (e) {
-    //   rethrow;
-    // }
+  Future<void> likePost() async {
+    if(isProcessing) return;
+    isProcessing = true;
+    final curtState = state as PostLoaded;
+    try {
+      final service = PostService();
+      if(curtState.isLiked) {
+        await service.unlikePost(post.id);
+        isProcessing = false;
+        return emit(curtState.copyWith(isLiked: false, likes: curtState.likes-1));
+      }
+      await service.likePost(post.id);
+      isProcessing = false;
+      emit(curtState.copyWith(isLiked: true, likes: curtState.likes+1));
+    } catch (e) {
+      rethrow;
+    }
   }
-
 }

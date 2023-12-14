@@ -8,6 +8,9 @@ import '../../notification/view/notifications_page.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../bloc/feed_bloc.dart';
+import '../comments/views/comments_page.dart';
+import '../likes/views/likes_page.dart';
+import '../map/view/map_page.dart';
 import '../post/view/post_page.dart';
 
 class FeedPage extends StatelessWidget {
@@ -22,6 +25,24 @@ class FeedPage extends StatelessWidget {
           if(settings.name == "/feed") {
             return MaterialPageRoute<void>(
               builder: (context) => const FeedView(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/likesPage") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const LikesPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/commentsPage") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const CommentsPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/mapPage") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const MapPage(),
               settings: settings,
             );
           }

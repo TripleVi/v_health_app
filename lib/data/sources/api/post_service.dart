@@ -7,6 +7,7 @@ import 'package:mime/mime.dart' as mime;
 import '../../../core/services/user_service.dart';
 import '../../../domain/entities/comment.dart';
 import '../../../domain/entities/post.dart';
+import '../../../domain/entities/reaction.dart';
 import '../../../presentation/activity_tracking/bloc/activity_tracking_bloc.dart';
 import 'dio_service.dart';
 
@@ -23,7 +24,9 @@ class PostService {
         },
       ),
     );
-    return response.data!.map((e) => Post.fromMap(e)).toList(growable: false);
+    return response.statusCode == 200
+        ? response.data!.map((e) => Post.fromMap(e)).toList(growable: false)
+        : const [];
   }
   
   Future<Post?> createPost(Post post) async {
@@ -50,7 +53,6 @@ class PostService {
       );
       return Post.fromMap(response.data!);
     } catch (e) {
-      print(e);
       return null;
     }
   }
@@ -151,10 +153,28 @@ class PostService {
     return response.statusCode == 201;
   }
 
-  Future<int> countComments(String postId) async {
+  Future<List<Reaction>> fetchUserReactions(String postId) async {
     final currentUser = await UserService.getCurrentUser();
+    final response = await DioService.instance.dio.get<List<dynamic>>(
+      "/posts/$postId/reactions",
+      options: Options(
+        headers: {
+          "uid": currentUser.uid,
+          "username": currentUser.username,
+        },
+      ),
+    );
+    return response.statusCode == 200 
+        ? response.data!.map((e) => Reaction.fromMap(e)).toList(growable: false)
+        : const [];
+  }
+
+  Future<int> countComments(String postId, [String? path]) async {
+    final currentUser = await UserService.getCurrentUser();
+    final queryParameters = path == null ? null : {"path": path};
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
-      "/posts/$postId/comments",
+      "/posts/$postId/comments/count",
+      queryParameters: queryParameters,
       options: Options(
         headers: {
           "uid": currentUser.uid,
@@ -166,25 +186,63 @@ class PostService {
     return response.data!["comments"];
   }
 
-  Future<void> createComment(Comment comment, String postId) async {
+  Future<int> countIndependentComments(String postId) async {
+    return countComments(postId, '');
+  }
+
+  Future<List<Comment>> fetchComments({
+    required String postId,
+    String? path,
+    DateTime? lessThanDate,
+  }) async {
+    final currentUser = await UserService.getCurrentUser();
+    final queryParameters = <String, dynamic>{};
+    if(path != null) {
+      queryParameters["path"] = path;
+    }
+    if(lessThanDate != null) {
+      queryParameters["lessThanDate"] = lessThanDate.millisecondsSinceEpoch;
+    }
+    final response = await DioService.instance.dio.get<List<dynamic>>(
+      "/posts/$postId/comments",
+      queryParameters: queryParameters,
+      options: Options(
+        headers: {
+          "uid": currentUser.uid,
+          "username": currentUser.username,
+        },
+      ),
+    );
+    return response.statusCode == 200 
+        ? response.data!.map((e) {
+          final comment = Comment.fromMap(e)
+          ..author.username = e["author"]["username"]
+          ..author.avatarUrl = e["author"]["avatarUrl"];
+          return comment;
+        }).toList(growable: false)
+        : const [];
+  }
+
+  Future<Comment?> createComment(Comment comment, String postId) async {
     final map = comment.toMap();
-    if(comment.parent != null) {
-      map["parent"] = <String, dynamic>{
-        "cid": comment.parent!.id,
+    if(comment.replyTo != null) {
+      map["replyTo"] = <String, dynamic>{
+        "cid": comment.replyTo!.id,
+        "path": comment.replyTo!.path,
       };
     }
-    // final currentUser = await UserService.getCurrentUser();
-    final response = await DioService.instance.dio.post(
+    final currentUser = await UserService.getCurrentUser();
+    final response = await DioService.instance.dio.post<Map<String, dynamic>>(
       "/posts/$postId/comments",
       data: map,
       options: Options(
         headers: {
-          "uid": "123445a",
-          "username": "vuongvu0611",
+          "uid": currentUser.uid,
+          "username": currentUser.username,
         },
       ),
     );
-    print(response.data);
+    return response.statusCode == 201 ? Comment.fromMap(response.data!) : null;
   }
 
   Future<bool> deleteComment(String commentId) async {
@@ -201,4 +259,5 @@ class PostService {
     // response.data = OK or Created
     return response.statusCode == 201;
   }
+
 }

@@ -7,6 +7,7 @@ import '../../../core/resources/colors.dart';
 import '../../../core/utilities/constants.dart';
 import '../../activity_tracking/views/tracking_page.dart';
 import '../../feed/view/feed_page.dart';
+import '../../friend/views/friend_page.dart';
 import '../../group/view/group_page.dart';
 import '../../profile/view/profile_page.dart';
 import '../../views/statistics/daily_stats.dart';
@@ -29,7 +30,8 @@ class SiteView extends StatelessWidget {
     TabType.home: DailyStats(),
     TabType.feed: FeedPage(),
     TabType.tracking: TrackingPage(),
-    TabType.group: GroupPage(),
+    // TabType.group: GroupPage(),
+    TabType.group: FriendPage(),
     TabType.profile: ProfilePage(),
   };
 

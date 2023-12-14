@@ -19,7 +19,7 @@ import 'domain/entities/user.dart' as u;
 import 'firebase_options.dart';
 import 'injector.dart';
 import 'presentation/auth/auth_page.dart';
-import 'presentation/site/view/site_page.dart';
+import 'presentation/site/views/site_page.dart';
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
@@ -94,7 +94,6 @@ Future<void> main() async {
 
 class VHealth extends StatelessWidget {
   const VHealth({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -110,10 +109,31 @@ class VHealth extends StatelessWidget {
         //     child: Row(
         //       children: [
         //         TextButton(child: const Text("Press me"), onPressed: () async {
-        //           final service = PostService();
-        //           final newComment = Comment.empty();
-        //           final result= await service.likePost("b53f2d24-0eae-4f5c-8826-cc138d43ee83");
+        //           // final service = PostService();
+        //           final a = StreamController<int>(onPause: () {
+        //             print("onPaused");
+        //           }, onResume: () {
+        //             print("oonResumed");
+        //           }, onCancel: () {
+        //             print("onCanceled");
+        //           },);
+        //           sub = a.stream.listen((event) {
+        //             print("data: $event");
+        //           }, onDone: () {
+        //             print("Stream done");
+        //           },);
+        //           a.sink.add(10);
+        //           await Future.delayed(Duration(seconds: 2));
+        //           // sub!.pause();
+        //           await Future.delayed(Duration(seconds: 2));
+        //           final result = await a.close();
         //           print(result);
+        //           a.sink.add(20);
+        //         }),
+        //         TextButton(child: const Text("Press me2"), onPressed: () async {
+        //           sub!.resume();
+        //           // await sub!.cancel();
+        //           // print(result);
         //         }),
         //       ],
         //     ),

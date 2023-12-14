@@ -1,7 +1,7 @@
 part of 'likes_cubit.dart';
 
 @immutable
-abstract class LikesState {
+sealed class LikesState {
   const LikesState();
 }
 

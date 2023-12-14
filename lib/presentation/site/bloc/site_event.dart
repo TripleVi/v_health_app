@@ -12,3 +12,7 @@ class NavbarTabSelected extends SiteEvent {
 }
 
 class PreviousTapShown extends SiteEvent {}
+
+class NavbarHidden extends SiteEvent {}
+
+class NavbarShown extends SiteEvent {}

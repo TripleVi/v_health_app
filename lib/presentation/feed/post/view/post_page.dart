@@ -5,22 +5,20 @@ import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/post.dart';
+import '../../../site/bloc/site_bloc.dart';
 import '../../../widgets/loading_indicator.dart';
-import '../../comments/view/comments_page.dart';
 import '../../details/view/details_page.dart';
-import '../../map/view/map_page.dart';
 import '../cubit/post_cubit.dart';
-import '../../likes/view/likes_page.dart';
 
 class PostPage extends StatelessWidget {
-  final Post _post;
-  const PostPage(this._post, {super.key});
+  final Post post;
+  const PostPage(this.post, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PostCubit>(
-      create: (context) => PostCubit(_post),
-      child: PostView(_post.id),
+      create: (context) => PostCubit(post),
+      child: PostView(post.id),
     );
   }
 }
@@ -83,58 +81,57 @@ class PostView extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context, 
-                            MaterialPageRoute(builder: (context) 
-                                => LikesPage(state.post.id)),
-                          );
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: const EdgeInsets.all(4.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              const Icon(
-                                Icons.thumb_up_rounded, 
-                                size: 20.0, 
-                                color: AppColor.primaryColor,
-                              ),
-                              const SizedBox(width: 8.0),
-                              Text(
-                                "${state.likes}", 
-                                style: AppStyle.paragraph(height: 1.0),
-                              ),
-                            ],
+                      state.likes == 0
+                        ? const SizedBox() 
+                        : GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context, "/likesPage", 
+                            arguments: state.post.id,
+                          ),
+                          child: Container(
+                            color: Colors.transparent,
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                const Icon(
+                                  Icons.thumb_up_rounded, 
+                                  size: 20.0, 
+                                  color: AppColor.primaryColor,
+                                ),
+                                const SizedBox(width: 8.0),
+                                Text(
+                                  "${state.likes}", 
+                                  style: AppStyle.paragraph(height: 1.0),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context, 
-                            MaterialPageRoute(builder: (context) => CommentsPage(state.post.id)),
-                          );
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: const EdgeInsets.all(4.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                "${state.comments} ", 
-                                style: AppStyle.paragraph(height: 1.0),
-                              ),
-                              Text("comments", style: AppStyle.paragraph(height: 1.0)),
-                            ],
+                      state.comments == 0 
+                        ? const SizedBox()
+                        : GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                            context, "/commentsPage", 
+                            arguments: state.post.id,
+                          ),
+                          child: Container(
+                            color: Colors.transparent,
+                            padding: const EdgeInsets.all(4.0),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  "${state.comments} ", 
+                                  style: AppStyle.paragraph(height: 1.0),
+                                ),
+                                Text("comments", style: AppStyle.paragraph(height: 1.0)),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -170,7 +167,7 @@ class PostView extends StatelessWidget {
 
   Widget _likeButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTap: () => context.read<PostCubit>().handleLikePost(),
+      onTap: () => context.read<PostCubit>().likePost(),
       child: Container(
         padding: const EdgeInsets.all(4.0),
         color: Colors.transparent,
@@ -203,10 +200,7 @@ class PostView extends StatelessWidget {
 
   Widget _commentButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context, 
-        MaterialPageRoute(builder: (context) => CommentsPage(state.post.id)),
-      ),
+      onTap: () => Navigator.pushNamed(context, "/commentsPage", arguments: state.post.id),
       child: Container(
         padding: const EdgeInsets.all(4.0),
         color: Colors.transparent,
@@ -277,21 +271,18 @@ class PostView extends StatelessWidget {
   }
 
   Widget _mapSection(BuildContext context, PostLoaded state) {
-    final post = state.post;
     return GestureDetector(
       onTap: () async {
-        // final state = mainContainerKey.currentState!;
-        // state.hideBottomNavBar();
-        // Navigator.push(context, MaterialPageRoute(
-        //   builder: (context) => MapPage(post.id, post.user!.username),
-        // )).then((_) {
-        //   state.showBottomNavBar();
-        // });
+        context.read<SiteBloc>().add(NavbarHidden());
+        Navigator.pushNamed<void>(
+          context, "/mapPage", 
+          arguments: state.post,
+        ).then((_) => context.read<SiteBloc>().add(NavbarShown()));
       },
       child: AspectRatio(
         aspectRatio: 2 / 1,
         child: Image.network(
-          post.mapUrl,
+          state.post.mapUrl,
           // loadingBuilder: (context, child, loadingProgress) {
           //   return const AppLoadingIndicator();
           // },

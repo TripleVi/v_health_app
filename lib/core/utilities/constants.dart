@@ -15,6 +15,7 @@ class Constants {
   static const paragraph_size = 16.0;
   static const heading_1_size = 24.0;
   static const heading_2_size = 20.0;
+  static const heading_3_size = 16.0;
   static const letter_spacing = 0.5;
   static const line_height = 1.4;
 

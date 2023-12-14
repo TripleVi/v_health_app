@@ -1,50 +1,34 @@
 class Friend {
-  late String _id;
-  late String _firstName;
-  late String _lastName;
-  late String _avatar;
+  String uid;
+  String username;
+  String firstName;
+  String lastName;
+  String avatarUrl;
+  bool isFollowing;
+  int mutual;
 
-  Friend({required String id, required String firstName, required String lastName, required String avatar}) {
-    this.id = id;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.avatar = avatar;
+  Friend({
+    required this.uid, 
+    required this.username,
+    required this.firstName, 
+    required this.lastName, 
+    required this.avatarUrl,
+    required this.isFollowing,
+    required this.mutual,
+  });
+
+  factory Friend.fromMap(Map<String, dynamic> map) {
+    return Friend(uid: map["uid"], username: map["username"], firstName: map["firstName"], lastName: map["lastName"], avatarUrl: map["avatarUrl"], isFollowing: map["isFollowing"], mutual: map["mutual"]);
   }
 
-  Friend.empty() : this(
-    id: "id",
-    firstName: "John",
-    lastName: "Doe",
-    avatar: "avatar",
-  );
-
-  String get id => _id;
-  String get firstName => _firstName;
-  String get lastName => _lastName;
-  String get avatar => _avatar;
-
-  set id(String id) {
-    assert(id.isNotEmpty);
-    _id = id;
-  }
-
-  set firstName(String firstName) {
-    assert(firstName.isNotEmpty);
-    _firstName = firstName;
-  }
-
-  set lastName(String lastName) {
-    assert(lastName.isNotEmpty);
-    _lastName = firstName;
-  }
-
-  set avatar(String avatar) {
-    assert(avatar.isNotEmpty);
-    _avatar = firstName;
+  Map<String, dynamic> toMap() {
+    return {
+      "uid": uid,
+    };
   }
 
   @override
   String toString() {
-    return "{id: $_id, firstName: $_firstName, lastName: $_lastName, avatar: $_avatar}";
+    return "{uid: $uid, username: $username, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl, isFollowing: $isFollowing, mutual: $mutual}";
   }
 }

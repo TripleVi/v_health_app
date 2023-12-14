@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
-import '../../friend/view/friends.dart';
 import '../../widgets/appBar.dart';
 
 class GroupPage extends StatefulWidget {

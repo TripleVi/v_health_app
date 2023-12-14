@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,22 +8,147 @@ import '../../../../../../core/resources/colors.dart';
 import '../../../../../../core/resources/style.dart';
 import '../../../../../../domain/entities/comment.dart';
 import '../../cubit/comments_cubit.dart';
+import '../../views/posting_comment.dart';
 import '../cubit/block_cubit.dart';
 
 class CommentBlock extends StatelessWidget {
-  final String _postId;
-  final Comment _parent;
-  final bool newComment;
+  final String postId;
+  final Comment comment;
 
-  CommentBlock(this._postId, this._parent, {super.key, this.newComment = false}) {
-    print("CommentBlock: $newComment");
+  const CommentBlock(this.postId, this.comment, {super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    const avatarSize = 40;
+    return BlocProvider<BlockCubit>(
+      create: (context) => BlockCubit(postId, comment),
+      child: BlocConsumer<BlockCubit, BlockState>(
+        listener: (context, state) {
+          if(state is BlockLoaded && state.snackMsg != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(
+                state.snackMsg!,
+                style: AppStyle.paragraph(color: Colors.white),
+              ),
+            ));
+          }
+        },
+        builder: (context, state) {
+          return Container(
+            margin: const EdgeInsets.only(bottom: 20.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  radius: avatarSize/2,
+                  backgroundColor: AppColor.backgroundColor,
+                  backgroundImage: Image.asset(
+                    "assets/images/avatar.jpg",
+                    cacheWidth: avatarSize,
+                    cacheHeight: avatarSize,
+                    filterQuality: FilterQuality.high,
+                    fit: BoxFit.contain,
+                    isAntiAlias: true,
+                  ).image,
+                  foregroundImage: CachedNetworkImageProvider(
+                    comment.author.avatarUrl, 
+                    maxWidth: avatarSize, 
+                    maxHeight: avatarSize,
+                  ),
+                ),
+                const SizedBox(width: 12.0),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      "${comment.author.username} ",
+                                      style: AppStyle.paragraph(
+                                        color: AppColor.textColor,
+                                        height: 1.0,
+                                      ),
+                                    ),
+                                    Text(
+                                      timeago.format(comment.createdDate, locale: "en"),
+                                      style: AppStyle.label(),
+                                    ),
+                                  ],
+                                ),
+                                Text(
+                                  comment.content,
+                                  style: AppStyle.paragraph(),
+                                ),
+                                const SizedBox(height: 8.0,),
+                                Row(
+                                  children: [
+                                    Text(
+                                      "22 likes",
+                                      style: AppStyle.label(),
+                                    ),
+                                    const SizedBox(width: 12.0),
+                                    GestureDetector(
+                                      onTap: () => onReplyToTapped(context),
+                                      child: Text(
+                                        "Reply",
+                                        style: AppStyle.label(),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () {},
+                            iconSize: 20.0,
+                            color: AppColor.primaryColor,
+                            icon: const Icon(Icons.thumb_up),
+                          ),
+                        ],
+                      ),
+                      buildChildComments(state),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      ),
+    );
+  }
+
+  Future<void> onReplyToTapped(BuildContext context) async {
+    final stream = await context.read<CommentsCubit>().replyToComment(comment);
+    stream.listen((params) async {
+      await context.read<BlockCubit>().onCommentPosting(params);
+    });
+  }
+
+  Widget buildChildComments(BlockState state) {
+    if(state is BlockLoaded && state.totalComments > 0 ) {
+      return Container(
+        margin: const EdgeInsets.only(top: 20.0),
+        child: _commentList(state),
+      );
+    }
+    return const SizedBox();
   }
 
   Widget _viewMoreBtn(BuildContext context, int remaining) {
     return GestureDetector(
-      onTap: () {
-        context.read<BlockCubit>().viewMoreComments();
-      },
+      onTap: context.read<BlockCubit>().viewMoreReplies,
       child: Row(
         children: [
           SizedBox(
@@ -36,7 +162,7 @@ class CommentBlock extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              "View more $remaining ${remaining == 1 ? "comment" : "comments"}"
+              "View more $remaining ${remaining == 1 ? "reply" : "replies"}"
             ),
           ),
         ],
@@ -46,9 +172,7 @@ class CommentBlock extends StatelessWidget {
 
   Widget _hideBtn(BuildContext context, int total) {
     return GestureDetector(
-      onTap: () {
-        context.read<BlockCubit>().hideAllComments();
-      },
+      onTap: context.read<BlockCubit>().hideAllReplies,
       child: Row(
         children: [
           SizedBox(
@@ -62,7 +186,7 @@ class CommentBlock extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              "Hide ${total == 1 ? "comment" : "comments"}"
+              "Hide ${total == 1 ? "reply" : "replies"}"
             ),
           ),
         ],
@@ -71,11 +195,8 @@ class CommentBlock extends StatelessWidget {
   }
 
   ListView _commentList(BlockLoaded state) {
-    const avatarSize = 40;
-    final user = state.user;
     final comments = state.comments;
     final totalComments = state.totalComments;
-    final isLoadingMore = state.isLoadingMore;
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -84,7 +205,7 @@ class CommentBlock extends StatelessWidget {
         if(index == comments.length) {
           final remaining = totalComments - comments.length;
           if(remaining > 0) {
-            return isLoadingMore
+            return state.isLoadingMore
                 ? Container(
                     padding: const EdgeInsets.only(left: 40.0),
                     alignment: AlignmentDirectional.centerStart,
@@ -94,139 +215,104 @@ class CommentBlock extends StatelessWidget {
           }
           return _hideBtn(context, totalComments);
         }
-
         final comment = comments[index];
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: avatarSize/2,
-              backgroundColor: AppColor.backgroundColor,
-              backgroundImage: Image.asset(
-                "assets/images/avatar.jpg",
-                cacheWidth: avatarSize,
-                cacheHeight: avatarSize,
-                filterQuality: FilterQuality.high,
-                isAntiAlias: true,
-                fit: BoxFit.contain,
-              ).image,
-              foregroundImage: user.avatarUrl == null
-                  ? null
-                  : Image.network(
-                      user.avatarUrl,
-                      cacheWidth: avatarSize,
-                      cacheHeight: avatarSize,
-                      filterQuality: FilterQuality.high,
-                      isAntiAlias: true,
-                      fit: BoxFit.contain,
-                    ).image,
-            ),
-            const SizedBox(width: 12.0),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        "${comment.author.username} ",
-                        style: AppStyle.paragraph(
-                          color: AppColor.textColor,
-                          height: 1.0,
-                        ),
-                      ),
-                      Text(
-                        timeago.format(comment.createdDate, locale: "en"),
-                        style: AppStyle.paragraph(
-                          color: AppColor.textColor,
-                          height: 1.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      children: <TextSpan>[
-                        // TextSpan(
-                        //   text: comment.authorUsername == null
-                        //       ? null
-                        //       : "@${comment.authorUsername} ", 
-                        //   style: AppStyle.paragraph(color: AppColor.primaryColor), 
-                        // ),
-                        TextSpan(
-                          text: comment.content,
-                          style: AppStyle.paragraph(),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 8.0,),
-                  Row(
-                    children: [
-                      Text(
-                        "22 likes",
-                        style: AppStyle.label(),
-                      ),
-                      const SizedBox(width: 12.0),
-                      GestureDetector(
-                        onTap: () => context
-                          .read<CommentsCubit>()
-                          .replyComment(comment) //? ancestor (lv1)
-                          .then((value) {
-                            if(value) {
-                              context.read<BlockCubit>().onCommentAdded();
-                            }
-                          }),
-                        child: Text(
-                          "Reply",
-                          style: AppStyle.label(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20.0),
-                  // CommentBlock(_postId, comment),
-                ],
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                
-              },
-              iconSize: 20.0,
-              color: AppColor.primaryColor,
-              icon: const Icon(Icons.thumb_up),
-            ),
-          ],
-        );
+        if(index >= comments.length - state.posting) {
+          if(index == comments.length - 1) {
+            return PostingCommentItem(comment, key: state.key!);
+          }
+          return PostingCommentItem(comment);
+        }
+        return _buildReplyItem(context, comment);
       },
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider<BlockCubit>(
-      create: (context) => BlockCubit(_postId, _parent, newComment),
-      child: BlocBuilder<BlockCubit, BlockState>(
-        builder: (context, state) {
-          if(state is BlockLoading) {
-            return Container(
-              margin: const EdgeInsets.only(top: 20.0),
-              padding: const EdgeInsets.only(left: 40.0),
-              child: const CupertinoActivityIndicator()
-            );
-          }
-          if(state is BlockLoaded) {
-            return state.totalComments == 0 
-                ? const SizedBox() 
-                : Container(
-                    margin: const EdgeInsets.only(top: 20.0),
-                    child: _commentList(state),
-                  );
-          }
-          return const SizedBox();
-        },
+  Widget _buildReplyItem(BuildContext context, Comment comment) {
+    const avatarSize = 40;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: avatarSize/2,
+            backgroundColor: AppColor.backgroundColor,
+            backgroundImage: Image.asset(
+              "assets/images/avatar.jpg",
+              cacheWidth: avatarSize,
+              cacheHeight: avatarSize,
+              filterQuality: FilterQuality.high,
+              isAntiAlias: true,
+              fit: BoxFit.contain,
+            ).image,
+            foregroundImage: CachedNetworkImageProvider(
+              comment.author.avatarUrl, 
+              maxWidth: avatarSize, 
+              maxHeight: avatarSize,
+            ),
+          ),
+          const SizedBox(width: 12.0),
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "${comment.author.username} ",
+                      style: AppStyle.paragraph(
+                        color: AppColor.textColor,
+                        height: 1.0,
+                      ),
+                    ),
+                    Text(
+                      timeago.format(comment.createdDate, locale: "en"),
+                      style: AppStyle.label(),
+                    ),
+                  ],
+                ),
+                RichText(
+                  text: TextSpan(
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "@${comment.author.username} ", 
+                        style: AppStyle.paragraph(color: AppColor.primaryColor), 
+                      ),
+                      TextSpan(
+                        text: comment.content,
+                        style: AppStyle.paragraph(),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8.0,),
+                Row(
+                  children: [
+                    Text(
+                      "22 likes",
+                      style: AppStyle.label(),
+                    ),
+                    const SizedBox(width: 12.0),
+                    GestureDetector(
+                      onTap: () => onReplyToTapped(context),
+                      child: Text(
+                        "Reply",
+                        style: AppStyle.label(),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: () {},
+            iconSize: 20.0,
+            color: AppColor.primaryColor,
+            icon: const Icon(Icons.thumb_up),
+          ),
+        ],
       ),
     );
   }

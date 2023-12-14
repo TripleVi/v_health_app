@@ -1,43 +1,52 @@
 class Reaction {
-  String userId;
+  String uid;
   int type;
   String firstName;
   String lastName;
   String username;
-  String? avatarUrl;
-  DateTime? createdAt;
+  String avatarUrl;
+  DateTime createdDate;
 
   Reaction({
-    required this.userId,
+    required this.uid,
     required this.type,
+    required this.username,
     required this.firstName,
     required this.lastName,
-    required this.username,
-    this.avatarUrl,
+    required this.avatarUrl,
+    required this.createdDate,
   });
 
-  // factory Reaction.fromFirestore(Map<String, dynamic> map) {
-  //   final reaction = Reaction(
-  //     userId: map["userId"],
-  //     type: map["type"],
-  //     firstName: map["firstName"],
-  //     lastName: map["lastName"],
-  //     username: map["username"],
-  //     avatarUrl: map["avatarUrl"],
-  //   )
-  //   ..createdAt = (map["createdAt"]! as Timestamp).toDate().toLocal();
-  //   return reaction;
-  // }
+  factory Reaction.empty() {
+    return Reaction(uid: "", type: 0, username: "", firstName: "", lastName: "", avatarUrl: "", createdDate: DateTime.now());
+  }
 
-  // Map<String,dynamic> toFirestore() {
-  //   return {
-  //     "userId": userId,
-  //     "type": type,
-  //     "firstName": firstName,
-  //     "lastName": lastName,
-  //     "username": username,
-  //     "avatarUrl": avatarUrl,
-  //     "createdAt": FieldValue.serverTimestamp(),
-  //   };
-  // }
+  Map<String, dynamic> toMap() {
+    return {
+      "uid": uid,
+      "type": type,
+      "username": username,
+      "firstName": firstName,
+      "lastName": lastName,
+      "avatarUrl": avatarUrl,
+      "createdDate": createdDate.millisecondsSinceEpoch,
+    };
+  }
+
+  factory Reaction.fromMap(Map<String, dynamic> map) {
+    return Reaction(
+      uid: map["uid"],
+      type: 0, 
+      username: map["username"], 
+      firstName: map["firstName"],
+      lastName: map["lastName"],
+      avatarUrl: map["avatarUrl"],
+      createdDate: DateTime.now(), 
+    );
+  }
+
+  @override
+  String toString() {
+    return "Reaction{uid: $uid, type: $type, username: $username, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl, createdDate: $createdDate}";
+  }
 }

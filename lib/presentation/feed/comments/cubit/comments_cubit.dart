@@ -3,212 +3,224 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
 import '../../../../core/services/user_service.dart';
-import '../../../../data/repositories/user_repo.dart';
+import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/comment.dart';
 import '../../../../domain/entities/user.dart';
-import '../../../../domain/usecases/feed/post/add_post_comment.dart';
-import '../../../../domain/usecases/feed/post/count_post_sub_comments.dart';
-import '../../../../domain/usecases/feed/post/get_post_comments.dart';
 
 part 'comments_state.dart';
 
 class CommentsCubit extends Cubit<CommentsState> {
-  final _commentsLimit = 10;
-  int _curtCommentsLimit = 0;
-  late StreamSubscription<List<Comment>> _commentsSubscriber;
-  Completer<bool>? _commentCompleter;
+  StreamController<Map<String, dynamic>>? _streamController;
   final String _postId;
-  Comment? _parent;
-  final _scrollController = ScrollController();
+  Comment? _replyTo;
+  final _comments = <Comment>[];
+  var _totalComments = 0;
+  static late ScrollController scrollController;
 
   CommentsCubit(this._postId) : super(const CommentsLoading()) {
+    scrollController =  ScrollController();
     _processComments();
   }
 
   Future<void> _processComments() async {
-    final user = await UserService.getCurrentUser();
-    _scrollController.addListener(() {
-      if(_scrollController.position.pixels 
-        >= _scrollController.position.maxScrollExtent) {
-        loadMoreComments();
+    scrollController.addListener(() {
+      if(scrollController.position.pixels >= scrollController.position.maxScrollExtent) {
+        _loadMoreComments();
       }
     });
+    final user = await UserService.getCurrentUser();
+    final service = PostService();
+    final comments = await service.fetchComments(postId: _postId);
+    _totalComments = await service.countIndependentComments(_postId);
+    _comments.addAll(comments);
     emit(CommentsLoaded(
       postId: _postId,
       user: user,
-      scrollController: _scrollController,
+      comments: _comments,
+      totalComments: _totalComments,
+      scrollController: scrollController,
     ));
-    _getPostCommentsHelper(_commentsLimit);
   }
 
-  void _getPostCommentsHelper(int limit) {
-    // final useCase = GetIt.instance<GetPostCommentsUseCase>();
-    // _commentsSubscriber = useCase(
-    //   params: GetPostCommentsParams(
-    //     postId: _postId,
-    //     limit: limit,
-    //   ),
-    // ).listen((comments) async {
-    //   final curtState = state as CommentsLoaded;
-    //   if(curtState.isLoadingMore) {
-    //     return emit(CommentsLoaded(
-    //       postId: curtState.postId,
-    //       user: curtState.user,
-    //       authorUsername: curtState.authorUsername,
-    //       commentsLv1: comments,
-    //       totalComments: curtState.totalComments,
-    //       scrollController: _scrollController,
-    //     ));
-    //   }
-
-    //   var totalComments = curtState.totalComments;
-    //   final useCase = GetIt.instance<CountPostSubCommentsUseCase>();
-    //   final total = await useCase(
-    //     params: CountPostSubCommentsParams(postId: _postId),
-    //   );
-    //   if(totalComments == 0) {
-    //     totalComments = total;
-    //   }
-
-    //   //? some comments added => increase limit
-    //   if(total > totalComments && _curtCommentsLimit < total) {
-    //     var increase = total - totalComments;
-    //     if(increase.remainder(_commentsLimit) != 0) {
-    //       increase = increase - increase.remainder(_commentsLimit) + _commentsLimit;
-    //     }
-    //     _curtCommentsLimit += increase;
-    //     totalComments = total;
-    //     await _commentsSubscriber.cancel();
-    //     _getPostCommentsHelper(_curtCommentsLimit);
-    //     return;
-    //   }
-    //   //? some comments removed => decrease limit
-    //   if(total < totalComments && _curtCommentsLimit > total) {
-    //     var decrease = totalComments - total;
-    //     decrease -= decrease.remainder(_commentsLimit);
-    //     _curtCommentsLimit -= decrease;
-    //     totalComments = total;
-    //     await _commentsSubscriber.cancel();
-    //     _getPostCommentsHelper(_curtCommentsLimit);
-    //     return;
-    //   }
-
-    //   emit(CommentsLoaded(
-    //     postId: curtState.postId,
-    //     user: curtState.user,
-    //     authorUsername: curtState.authorUsername,
-    //     commentsLv1: comments,
-    //     totalComments: totalComments,
-    //     scrollController: _scrollController,
-    //   ));
-    // });
-  }
-
-  Future<bool> replyComment(Comment parent) {
-    final curtState = state as CommentsLoaded;
-    _parent = parent;
-    emit(CommentsLoaded(
-      postId: _postId,
-      user: curtState.user,
-      authorUsername: parent.author.username,
-      commentsLv1: curtState.commentsLv1,
-      totalComments: curtState.totalComments,
-      scrollController: _scrollController,
-    ));
-    _commentCompleter = Completer();
-    return _commentCompleter!.future;
+  Future<Stream<Map<String, dynamic>>> replyToComment(Comment replyTo) async {
+    _replyTo = replyTo;
+    //? _streamController != null means you're replying to a comment
+    await _streamController?.close();
+    _streamController = StreamController();
+    emit((state as CommentsLoaded).copyWith(replyTo: _replyTo));
+    return _streamController!.stream;
   }
 
   Future<void> writeComment(String content) async {
-    // if(content.isEmpty) {
-    //   return _commentCompleter!.complete(false);
-    // }
-    // if(_parent != null) {
-    //   final pattern = r'^@' + _parent!.username;
-    //   content = content.split(RegExp(pattern))[1];
-    //   if(content.isEmpty) {
-    //     return _commentCompleter!.complete(false);
-    //   }
-    // }
-
-    // const maxLevel = 2;
-    // final useCase = GetIt.instance<AddPostCommentUseCase>();
-    // try {
-    //   final user = await _userFuture;
-    //   final curtState = state as CommentsLoaded;
-    //   var parentId = _parent?.id;
-    //   //? ancestor (lv1)
-    //   if(_parent != null && _parent!.level != 1) {
-    //     parentId = _parent!.parentId;
-    //   }
-    //   final comment = Comment(
-    //     userId: user.id,
-    //     username: user.username,
-    //     avatarUrl: user.avatarUrl,
-    //     content: content,
-    //     parentId: parentId,
-    //     authorId: _parent?.userId,
-    //     authorUsername: _parent?.username,
-    //   )
-    //   ..level = math.min<int>((_parent?.level ?? 0) + 1, maxLevel);
-    //   await useCase(
-    //     params: AddPostCommentParams(_postId, comment),
-    //   );
-    //   _parent == null;
-    //   emit(CommentsLoaded(
-    //     postId: _postId,
-    //     user: curtState.user,
-    //     commentsLv1: curtState.commentsLv1,
-    //     totalComments: curtState.totalComments,
-    //     scrollController: _scrollController,
-    //   ));
-    //   return _commentCompleter!.complete(true);
-    // } catch (e) {
-    //   rethrow;
-    //   // emit(const CommentError("Something went wrong."));
-    // }
+    content = content.trim();
+    if(content.isEmpty) return;
+    if(_replyTo == null) {
+      return writeIndependentComment(content);
+    }
+    return writeDependentComment(content);
   }
 
-  Future<void> loadMoreComments() async {
+  Future<void> writeIndependentComment(String content) async {
+    try {
+      var currentState = state as CommentsLoaded;
+      final newComment = Comment.empty()
+      ..content = content
+      ..author = currentState.user;
+      _comments.insert(0, newComment);
+      emit(currentState.copyWith(
+        comments: _comments,
+        totalComments: _totalComments++,
+        posting: currentState.posting+1, 
+      ));
+      final offset = CommentsCubit.scrollController.position.pixels;
+      final time = math.max((offset/8).round(), 100);
+      scrollController.animateTo(
+        0.0, 
+        duration: Duration(milliseconds: time), 
+        curve: Curves.linear,
+      );
+      final service = PostService();
+      final createdComment = await service.createComment(newComment, _postId);
+      final dur = math.max(time+400, 450);
+      await Future.delayed(Duration(milliseconds: dur));
+      currentState = state as CommentsLoaded;
+      if(createdComment == null) {
+        _comments.remove(newComment);
+        return emit(currentState.copyWith(
+          comments: _comments,
+          totalComments: _totalComments--,
+          posting: currentState.posting-1,
+          snackMsg: "Couldn't send your comment",
+        ));
+      }
+      newComment.path = createdComment.path;
+      emit(currentState.copyWith(posting: currentState.posting-1));
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> writeDependentComment(String content) async {
+    final pattern = r'^@' + _replyTo!.author.username;
+    final parts = content.split(RegExp(pattern));
+    content = parts.length == 1 ? parts[0] : parts[1].trim();
+    try {
+      final service = PostService();
+      final comment = Comment.empty()
+      ..content = content
+      ..author = (state as CommentsLoaded).user
+      ..replyTo = _replyTo;
+      final future = service.createComment(comment, _postId);
+      _streamController!.sink.add({
+        "comment": comment,
+        "future": future,
+      });
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> _loadMoreComments() async {
     final curtState = state as CommentsLoaded;
     if(curtState.isLoadingMore 
-      || curtState.totalComments <= curtState.commentsLv1.length) return;
-
-    emit(CommentsLoaded(
-      postId: curtState.postId,
-      user: curtState.user,
-      authorUsername: curtState.authorUsername,
-      commentsLv1: curtState.commentsLv1,
-      totalComments: curtState.totalComments,
+      || curtState.totalComments == curtState.comments.length) return;
+    emit((state as CommentsLoaded).copyWith(
+      replyTo: _replyTo,
       isLoadingMore: true,
-      scrollController: _scrollController,
     ));
-
-    _curtCommentsLimit += _commentsLimit;
-    await _commentsSubscriber.cancel();
-    _getPostCommentsHelper(_curtCommentsLimit);
+    final service = PostService();
+    final data = await service.fetchComments(
+      postId: _postId,
+      lessThanDate: _comments.last.createdDate,
+    );
+    _comments.addAll(data);
+    if(_comments.length > _totalComments) {
+      _totalComments = _comments.length;
+    }
+    emit((state as CommentsLoaded).copyWith(
+      replyTo: _replyTo,
+      comments: _comments,
+      totalComments: _totalComments,
+      isLoadingMore: false,
+    ));
   }
 
-  void cancelReplyFor() {
-    final curtState = state as CommentsLoaded;
-    _parent = null;
-    emit(CommentsLoaded(
-      postId: curtState.postId,
-      user: curtState.user,
-      commentsLv1: curtState.commentsLv1,
-      totalComments: curtState.totalComments,
-      scrollController: _scrollController,
-    ));
+  Future<void> cancelReplyTo() async {
+    _replyTo = null;
+    await _streamController!.close();
+    _streamController = null;
+    emit((state as CommentsLoaded).copyWith());
   }
 
   @override
   Future<void> close() async {
-    await _commentsSubscriber.cancel();
-    _scrollController.dispose();
+    scrollController.dispose();
+    await _streamController?.close();
     return super.close();
   }
 
+  // void _getPostCommentsHelper(int limit) {
+  //   final useCase = GetIt.instance<GetPostCommentsUseCase>();
+  //   _commentsSubscriber = useCase(
+  //     params: GetPostCommentsParams(
+  //       postId: _postId,
+  //       limit: limit,
+  //     ),
+  //   ).listen((comments) async {
+  //     final curtState = state as CommentsLoaded;
+  //     if(curtState.isLoadingMore) {
+  //       return emit(CommentsLoaded(
+  //         postId: curtState.postId,
+  //         user: curtState.user,
+  //         authorUsername: curtState.authorUsername,
+  //         commentsLv1: comments,
+  //         totalComments: curtState.totalComments,
+  //         scrollController: _scrollController,
+  //       ));
+  //     }
+
+  //     var totalComments = curtState.totalComments;
+  //     final useCase = GetIt.instance<CountPostSubCommentsUseCase>();
+  //     final total = await useCase(
+  //       params: CountPostSubCommentsParams(postId: _postId),
+  //     );
+  //     if(totalComments == 0) {
+  //       totalComments = total;
+  //     }
+
+  //     //? some comments added => increase limit
+  //     if(total > totalComments && _curtCommentsLimit < total) {
+  //       var increase = total - totalComments;
+  //       if(increase.remainder(_commentsLimit) != 0) {
+  //         increase = increase - increase.remainder(_commentsLimit) + _commentsLimit;
+  //       }
+  //       _curtCommentsLimit += increase;
+  //       totalComments = total;
+  //       await _commentsSubscriber.cancel();
+  //       _getPostCommentsHelper(_curtCommentsLimit);
+  //       return;
+  //     }
+  //     //? some comments removed => decrease limit
+  //     if(total < totalComments && _curtCommentsLimit > total) {
+  //       var decrease = totalComments - total;
+  //       decrease -= decrease.remainder(_commentsLimit);
+  //       _curtCommentsLimit -= decrease;
+  //       totalComments = total;
+  //       await _commentsSubscriber.cancel();
+  //       _getPostCommentsHelper(_curtCommentsLimit);
+  //       return;
+  //     }
+
+  //     emit(CommentsLoaded(
+  //       postId: curtState.postId,
+  //       user: curtState.user,
+  //       authorUsername: curtState.authorUsername,
+  //       commentsLv1: comments,
+  //       totalComments: totalComments,
+  //       scrollController: _scrollController,
+  //     ));
+  //   });
+  // }
 }

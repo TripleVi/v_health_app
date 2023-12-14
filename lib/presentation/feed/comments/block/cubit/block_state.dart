@@ -1,7 +1,7 @@
 part of 'block_cubit.dart';
 
 @immutable
-abstract class BlockState {
+sealed class BlockState {
   const BlockState();
 }
 
@@ -10,20 +10,37 @@ class BlockLoading extends BlockState {
 }
 
 class BlockLoaded extends BlockState {
-  final User user;
   final List<Comment> comments;
   final int totalComments;
   final bool isLoadingMore;
+  final int posting;
+  final GlobalKey? key;
+  final String? snackMsg;
 
   const BlockLoaded({
-    required this.user,
     this.comments = const [],
     this.totalComments = 0,
     this.isLoadingMore = false,
+    this.posting = 0,
+    this.key,
+    this.snackMsg,
   });
-}
 
-class BlockError extends BlockState {
-  final String message;
-  const BlockError(this.message);
+  BlockLoaded copyWith({
+    List<Comment>? comments,
+    int? totalComments,
+    bool isLoadingMore = false,
+    int? posting,
+    GlobalKey? key,
+    String? snackMsg,
+  }) {
+    return BlockLoaded(
+      comments: comments ?? this.comments,
+      totalComments: totalComments ?? this.totalComments,
+      isLoadingMore: isLoadingMore,
+      posting: posting ?? this.posting,
+      key: key,
+      snackMsg: snackMsg,
+    );
+  }
 }

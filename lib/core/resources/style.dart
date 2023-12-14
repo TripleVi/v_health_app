@@ -48,6 +48,24 @@ class AppStyle {
     );
   }
 
+  static TextStyle heading_3({
+    String fontFamily = Constants.fontFace,
+    double fontSize = Constants.heading_3_size,
+    FontWeight fontWeight = FontWeight.w500,
+    double letterSpacing = Constants.letter_spacing,
+    double height = Constants.line_height,
+    Color color = Constants.textColor,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+      color: color,
+    );
+  }
+
   static TextStyle paragraph({
     String fontFamily = Constants.fontFace,
     double fontSize = Constants.paragraph_size,
@@ -70,6 +88,24 @@ class AppStyle {
     String fontFamily = Constants.fontFace,
     double fontSize = 14.0,
     Color color = const Color(0xFF707070),
+    FontWeight fontWeight = FontWeight.w300,
+    double letterSpacing = Constants.letter_spacing,
+    double height = 1.0,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+      color: color,
+    );
+  }
+
+  static TextStyle label2({
+    String fontFamily = Constants.fontFace,
+    double fontSize = 14.0,
+    Color color = Constants.paragraphColor,
     FontWeight fontWeight = FontWeight.w300,
     double letterSpacing = Constants.letter_spacing,
     double height = 1.0,
