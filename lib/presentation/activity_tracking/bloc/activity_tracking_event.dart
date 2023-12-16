@@ -52,10 +52,10 @@ class DropDownItemSelected extends ActivityTrackingEvent {
 }
 
 class PhotoEdited extends ActivityTrackingEvent {
-  final io.File originalFile;
+  final Uint8List originalBytes;
   final Uint8List editedBytes;
 
-  const PhotoEdited(this.originalFile, this.editedBytes);
+  const PhotoEdited(this.originalBytes, this.editedBytes);
 }
 
 class RefreshTracking extends ActivityTrackingEvent {

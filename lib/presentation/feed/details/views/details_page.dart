@@ -4,23 +4,22 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
-import '../../../../core/utilities/image.dart';
 import '../../../../core/utilities/utils.dart';
+import '../../../../domain/entities/post.dart';
 import '../../../../domain/entities/workout_data.dart';
-import '../../../site/views/site_page.dart';
+import '../../../site/bloc/site_bloc.dart';
 import '../../../widgets/appBar.dart';
 import '../../../widgets/loading_indicator.dart';
-import '../../map/view/map_page.dart';
 import '../cubit/details_cubit.dart';
 
 class DetailsPage extends StatelessWidget {
-  final String _postId;
-  const DetailsPage(this._postId, {super.key});
+  const DetailsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final post = ModalRoute.of(context)!.settings.arguments as Post;
     return BlocProvider(
-      create: (context) => DetailsCubit(_postId),
+      create: (context) => DetailsCubit(post),
       child: DetailsView(),
     );
   }
@@ -29,6 +28,42 @@ class DetailsPage extends StatelessWidget {
 class DetailsView extends StatelessWidget {
   final _tooltipBehavior = TooltipBehavior(enable: true);
   DetailsView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColor.backgroundColor,
+      appBar: CustomAppBar.get(
+        title: "Details",
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios_new_rounded,
+            size: 24.0,
+            color: AppColor.onBackgroundColor,
+          ),
+        ),
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+        ),
+        child: BlocBuilder<DetailsCubit, DetailsState>(
+          builder: (context, state) {
+            if(state is DetailsLoading) {
+              return const AppLoadingIndicator();
+            }
+            if(state is DetailsLoaded) {
+              return _mainContent(context, state);
+            }
+            return const SizedBox();
+          },
+        ),
+      ),
+    );
+  }
 
   Widget _buildCell(String title, String content) {
     return Column(
@@ -42,21 +77,20 @@ class DetailsView extends StatelessWidget {
   }
 
   Widget _mapSection(BuildContext context, DetailsLoaded state) {
-    final post = state.post;
     return GestureDetector(
       onTap: () async {
-        // final state = mainContainerKey.currentState!;
-        // state.hideBottomNavBar();
-        // Navigator.push(context, MaterialPageRoute(
-        //   builder: (context) => MapPage(post.id, post.user!.username),
-        // )).then((_) {
-        //   state.showBottomNavBar();
-        // });
+        context.read<SiteBloc>().add(NavbarHidden());
+        await Navigator.pushNamed<void>(
+          context, "/mapPage", 
+          arguments: state.post,
+        );
+        await Future.delayed(const Duration(milliseconds: 500))
+            .then((_) => context.read<SiteBloc>().add(NavbarShown()));
       },
       child: AspectRatio(
         aspectRatio: 2 / 1,
         child: Image.network(
-          post.mapUrl,
+          state.post.mapUrl,
           // loadingBuilder: (context, child, loadingProgress) {
           //   return const AppLoadingIndicator();
           // },
@@ -289,42 +323,6 @@ class DetailsView extends StatelessWidget {
             ],
           )
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
-      appBar: CustomAppBar.get(
-        title: "Details",
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 24.0,
-            color: AppColor.onBackgroundColor,
-          ),
-        ),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
-        ),
-        child: BlocBuilder<DetailsCubit, DetailsState>(
-          builder: (context, state) {
-            if(state is DetailsLoading) {
-              return const AppLoadingIndicator();
-            }
-            if(state is DetailsLoaded) {
-              return _mainContent(context, state);
-            }
-            return const SizedBox();
-          },
-        ),
       ),
     );
   }

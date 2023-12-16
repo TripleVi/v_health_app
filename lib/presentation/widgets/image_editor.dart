@@ -1,4 +1,3 @@
-import 'dart:io' as io;
 import 'dart:typed_data';
 
 import 'package:extended_image/extended_image.dart';
@@ -11,9 +10,9 @@ import '../../core/resources/style.dart';
 
 class ImageEditor extends StatelessWidget {
   final _editorKey = GlobalKey<ExtendedImageEditorState>();
-  final io.File _file;
+  final Uint8List bytes;
 
-  ImageEditor(this._file, {super.key});
+  ImageEditor(this.bytes, {super.key});
 
   Uint8List _editImage() {
     final state = _editorKey.currentState!;
@@ -94,7 +93,7 @@ class ImageEditor extends StatelessWidget {
             ],
           ),
           Expanded(
-            child: ExtendedImage.file(_file,
+            child: ExtendedImage.memory(bytes,
               fit: BoxFit.contain,
               mode: ExtendedImageMode.editor,
               filterQuality: FilterQuality.high,

@@ -4,6 +4,13 @@ class Coordinate {
 
   Coordinate({required this.latitude, required this.longitude});
 
+  factory Coordinate.fromMap(Map<String, dynamic> map) {
+    return Coordinate(
+      latitude: map["latitude"] * 1.0, 
+      longitude: map["longitude"] * 1.0,
+    );
+  }
+
   Map<String, dynamic> toMap() {
     return {
       "latitude": latitude,

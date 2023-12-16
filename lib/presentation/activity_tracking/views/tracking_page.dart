@@ -567,10 +567,11 @@ class TrackingView extends StatelessWidget {
   void _openImageView(BuildContext context, TrackingState state) {
     final photo = state.photo!;
     Navigator.push<void>(context, MaterialPageRoute(
-      builder: (context) => ImageView(state.photo!,
-        onEdited: (originalFile, editedBytes) => context
+      builder: (context) => ImageView(
+        file: state.photo!,
+        onEdited: (originalBytes, editedBytes) => context
             .read<ActivityTrackingBloc>()
-            .add(PhotoEdited(originalFile, editedBytes)),
+            .add(PhotoEdited(originalBytes, editedBytes)),
         onDelete: () => context
             .read<ActivityTrackingBloc>()
             .add(PhotoDeleted(photo)),

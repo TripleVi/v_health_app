@@ -14,7 +14,7 @@ class Post extends BaseEntity {
   String mapUrl;
   ActivityRecord record;
   List<Reaction> reactions;
-  User user;
+  User author;
 
   Post({
     super.id,
@@ -26,10 +26,10 @@ class Post extends BaseEntity {
     this.longitude,
     required this.mapUrl,
     this.reactions = const [],
-    User? user,
+    User? author,
     ActivityRecord? record,
   }) 
-  : user = user ?? User.empty(), 
+  : author = author ?? User.empty(), 
     record = record ?? ActivityRecord.empty();
 
   factory Post.empty() {
@@ -85,25 +85,8 @@ class Post extends BaseEntity {
     );
   }
 
-  // Map<String, dynamic> toFirestore() {
-  //   assert(user != null);
-  //   return {
-  //     "postId": id,
-  //     "title": title,
-  //     "content": content,
-  //     "privacy": privacy.index,
-  //     "createdDate": FieldValue.serverTimestamp(),
-  //     "geoPoint": latitude == null ? null : GeoPoint(latitude!, longitude!),
-  //     "user": <String, dynamic>{
-  //       "userId": user!.id,
-  //       "username": user!.username,
-  //       "avatarName": user?.avatarName,
-  //     },
-  //   };
-  // }
-
   @override
   String toString() {
-    return "Post{id: $id, title: $title, content: $content, createdDate: $createdDate, privacy: $privacy, latitude: $latitude, longitude: $longitude}";
+    return "Post{id: $id, title: $title, content: $content, createdDate: $createdDate, privacy: $privacy, latitude: $latitude, longitude: $longitude, author: $author}";
   }
 }

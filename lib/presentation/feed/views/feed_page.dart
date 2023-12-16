@@ -4,14 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
 import '../../../domain/entities/post.dart';
-import '../../notification/view/notifications_page.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../bloc/feed_bloc.dart';
 import '../comments/views/comments_page.dart';
+import '../details/views/details_page.dart';
 import '../likes/views/likes_page.dart';
-import '../map/view/map_page.dart';
-import '../post/view/post_page.dart';
+import '../map/views/map_page.dart';
+import '../post/views/post_page.dart';
 
 class FeedPage extends StatelessWidget {
   const FeedPage({super.key});
@@ -43,6 +43,12 @@ class FeedPage extends StatelessWidget {
           if(settings.name == "/mapPage") {
             return MaterialPageRoute<void>(
               builder: (context) => const MapPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/detailsPage") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const DetailsPage(),
               settings: settings,
             );
           }

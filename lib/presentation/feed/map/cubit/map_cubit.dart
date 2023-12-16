@@ -2,15 +2,14 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../core/resources/colors.dart';
-import '../../../../core/services/storage_service.dart';
+import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/photo.dart';
 import '../../../../domain/entities/post.dart';
-import '../../../../domain/usecases/feed/map/get_map_details.dart';
 import '../../../activity_tracking/widgets/marker_painter.dart';
 
 part 'map_state.dart';
@@ -20,61 +19,58 @@ class MapCubit extends Cubit<MapState> {
   final _mapController = Completer<GoogleMapController>();
   final _polylines = <Polyline>{};
   final _markers = <Marker>{};
-  List<Photo> photos = [];
-  
+  final _photos = <Photo>[];
   late final LatLngBounds _boundingBox;
 
-  MapCubit(this.post) : super(const MapSuccess()) {
+  MapCubit(this.post) : super(const MapState()) {
     _processMap();
   }
 
-  Future<void> viewRouteTaken() async {
-    final controller = await _mapController.future;
-    controller.animateCamera(CameraUpdate.newLatLngBounds(_boundingBox, 24));
-  }
-
   Future<void> _processMap() async {
-    // final useCase = GetIt.instance<GetMapDetailsUseCase>();
-    // final mapData = await useCase(params: _postId);
-    // photos = mapData.photos;
+    final service = PostService();
+    final mapData = await service.fetchPostMap(post.id);
+    if(mapData == null) return;
+    _photos.addAll(mapData.photos);
 
-    // double topMost = -double.maxFinite;
-    // double rightMost = -double.maxFinite;
-    // double bottomMost = double.maxFinite;
-    // double leftMost = double.maxFinite;
+    double topMost = -double.maxFinite;
+    double rightMost = -double.maxFinite;
+    double bottomMost = double.maxFinite;
+    double leftMost = double.maxFinite;
 
-    // final geoPoints = mapData.coordinates.map((c) {
-    //   topMost = math.max(topMost, c.latitude);
-    //   rightMost = math.max(rightMost, c.longitude);
-    //   bottomMost = math.min(bottomMost, c.latitude);
-    //   leftMost = math.min(leftMost, c.longitude);
-    //   return LatLng(c.latitude, c.longitude);
-    // }).toList(growable: false);
+    final geoPoints = mapData.coordinates.map((c) {
+      topMost = math.max(topMost, c.latitude);
+      rightMost = math.max(rightMost, c.longitude);
+      bottomMost = math.min(bottomMost, c.latitude);
+      leftMost = math.min(leftMost, c.longitude);
+      return LatLng(c.latitude, c.longitude);
+    }).toList(growable: false);
 
-    // _polylines.add(Polyline(
-    //   polylineId: const PolylineId("route"),
-    //   points: geoPoints,
-    //   width: 4,
-    //   color: AppColor.primaryColor,
-    // ));
+    _polylines.add(Polyline(
+      polylineId: const PolylineId("route"),
+      points: geoPoints,
+      width: 4,
+      color: AppColor.primaryColor,
+    ));
 
-    // final futures = <Future<void>>[];
-    // for(var p in mapData.photos) {
-    //   futures.add(_buildMarker(p));
-    // }
-    // await Future.wait<void>(futures);
-    // emit(MapSuccess(
-    //   polylines: _polylines,
-    //   markers: _markers,
-    //   photos: photos
-    // ));
+    emit(MapState(
+      polylines: _polylines,
+      markers: _markers,
+      photos: _photos,
+    ));
+    final controller = await _mapController.future;
+    await Future.delayed(const Duration(seconds: 1));
+    _boundingBox = LatLngBounds(
+      northeast: LatLng(topMost, rightMost),
+      southwest: LatLng(bottomMost, leftMost),
+    );
+    controller.animateCamera(CameraUpdate.newLatLngBounds(_boundingBox, 80.0));
 
-    // final controller = await _mapController.future;
-    // _boundingBox = LatLngBounds(
-    //   northeast: LatLng(topMost, rightMost),
-    //   southwest: LatLng(bottomMost, leftMost),
-    // );
-    // controller.animateCamera(CameraUpdate.newLatLngBounds(_boundingBox, 24));
+    final futures = <Future<void>>[];
+    for(var p in mapData.photos) {
+      futures.add(_buildMarker(p));
+    }
+    await Future.wait<void>(futures);
+    emit(state.copyWith());
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -82,16 +78,48 @@ class MapCubit extends Cubit<MapState> {
   }
 
   Future<void> _buildMarker(Photo photo) async {
-    // final path = StorageService.join(_username, photo.name);
-    // final bytes = await StorageService.downloadFileBytes(path);
-    // if(bytes == null) return;
-    // final markerBytes = await MarkerPainter.getMarkerBytes(bytes);
-    // _markers.add(Marker(
-    //   markerId: MarkerId(photo.name),
-    //   position: LatLng(photo.latitude, photo.longitude),
-    //   icon: BitmapDescriptor.fromBytes(markerBytes),
-    //   onTap: () {},
-    // ));
+    final bytes = (await NetworkAssetBundle(Uri.parse(photo.photoUrl))
+        .load(photo.photoUrl)).buffer.asUint8List();
+    final markerBytes = await MarkerPainter.getMarkerBytes(bytes);
+    _markers.add(Marker(
+      markerId: MarkerId(photo.id),
+      position: LatLng(photo.latitude, photo.longitude),
+      icon: BitmapDescriptor.fromBytes(markerBytes),
+      onTap: () => emit(state.copyWith(photoTapped: photo)),
+    ));
+  }
+
+  Future<void> viewRouteTaken() async {
+    final controller = await _mapController.future;
+    await controller.animateCamera(CameraUpdate.newLatLngBounds(_boundingBox, 80.0));
+  }
+
+  void toggleMarkersVisible() {
+    if(state.markersVisible) {
+      return emit(state.copyWith(
+        markers: const {},
+        markersVisible: false,
+      ));
+    }
+    emit(state.copyWith(
+      markers: _markers,
+      markersVisible: true,
+    ));
+  }
+
+  Future<void> showPhotoLocation(Photo photo) async {
+    final controller = await _mapController.future;
+    await controller.animateCamera(
+      CameraUpdate.newLatLng(LatLng(photo.latitude, photo.longitude))
+    );
+  }
+
+  @override
+  Future<void> close() async {
+    if(_mapController.isCompleted) {
+      (await _mapController.future).dispose();
+    }
+    return super.close();
   }
 }
 
@@ -126,13 +154,3 @@ class MapCubit extends Cubit<MapState> {
 //     }
 //     return polylines;
 //   }
-
-  // Future<List<Coordinate>> getData() async {
-  //   final db = await SqlService.instance.database;
-  //   final maps = await db.query(CoordinateFields.container,
-  //       where: "${CoordinateFields.recordId} = ?",
-  //       whereArgs: ["8eb1882f-5ad2-40cc-b04e-19076d27061f"]);
-  //   return maps.map((map) {
-  //     return Coordinate.fromMap(map);
-  //   }).toList();
-  // }

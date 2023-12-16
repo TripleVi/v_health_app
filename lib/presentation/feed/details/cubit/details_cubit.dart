@@ -1,18 +1,19 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
+import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/post.dart';
-import '../../../../domain/usecases/feed/details/get_post_details.dart';
 
 part 'details_state.dart';
 
 class DetailsCubit extends Cubit<DetailsState> {
-  final String _postId;
+  final Post post;
 
-  DetailsCubit(this._postId) : super(const DetailsLoading()) {
-    // final getPostDetailsUseCase = GetIt.instance<GetPostDetailsUseCase>();
-    // getPostDetailsUseCase(params: _postId).then((post) {
-    //   emit(DetailsLoaded(post));
-    // });
+  DetailsCubit(this.post) : super(const DetailsLoading()) {
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    final service = PostService();
+    emit(DetailsLoaded(post));
   }
 }

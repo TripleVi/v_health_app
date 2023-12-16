@@ -6,7 +6,7 @@ import '../../../core/enum/bottom_navbar.dart';
 import '../../../core/resources/colors.dart';
 import '../../../core/utilities/constants.dart';
 import '../../activity_tracking/views/tracking_page.dart';
-import '../../feed/view/feed_page.dart';
+import '../../feed/views/feed_page.dart';
 import '../../friend/views/friend_page.dart';
 import '../../group/view/group_page.dart';
 import '../../profile/view/profile_page.dart';

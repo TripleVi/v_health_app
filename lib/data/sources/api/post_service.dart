@@ -6,10 +6,23 @@ import 'package:mime/mime.dart' as mime;
 
 import '../../../core/services/user_service.dart';
 import '../../../domain/entities/comment.dart';
+import '../../../domain/entities/coordinate.dart';
+import '../../../domain/entities/photo.dart';
 import '../../../domain/entities/post.dart';
 import '../../../domain/entities/reaction.dart';
+import '../../../domain/entities/user.dart';
 import '../../../presentation/activity_tracking/bloc/activity_tracking_bloc.dart';
 import 'dio_service.dart';
+
+class MapData {
+  List<Coordinate> coordinates;
+  List<Photo> photos;
+
+  MapData({
+    required this.coordinates,
+    required this.photos,
+  });
+} 
 
 class PostService {
 
@@ -24,9 +37,41 @@ class PostService {
         },
       ),
     );
-    return response.statusCode == 200
-        ? response.data!.map((e) => Post.fromMap(e)).toList(growable: false)
-        : const [];
+    if(response.statusCode == 200) {
+      return response.data!.map((e) {
+        final user = User.empty()
+        ..uid = e["author"]["uid"]
+        ..username = e["author"]["username"]
+        ..firstName = e["author"]["firstName"]
+        ..lastName = e["author"]["lastName"]
+        ..avatarUrl = e["author"]["avatarUrl"];
+        final post = Post.fromMap(e)
+        ..author = user;
+        return post;
+      }).toList(growable: false);
+    }
+    return const [];
+  }
+
+  Future<MapData?> fetchPostMap(String postId) async {
+    final currentUser = await UserService.getCurrentUser();
+    final response = await DioService.instance.dio.get<Map<String, dynamic>>(
+      "/posts/$postId/map",
+      options: Options(
+        headers: {
+          "uid": currentUser.uid,
+          "username": currentUser.username,
+        },
+      ),
+    );
+    if(response.statusCode != 200) return null;
+    final coordinates = (response.data!["coordinates"] as List)
+        .map((e) => Coordinate.fromMap(e))
+        .toList(growable: false);
+    final photos = (response.data!["photos"] as List)
+        .map((e) => Photo.fromMap(e))
+        .toList(growable: false);
+    return MapData(coordinates: coordinates, photos: photos);
   }
   
   Future<Post?> createPost(Post post) async {

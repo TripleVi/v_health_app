@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,7 +8,6 @@ import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/post.dart';
 import '../../../site/bloc/site_bloc.dart';
 import '../../../widgets/loading_indicator.dart';
-import '../../details/view/details_page.dart';
 import '../cubit/post_cubit.dart';
 
 class PostPage extends StatelessWidget {
@@ -18,15 +18,13 @@ class PostPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<PostCubit>(
       create: (context) => PostCubit(post),
-      child: PostView(post.id),
+      child: const PostView(),
     );
   }
 }
 
 class PostView extends StatelessWidget {
-  final String _postId;
-
-  const PostView(this._postId, {super.key});
+  const PostView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +48,10 @@ class PostView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 GestureDetector(
-                  onTap: () => Navigator.push(
+                  onTap: () => Navigator.pushNamed(
                     context, 
-                    MaterialPageRoute(
-                      builder: (context) => DetailsPage(_postId),
-                    ),
+                    "/detailsPage",
+                    arguments: state.post,
                   ),
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -274,10 +271,12 @@ class PostView extends StatelessWidget {
     return GestureDetector(
       onTap: () async {
         context.read<SiteBloc>().add(NavbarHidden());
-        Navigator.pushNamed<void>(
+        await Navigator.pushNamed<void>(
           context, "/mapPage", 
           arguments: state.post,
-        ).then((_) => context.read<SiteBloc>().add(NavbarShown()));
+        );
+        await Future.delayed(const Duration(milliseconds: 500))
+            .then((_) => context.read<SiteBloc>().add(NavbarShown()));
       },
       child: AspectRatio(
         aspectRatio: 2 / 1,
@@ -295,7 +294,7 @@ class PostView extends StatelessWidget {
   }
 
   Widget _headerSection(PostLoaded state) {
-    final user = state.post.user;
+    final author = state.post.author;
     const avatarSize = 40;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -315,14 +314,11 @@ class PostView extends StatelessWidget {
               isAntiAlias: true,
               fit: BoxFit.contain,
             ).image,
-            foregroundImage: Image.network(
-              user.avatarUrl,
-              cacheWidth: avatarSize,
-              cacheHeight: avatarSize,
-              filterQuality: FilterQuality.high,
-              isAntiAlias: true,
-              fit: BoxFit.contain,
-            ).image,
+            foregroundImage: CachedNetworkImageProvider(
+              author.avatarUrl, 
+              maxWidth: avatarSize, 
+              maxHeight: avatarSize,
+            ),
           ),
         ),
         const SizedBox(width: 8.0),
@@ -337,7 +333,7 @@ class PostView extends StatelessWidget {
 
                 },
                 child: Text(
-                  user.username, 
+                  author.username, 
                   style: AppStyle.heading_2(height: 1.0),
                 ),
               ),
