@@ -1,9 +1,9 @@
-enum TrackingStatus {initial, started, paused}
+enum RecordingState {initial, recording, paused}
 
-extension TrackingStatusExtension on TrackingStatus {
-  bool get isInitial => this == TrackingStatus.initial;
-  bool get isStarted => this == TrackingStatus.started;
-  bool get isPaused => this == TrackingStatus.paused;
+extension RecordingStateExtension on RecordingState {
+  bool get isInitial => this == RecordingState.initial;
+  bool get isRecording => this == RecordingState.recording;
+  bool get isPaused => this == RecordingState.paused;
 }
 
 enum TrackingTarget {

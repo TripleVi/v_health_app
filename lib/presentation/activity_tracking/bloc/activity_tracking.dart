@@ -13,6 +13,7 @@ abstract class ActivityTracking {
   double? avgPace;
   double maxPace = 0.0;
   int totalCalories = 0;
+  bool isPaused = false;
   StreamSubscription? locationListener;
   late final DateTime startDate;
 
@@ -34,18 +35,21 @@ abstract class ActivityTracking {
   }
 
   void pauseTracking() {
+    isPaused = true;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "paused"
     });
   } 
 
   void resumeTracking() {
+    isPaused = false;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "resumed"
     });
   }
 
   void stopTracking() {
+    isPaused = false;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "stopped"
     });

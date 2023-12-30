@@ -108,7 +108,7 @@ class TrackingResult {
   });
 }
 
-class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> with WidgetsBindingObserver {
+class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingState> with WidgetsBindingObserver {
   final _geoPoints = <LatLng>[];
   final _markers = <Marker>{};
   final _photosParams = <PhotoParams>[];
@@ -138,7 +138,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
   var rawActiveData = <List<double>>[];
   Timer? activeTimer;
 
-  ActivityTrackingBloc() : super(const TrackingState()) {
+  ActivityTrackingBloc() : super(const ActivityTrackingState()) {
     on<TrackingStarted>(_onTrackingStarted);
     on<TrackingPaused>(_onTrackingPaused);
     on<TrackingResumed>(_onTrackingResumed);
@@ -204,7 +204,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
     }
   }
 
-  Future<void> handleLocationPermission(Emitter<TrackingState> emit) async {
+  Future<void> handleLocationPermission(Emitter<ActivityTrackingState> emit) async {
     // This is called when users touch 'Start' or 'Resume' button.
     if(!_locSvcEnabled) {
       return emit(state.copyWith(
@@ -249,14 +249,17 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(this.state.recState.isInitial) return;
     switch (state) {
-      case AppLifecycleState.resumed: 
+      case AppLifecycleState.resumed:
         _onAppStateResumed();
         break;
       case AppLifecycleState.paused:
-        backgroundService.invoke("appStateUpdated", {
-          "state": "paused"
-        });
+        if(this.state.recState.isRecording) {
+          backgroundService.invoke("appStateUpdated", {
+            "state": "paused"
+          });
+        }
         break;
       default:
         break;
@@ -264,30 +267,52 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
   }
 
   Future<void> _onAppStateResumed() async {
-    var flag = false;
-    backgroundService.invoke("appStateUpdated", {
-      "state": "resumed"
-    });
-    _locSvcEnabled = await Geolocator.isLocationServiceEnabled();
+    _isProcessing = true;
+    if(state.recState.isRecording) {
+      backgroundService.invoke("appStateUpdated", {
+        "state": "resumed"
+      });
+    }
+    var flag = true;
+    final service = await Geolocator.isLocationServiceEnabled();
+    if(service != _locSvcEnabled) {
+      _locSvcEnabled = service;
+      flag = false;
+    }
     final permission = await Geolocator.checkPermission();
-    try {
-      // To check whether options are selected.
-      _locAccuracyStatus = await Geolocator.getLocationAccuracy();
-      // It's been disallowed or selected and couldn't be denied.
+    if(permission != _locPermission) {
       _locPermission = permission;
+      flag = false;
+    }
+    try {
+      _locAccuracyStatus = await Geolocator.getLocationAccuracy();
     } on PlatformException catch (e) {
-      // No options are selected.
+      _isProcessing = false;
       if(e.code != "PERMISSION_DENIED") rethrow;
-      if(permission == LocationPermission.deniedForever) {
+      _locAccuracyStatus = LocationAccuracyStatus.reduced;
+      if(_locPermission == LocationPermission.deniedForever) {
         _locPermission = LocationPermission.denied;
       }
+      flag = false;
     }
-    flag = !_locSvcEnabled || _locPermission == LocationPermission.denied || _locPermission == LocationPermission.deniedForever || _locAccuracyStatus == LocationAccuracyStatus.reduced;
     if(flag) {
+      _isProcessing = false;
+      return;
+    }
+    if(!_locSvcEnabled || _locPermission == LocationPermission.denied || _locPermission == LocationPermission.deniedForever || _locAccuracyStatus == LocationAccuracyStatus.reduced) {
       _curtPos = null;
-      activity!.pauseTracking();
+      if(state.recState.isRecording && !activity!.isPaused) {
+        activity!.pauseTracking();
+      }
+      add(const RefreshTracking());
+    }else {
+      if(state.recState.isRecording && activity!.isPaused) {
+        activity!.resumeTracking();
+      }
+      await _onDesiredLocation();
       add(const RefreshTracking());
     }
+    _isProcessing = false;
   }
 
   Future<void> requestPermissions() async {
@@ -304,7 +329,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
     _activitySubscriber = activityRecognition.activityStream
         .listen((event) {
           print(event.toString());
-          if(state.status.isStarted && state.category.isCycling && event.type != far.ActivityType.ON_BICYCLE && event.confidence == far.ActivityConfidence.HIGH) {
+          if(state.recState.isRecording && state.category.isCycling && event.type != far.ActivityType.ON_BICYCLE && event.confidence == far.ActivityConfidence.HIGH) {
             // emit(state)
           }
         });
@@ -331,7 +356,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   void _onCategorySelected(
     CategorySelected event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     emit(state.copyWith(category: event.category));
   }
@@ -348,7 +373,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   Future<void> _onTrackingStarted(
     TrackingStarted event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) async {
     if(_isProcessing) return;
     _isProcessing = true;
@@ -389,7 +414,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
         geoPoints: _geoPoints,
         markers: _markers,
         timeStream: _timeStreamController.stream,
-        status: TrackingStatus.started,
+        recState: RecordingState.recording,
         trackingParams: TrackingParams(
           selectedTarget: state.trackingParams.selectedTarget,
           targetValue: event.targetValue,
@@ -401,16 +426,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   void _onTrackingPaused(           
     TrackingPaused event, 
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     backgroundService.invoke("trackingPaused");
     _timer.cancel();
-    emit(state.copyWith(status: TrackingStatus.paused));
+    emit(state.copyWith(recState: RecordingState.paused));
   }
 
   Future<void> _onTrackingResumed(
     TrackingResumed event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) async {
     if(_isProcessing) return;
     _isProcessing = true;
@@ -433,14 +458,14 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
         backgroundService.invoke("trackingResumed");
       }
       _timer = _initializeTimer();
-      emit(state.copyWith(status: TrackingStatus.started));
+      emit(state.copyWith(recState: RecordingState.recording));
     }
     _isProcessing = false;
   }
 
   Future<void> _onTrackingFinished(
     TrackingFinished event, 
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) async {
     // final record = ActivityRecord(
     //   category: state.category,
@@ -492,7 +517,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   void _onPhotoDeleted(
     PhotoDeleted event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     final photo = event.file;
     // final name = MyUtils.getFileName(photo);
@@ -514,14 +539,14 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   void _onRefreshTracking(
     RefreshTracking event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     emit(state.copyWith());
   }
 
   void _onPhotoEdited(
     PhotoEdited event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     // final original = event.originalFile;
     // final editedBytes = event.editedBytes;
@@ -545,14 +570,14 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
  
   void _onPhotoMarkerTapped(
     PhotoMarkerTapped event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     emit(state.copyWith(photo: event.photo));
   }
 
   void _onLocationUpdated(
     LocationUpdated event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     emit(state.copyWith(
       trackingParams: state.trackingParams.copyWith(
@@ -568,16 +593,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   Future<void> _onTrackingSaved(
     TrackingSaved event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) async {
     if(!event.isSuccess) return;
     _destroyTrackingSession();
-    emit(const TrackingState());
+    emit(const ActivityTrackingState());
   }
 
   void _onDropDownItemSelected(
     DropDownItemSelected event, 
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) {
     emit(state.copyWith(
       trackingParams: TrackingParams(
@@ -588,7 +613,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> wi
 
   Future<void> _onPictureTaken(
     PictureTaken event,
-    Emitter<TrackingState> emit,
+    Emitter<ActivityTrackingState> emit,
   ) async {
     final params = event.params;
     _photosParams.add(params);

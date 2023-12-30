@@ -82,7 +82,7 @@ class TrackingView extends StatelessWidget {
             top: BorderSide(color: AppColor.onBackgroundColor),
           ),
         ),
-        child: BlocConsumer<ActivityTrackingBloc, TrackingState>(
+        child: BlocConsumer<ActivityTrackingBloc, ActivityTrackingState>(
           listener: (blocContext, state) {
             if (state.request != null) {
               MyDialog.showTwoOptionsDialog(
@@ -176,7 +176,7 @@ class TrackingView extends StatelessWidget {
     );
   }
 
-  Widget _buildTargetWidget(TrackingState state) {
+  Widget _buildTargetWidget(ActivityTrackingState state) {
     final param = state.trackingParams;
     if (param.selectedTarget.isDistance) {
       final map = MyUtils.getFormattedDistance(param.distance);
@@ -210,7 +210,7 @@ class TrackingView extends StatelessWidget {
     );
   }
 
-  Widget _buildMainContent(BuildContext context, TrackingState state) {
+  Widget _buildMainContent(BuildContext context, ActivityTrackingState state) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -225,13 +225,13 @@ class TrackingView extends StatelessWidget {
                   context: context,
                   state: state,
                 ),
-                state.status.isInitial
+                state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,
                         state.trackingParams.selectedTarget,
                       )
                     : const SizedBox(),
-                !state.status.isInitial
+                !state.recState.isInitial
                     ? Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -252,7 +252,7 @@ class TrackingView extends StatelessWidget {
                         ],
                       )
                     : const SizedBox(),
-                !state.status.isInitial
+                !state.recState.isInitial
                     ? ValueListenableBuilder( 
                         builder: (context, value, child) {
                           return Offstage(
@@ -267,7 +267,7 @@ class TrackingView extends StatelessWidget {
                         valueListenable: _visibilityChange,
                       )
                     : const SizedBox(),
-                state.status.isInitial
+                state.recState.isInitial
                     ? Align(
                       alignment: const Alignment(0.9, -0.6),
                       child: Column(
@@ -295,7 +295,7 @@ class TrackingView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: _trackingButtonWidgets(
             context,
-            state.status,
+            state.recState,
             state.trackingParams.selectedTarget,
           ),
         ),
@@ -303,7 +303,7 @@ class TrackingView extends StatelessWidget {
     );
   }
 
-  Widget _categoryBtn(BuildContext context, TrackingState state) {
+  Widget _categoryBtn(BuildContext context, ActivityTrackingState state) {
     return GestureDetector(
       onTap: () => _modalBottomSheetHelper(context, state),
       child: Container(
@@ -513,7 +513,7 @@ class TrackingView extends StatelessWidget {
 
   Widget _googleMapWidget({
     required BuildContext context,
-    required TrackingState state,
+    required ActivityTrackingState state,
   }) {
     return GoogleMap(
       polylines: {
@@ -603,7 +603,7 @@ class TrackingView extends StatelessWidget {
     });
   }
 
-  void _openImageView(BuildContext context, TrackingState state) {
+  void _openImageView(BuildContext context, ActivityTrackingState state) {
     final photo = state.photo!;
     Navigator.push<void>(context, MaterialPageRoute(
       builder: (context) => ImageView(
@@ -626,14 +626,14 @@ class TrackingView extends StatelessWidget {
 
   Widget _trackingButtonWidgets(
     BuildContext context,
-    TrackingStatus status,
+    RecordingState recState,
     TrackingTarget selectedTarget,
   ) {
     const btnS = 40.0, btnL = 76.0;
     final trackingBloc = context.read<ActivityTrackingBloc>();
     final List<Widget> buttons = [];
     Widget mapBtn = const SizedBox(), cameraBtn = const SizedBox();
-    if (status.isInitial) {
+    if (recState.isInitial) {
       buttons.add(_trackingButtonWidget(
         onTap: () {
           final value = _getTargetValue(selectedTarget);
@@ -642,7 +642,7 @@ class TrackingView extends StatelessWidget {
         size: btnL,
         content: "START",
       ));
-    } else if (status.isStarted) {
+    } else if (recState.isRecording) {
       buttons.add(
         _trackingButtonWidget(
           onTap: () => trackingBloc.add(const TrackingPaused()),
@@ -650,7 +650,7 @@ class TrackingView extends StatelessWidget {
           icon: Icons.square_sharp,
         ),
       );
-    } else if (status.isPaused) {
+    } else if (recState.isPaused) {
       buttons.add(_trackingButtonWidget(
         onTap: () => trackingBloc.add(const TrackingResumed()),
         size: btnL,
@@ -668,7 +668,7 @@ class TrackingView extends StatelessWidget {
         content: "FINISH",
       ));
     }
-    if (!status.isInitial) {
+    if (!recState.isInitial) {
       mapBtn = ValueListenableBuilder(
         builder: (context, value, child) {
           return _trackingButtonWidget(
@@ -704,7 +704,7 @@ class TrackingView extends StatelessWidget {
 
   Future<void> _modalBottomSheetHelper(
     BuildContext context, 
-    TrackingState state,
+    ActivityTrackingState state,
   ) async {
     return showModalBottomSheet<ActivityCategory>(
       context: context,
