@@ -20,17 +20,14 @@ class UserService {
     return user;
   }
 
-  static double calculateUserStrideLength(UserGender gender, double? height) {
+  static Future<double> getUserStrideLength() async {
+    final user = await getCurrentUser();
+    // m
     //? 0: male, 1: female
     const multipliers = [0.415, 0.413];
-    const averages = [78.0, 70.0];
-    if(!gender.isOther && height != null) {
-      return multipliers[gender.index] * height;
-    }else if(height != null) {
-      return multipliers.sum / multipliers.length * height;
-    }else if(!gender.isOther) {
-      return averages[gender.index];
-    }
-    return averages.sum / averages.length;
+    // const averages = [78.0, 70.0];
+    return user.gender.isOther
+        ? multipliers.sum / multipliers.length * user.height
+        : multipliers[user.gender.index] * user.height;
   }
 }

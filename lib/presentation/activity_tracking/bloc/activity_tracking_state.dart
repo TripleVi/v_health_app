@@ -2,20 +2,22 @@ part of 'activity_tracking_bloc.dart';
 
 @immutable
 class TrackingState {
+  final ActivityCategory category;
   final List<LatLng> geoPoints;
   final Set<Marker> markers;
   final TrackingStatus status;
-  final PermissionParams? permissionParams;
+  final LocationSettingsRequest? request;
   final TrackingParams trackingParams;
   final Stream<int>? timeStream;
   final TrackingResult? result;
   final io.File? photo;
 
   const TrackingState({
+    this.category = ActivityCategory.walking,
     this.geoPoints = const [],
     this.markers = const {},
     this.status = TrackingStatus.initial,
-    this.permissionParams,
+    this.request,
     this.timeStream,
     this.trackingParams = const TrackingParams(),
     this.result,
@@ -23,20 +25,22 @@ class TrackingState {
   });
 
   TrackingState copyWith({
+    ActivityCategory? category,
     List<LatLng>? geoPoints,
     Set<Marker>? markers,
     TrackingStatus? status,
-    PermissionParams? permissionParams,
+    LocationSettingsRequest? request,
     TrackingParams? trackingParams,
     Stream<int>? timeStream,
     TrackingResult? result,
     io.File? photo,
   }) {
     return TrackingState(
+      category: category ?? this.category,
       geoPoints: geoPoints ?? this.geoPoints,
       markers: markers ?? this.markers,
       status: status ?? this.status,
-      permissionParams: permissionParams,
+      request: request,
       trackingParams: trackingParams ?? this.trackingParams,
       timeStream: timeStream ?? this.timeStream,
       result: result,

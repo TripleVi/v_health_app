@@ -1,11 +1,9 @@
-import 'dart:io' as io;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 
-import '../../../core/utilities/image.dart';
-import '../../../data/sources/sqlite/dao/user_dao.dart';
+import '../../../core/services/user_service.dart';
+import '../../../data/sources/api/friend_service.dart';
+import '../../../data/sources/api/post_service.dart';
 import '../../../domain/entities/user.dart';
 
 part 'profile_event.dart';
@@ -14,12 +12,15 @@ part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(const ProfileLoading()) {
     on<UserFetched>((event, emit) async {
-      // final user = await GetIt.instance<UserDao>().getUser();
-      // io.File? avatarFile;
-      // if(user.avatarName.isNotEmpty) {
-      //   avatarFile = await ImageUtils.getUserFile(user.avatarName);
-      // }
-      // emit(ProfileLoaded(user, avatarFile));
+      final user = await UserService.getCurrentUser();
+      final service = FriendService();
+      final followers = await service.countFollowers(user.uid);
+      final followings = await service.countFollowings(user.uid);
+      emit(ProfileLoaded(
+        user: user,
+        followers: followers,
+        followings: followings,
+      ));
     });
 
     add(const UserFetched());

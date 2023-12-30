@@ -4,7 +4,7 @@ import '../../core/utilities/utils.dart';
 import '../../data/sources/table_attributes.dart';
 
 class DailySummary {
-  String date = MyUtils.getCurrentDateAsSqlFormat();
+  String date = MyUtils.getDateAsSqlFormat(DateTime.now());
   int steps = 0;
   double distance = 0.0;
   int stair = 0;
@@ -23,19 +23,13 @@ class DailySummary {
 
   DailySummary.empty();
 
-  @override
-  String toString() {
-    return "{date: $date, steps: $steps, distance: $distance, stair: $stair, calories: $calories}";
+  factory DailySummary.fromMap(Map<String, dynamic> map) {
+    return DailySummary(
+      map[DailySummaryFields.date], map[DailySummaryFields.steps], map[DailySummaryFields.distance], map[DailySummaryFields.stair], map[DailySummaryFields.calories]
+    );
   }
 
-  DailySummary.fromMap(Map<String, dynamic> json)
-      : date = json[DailySummaryFields.date],
-        steps = json[DailySummaryFields.steps],
-        distance = json[DailySummaryFields.distance],
-        stair = json[DailySummaryFields.stair],
-        calories = json[DailySummaryFields.calories];
-
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     return <String, dynamic>{
       DailySummaryFields.date: date,
       DailySummaryFields.steps: steps,
@@ -43,5 +37,10 @@ class DailySummary {
       DailySummaryFields.stair: stair,
       DailySummaryFields.calories: calories,
     };
+  }
+
+  @override
+  String toString() {
+    return "{date: $date, steps: $steps, distance: $distance, stair: $stair, calories: $calories}";
   }
 }

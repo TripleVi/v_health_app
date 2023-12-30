@@ -60,10 +60,9 @@ class MyUtils {
     return minute % 60;
   }
 
-  static String getCurrentDateAsSqlFormat() {
-    var localDate = DateTime.now();
+  static String getDateAsSqlFormat(DateTime date) {
     var outputFormat = DateFormat(Constants.db_date_format);
-    var outputDate = outputFormat.format(localDate);
+    var outputDate = outputFormat.format(date);
     return outputDate.toString();
   }
 
@@ -190,7 +189,7 @@ class MyUtils {
     return DateFormat('EEEE').format(d).substring(0, 3);
   }
 
-  static get_date_subtracted_by_i(String startDate, int i) {
+  static String get_date_subtracted_by_i(String startDate, int i) {
     DateTime start = DateFormat(Constants.db_date_format).parse(startDate);
     return DateFormat(Constants.db_date_format)
         .format(start.subtract(Duration(days: i)));
@@ -232,41 +231,41 @@ class MyUtils {
     };
   }
 
-//   static Map<String, String> getFormattedSpeed(double? speed) {
-//     const unit = "km/h";
-//     if(speed == null) {
-//       return {
-//         "value": "--",
-//         "unit": unit,
-//       };
-//     }
-//     // m/s -> km/h
-//     speed *= 3.6;
-//     final regex = RegExp(r'^\d+\.0*[1-9]');
-//     final match = regex.firstMatch("$speed");
-//     return {
-//       "value": match![0]!,
-//       "unit": unit,
-//     };
-//   }
+  static Map<String, String> getFormattedSpeed(double? speed) {
+    const unit = "km/h";
+    if(speed == null) {
+      return {
+        "value": "--",
+        "unit": unit,
+      };
+    }
+    // m/s -> km/h
+    speed *= 3.6;
+    final regex = RegExp(r'^\d+\.0*[1-9]');
+    final match = regex.firstMatch("$speed");
+    return {
+      "value": match![0]!,
+      "unit": unit,
+    };
+  }
 
-//   static Map<String, String> getFormattedPace(double? pace) {
-//     const unit = "/km";
-//     if(pace == null) {
-//       return {
-//         "value": "--",
-//         "unit": unit,
-//       };
-//     }
-//     // s/m -> /km
-//     final temp = (pace * 1000).ceil();
-//     final mins = temp ~/ 60;
-//     final seconds = temp - mins * 60;
-//     return {
-//       "value": "$mins'$seconds''",
-//       "unit": unit,
-//     };
-//   }
+  static Map<String, String> getFormattedPace(double? pace) {
+    const unit = "/km";
+    if(pace == null) {
+      return {
+        "value": "--",
+        "unit": unit,
+      };
+    }
+    // s/m -> /km
+    final temp = (pace * 1000).ceil();
+    final mins = temp ~/ 60;
+    final seconds = temp - mins * 60;
+    return {
+      "value": "$mins'$seconds''",
+      "unit": unit,
+    };
+  }
 
 //   static DateTime getLocalDateTime(int millisecondsSinceEpoch) {
 //     return DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch, isUtc: false);

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../core/services/report_service.dart';
+import '../../../data/repositories/daily_report_repo.dart';
 import '../../../core/utilities/constants.dart';
 import '../../../core/utilities/utils.dart';
+import '../../../data/repositories/hourly_report_repo.dart';
 import '../../../domain/entities/chart_data.dart';
 import '../../../domain/entities/daily_steps.dart';
 import '../../../domain/entities/report.dart';
@@ -46,11 +47,11 @@ class _TrendsState extends State<Trends> {
   }
 
   void fetchDailyComparision() async {
-    var t = await ReportService.instance
-        .fetchHourlyReport(MyUtils.getCurrentDateAsSqlFormat());
-    var y = await ReportService.instance.fetchHourlyReport(
+    var t = await HourlyReportRepo.instance
+        .fetchDailyReport(MyUtils.getDateAsSqlFormat(DateTime.now()));
+    var y = await HourlyReportRepo.instance.fetchDailyReport(
         MyUtils.get_date_subtracted_by_i(
-            MyUtils.getCurrentDateAsSqlFormat(), 1));
+            MyUtils.getDateAsSqlFormat(DateTime.now()), 1));
 
     int index = 0;
     int sum = 0;
@@ -78,7 +79,7 @@ class _TrendsState extends State<Trends> {
 
   void fetchRecords() async {
     List<DailySummary> res = await ReportService.instance.fetchReportByDays(
-        MyUtils.getCurrentDateAsSqlFormat(), sortTypes[currentSort]!);
+        MyUtils.getDateAsSqlFormat(DateTime.now()), sortTypes[currentSort]!);
 
     var data = <ChartData>[];
     int index = 1;
@@ -96,8 +97,8 @@ class _TrendsState extends State<Trends> {
     print(res.length);
   }
 
-  Future<List<Report>> fetchHourlyReport(String date) async {
-    return await ReportService.instance.fetchHourlyReport(date);
+  Future<List<Report>> fetchDailyReport(String date) async {
+    return await HourlyReportRepo.instance.fetchDailyReport(date);
   }
 
   double get difference {
@@ -172,11 +173,15 @@ class _TrendsState extends State<Trends> {
     return "${(sum / sortTypes[currentSort]!).round()}";
   }
 
+  // String get currentDuration {
+  //   return "${MyUtils.getFormattedDate(DateTime.parse(MyUtils.getCurrentDateAsSqlFormat()))} - ${MyUtils.getFormattedDate(DateTime.parse(MyUtils.get_date_subtracted_by_i(MyUtils.getCurrentDateAsSqlFormat(), sortTypes[currentSort]!)))}";
+  // }
+
   String get currentDuration {
-    return "${MyUtils.getFormattedDate(DateTime.parse(MyUtils.getCurrentDateAsSqlFormat()))} - ${MyUtils.getFormattedDate(MyUtils.get_date_subtracted_by_i(MyUtils.getCurrentDateAsSqlFormat(), sortTypes[currentSort]!))}";
+    return "${MyUtils.getDateAsSqlFormat(DateTime.now())} - ${MyUtils.get_date_subtracted_by_i(MyUtils.getDateAsSqlFormat(DateTime.now()), sortTypes[currentSort]!)}";
   }
 
-  Widget get stepsComparision {
+  Widget get stepsComparison {
     return Column(
       children: [
         Row(
@@ -236,7 +241,7 @@ class _TrendsState extends State<Trends> {
     );
   }
 
-  Widget get caloriesComparision {
+  Widget get caloriesComparison {
     int time = DateTime.now().hour;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       summary,
@@ -325,12 +330,12 @@ class _TrendsState extends State<Trends> {
                 padding: const EdgeInsets.only(bottom: 5),
                 child: TextTypes.heading_1(content: "Steps", fontSize: 28),
               ),
-              stepsComparision,
+              stepsComparison,
               Padding(
                 padding: const EdgeInsets.fromLTRB(0, 25, 0, 5),
                 child: TextTypes.heading_1(content: "Calories", fontSize: 28),
               ),
-              caloriesComparision
+              caloriesComparison
             ],
           ),
         ),

@@ -1,5 +1,3 @@
-enum ActivityItem {standing, walking, running, cycling, unknown}
-
 enum TrackingStatus {initial, started, paused}
 
 extension TrackingStatusExtension on TrackingStatus {

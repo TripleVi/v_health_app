@@ -11,12 +11,12 @@ class ProfileLoading extends ProfileState {
 
 class ProfileLoaded extends ProfileState {
   final User user;
-  final io.File? avatarFile;
-  const ProfileLoaded(this.user, this.avatarFile);
-}
+  final int followers;
+  final int followings;
 
-class ProfileError extends ProfileState {
-  final String message;
-
-  const ProfileError(this.message);
+  const ProfileLoaded({
+    required this.user,
+    required this.followings,
+    required this.followers,
+  });
 }

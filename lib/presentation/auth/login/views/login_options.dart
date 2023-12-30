@@ -10,7 +10,7 @@ class LoginOptions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 140.0),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 100.0),
       child: Column(
         children: [
           Text("Log in to vHealth", style: AppStyle.heading_1(height: 1.0)),

@@ -8,8 +8,8 @@ class SignalFilterService {
     required double samplingRate, 
     required double cutoffFreq,
   }) {
-    final butterworth = Butterworth()
-    ..lowPass(2, samplingRate, cutoffFreq);
+    final butterworth = Butterworth();
+    butterworth.lowPass(2, samplingRate, cutoffFreq);
     return timeSeries
         .map((p) => butterworth.filter(p))
         .toList(growable: false);
@@ -20,8 +20,8 @@ class SignalFilterService {
     required double samplingRate, 
     required double cutoffFreq,
   }) {
-    final butterworth = Butterworth()
-    ..highPass(2, samplingRate, cutoffFreq);
+    final butterworth = Butterworth();
+    butterworth.highPass(2, samplingRate, cutoffFreq);
     return timeSeries
         .map((p) => butterworth.filter(p))
         .toList(growable: false);

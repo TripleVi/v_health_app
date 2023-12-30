@@ -1,10 +1,7 @@
-// ignore_for_file: non_constant_identifier_names
-
 import '../../core/utilities/utils.dart';
-import '../../data/sources/table_attributes.dart';
 
 class Report {
-  String rid;
+  int rid;
   String date;
   int hour;
   int steps;
@@ -23,14 +20,18 @@ class Report {
   });
 
   factory Report.empty() {
-    return Report(rid: "", date: MyUtils.getCurrentDate(), hour: 0, steps: 0, distance: 0.0, stair: 0, calories: 0);
+    return Report(rid: -1, date: MyUtils.getCurrentDate(), hour: 0, steps: 0, distance: 0.0, stair: 0, calories: 0);
   }
 
-  // Report.before_i_days(String startDate, int i) {
-  //   date = MyUtils.get_date_subtracted_by_i(startDate, i);
-  // }
+  factory Report.fromMap(Map<String, dynamic> map) {
+    return Report(rid: map["rid"], date: map["date"], hour: map["hour"], steps: map["steps"], distance: map["distance"], stair: map["stair"], calories: map["calories"]);
+  }
 
-  // Report.atDate(this.date, this.hour);
+  Map<String, dynamic> toMap() {
+    return {
+      "date": date, "hour": hour, "steps": steps, "distance": distance, "stair": stair, "calories": calories
+    };
+  }
 
   @override
   String toString() {

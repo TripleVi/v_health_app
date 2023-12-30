@@ -97,11 +97,13 @@ class SavingCubit extends Cubit<SavingState> {
         emit(curtState.copyWith(errorMsg: "Something went wrong. Please try again!"));
         return;
       }
-      await service.uploadPostFiles(
-        postId: createdPost.id, 
-        params: _result.photosParams, 
-        mapPath: curtState.map.path,
-      );
+      if(_result.photosParams.isNotEmpty) {
+        await service.uploadPostFiles(
+          postId: createdPost.id, 
+          params: _result.photosParams, 
+          mapPath: curtState.map.path,
+        );
+      }
       emit(const SavingSuccess());
     } catch (e) {
       print(e);

@@ -1,7 +1,7 @@
 part of 'activity_tracking_bloc.dart';
 
 @immutable
-abstract class ActivityTrackingEvent {
+sealed class ActivityTrackingEvent {
   const ActivityTrackingEvent();
 }
 
@@ -60,4 +60,16 @@ class PhotoEdited extends ActivityTrackingEvent {
 
 class RefreshTracking extends ActivityTrackingEvent {
   const RefreshTracking();
+}
+
+class CategorySelected extends ActivityTrackingEvent {
+  final ActivityCategory category;
+
+  const CategorySelected(this.category);
+}
+
+class OpenSettings extends ActivityTrackingEvent {
+  final LocationSettingsRequest request;
+
+  const OpenSettings(this.request);
 }

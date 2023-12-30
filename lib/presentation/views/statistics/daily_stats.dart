@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../core/services/report_service.dart';
+import '../../../data/repositories/daily_report_repo.dart';
 import '../../../core/utilities/constants.dart';
 import '../../../core/utilities/utils.dart';
+import '../../../data/repositories/hourly_report_repo.dart';
 import '../../../domain/entities/chart_data.dart';
 import '../../../domain/entities/daily_steps.dart';
 import '../../../domain/entities/report.dart';
-import '../../../domain/entities/user.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/text.dart';
 import 'trends.dart';
@@ -23,9 +23,7 @@ class DailyStats extends StatefulWidget {
 
 class _DailyStatsState extends State<DailyStats> {
   int current = 0;
-  String current_date = MyUtils.getCurrentDateAsSqlFormat();
-  User? u;
-  int currentSort = 1;
+  String currentDate = MyUtils.getDateAsSqlFormat(DateTime.now());
   Timer? _timer;
 
   List<DailySummary> weeklySummary = [DailySummary.empty()];
@@ -34,17 +32,15 @@ class _DailyStatsState extends State<DailyStats> {
   initState() {
     super.initState();
     fetchWeeklyRecords();
-    _timer = Timer.periodic(const Duration(minutes: 5), (timer) async {
-      print('Refreshing quarter report');
-      ReportService.instance.summarizeData(MyUtils.getCurrentDateAsSqlFormat());
-      fetchWeeklyRecords();
+    _timer = Timer.periodic(const Duration(seconds: 15), (_) async {
+      await fetchWeeklyRecords();
     });
   }
 
   Future<List<DailySummary>> fetchWeeklyRecords() async {
     print('Fetched Weekly Records');
-    List<DailySummary> res =
-        await ReportService.instance.fetchWeeklyReport(current_date);
+    final res = await ReportService.instance.fetchWeeklyReport(currentDate);
+    print(res);
     setState(() {
       weeklySummary = res;
       current = 6;
@@ -52,11 +48,11 @@ class _DailyStatsState extends State<DailyStats> {
     return res;
   }
 
-  Future<List<Report>> fetchHourlyReport(String date) async {
-    return await ReportService.instance.fetchHourlyReport(date);
+  Future<List<Report>> fetchDailyReport(String date) async {
+    return await HourlyReportRepo.instance.fetchDailyReport(date);
   }
 
-  Widget get weeklyComparisionChart {
+  Widget get weeklyComparisonChart {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
       child: Row(
@@ -109,42 +105,43 @@ class _DailyStatsState extends State<DailyStats> {
 
   Widget stepsGraphByHour(String date) {
     return FutureBuilder(
-        future: fetchHourlyReport(date),
-        builder: ((context, snapshot) {
-          if (snapshot.hasData) {
-            List<ChartData> chartData =
-                snapshot.data!.map((e) => ChartData.hourlyData(e)).toList();
-            return SfCartesianChart(
-                margin: const EdgeInsets.all(0),
-                plotAreaBorderWidth: 0,
-                primaryXAxis: CategoryAxis(
-                    minimum: 0,
-                    maximum: 24,
-                    majorTickLines: const MajorTickLines(color: Colors.white),
-                    tickPosition: TickPosition.inside,
-                    axisLine: const AxisLine(color: Colors.white),
-                    majorGridLines: const MajorGridLines(width: 0),
-                    labelStyle: const TextStyle(color: Colors.white)),
-                primaryYAxis: CategoryAxis(
-                    isVisible: false,
-                    minimum: 0,
-                    maximum: MyUtils.getMaxValue(chartData)),
-                series: <ChartSeries<ChartData, int>>[
-                  ColumnSeries<ChartData, int>(
-                      dataSource: chartData,
-                      xValueMapper: (ChartData data, _) => data.x,
-                      yValueMapper: (ChartData data, _) => data.y,
-                      width: 1,
-                      borderRadius: const BorderRadius.all(Radius.circular(5)),
-                      color: Colors.white,
-                      spacing: 0.1)
-                ]);
-          } else {
-            return const Center(
-              child: Text(""),
-            );
-          }
-        }));
+      future: fetchDailyReport(date),
+      builder: ((context, snapshot) {
+        if (snapshot.hasData) {
+          List<ChartData> chartData =
+              snapshot.data!.map((e) => ChartData.hourlyData(e)).toList();
+          return SfCartesianChart(
+              margin: const EdgeInsets.all(0),
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                  minimum: 0,
+                  maximum: 24,
+                  majorTickLines: const MajorTickLines(color: Colors.white),
+                  tickPosition: TickPosition.inside,
+                  axisLine: const AxisLine(color: Colors.white),
+                  majorGridLines: const MajorGridLines(width: 0),
+                  labelStyle: const TextStyle(color: Colors.white)),
+              primaryYAxis: CategoryAxis(
+                  isVisible: false,
+                  minimum: 0,
+                  maximum: MyUtils.getMaxValue(chartData)),
+              series: <ChartSeries<ChartData, int>>[
+                ColumnSeries<ChartData, int>(
+                    dataSource: chartData,
+                    xValueMapper: (ChartData data, _) => data.x,
+                    yValueMapper: (ChartData data, _) => data.y,
+                    width: 1,
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    color: Colors.white,
+                    spacing: 0.1)
+              ]);
+        } else {
+          return const Center(
+            child: Text(""),
+          );
+        }
+      })
+    );
   }
 
   Widget reportWidget(DailySummary record) {
@@ -235,34 +232,12 @@ class _DailyStatsState extends State<DailyStats> {
     );
   }
 
-  List<Widget> get dailyRow {
-    List<Widget> row = [];
-    for (int i = 7; i > 0; i--) {
-      row.add(completePercentage(weeklySummary[i], i));
-    }
-    return row;
-  }
-
-  List<ChartData> getCircularData(int steps, int position) {
-    return <ChartData>[
-      ChartData(0, ((5000 - steps) / 5000 * 100).round(),
-          position == current ? Colors.white : Colors.grey),
-      ChartData(
-          1,
-          ((steps) / 5000 * 100).round(),
-          position == current
-              ? Constants.primaryColor
-              : Constants.paragraphColor)
-    ];
-  }
-
   Widget completePercentage(DailySummary record, int position) {
     return GestureDetector(
       onDoubleTap: () {
         fetchWeeklyRecords();
       },
       onTap: () {
-        ReportService.instance.summarizeData(record.date);
         setState(() {
           current = position;
         });
@@ -327,7 +302,7 @@ class _DailyStatsState extends State<DailyStats> {
     );
   }
 
-  List<Widget> get progresRow {
+  List<Widget> get progressRow {
     List<Widget> res = [];
     int i = 0;
     if (weeklySummary.isNotEmpty) {
@@ -347,42 +322,44 @@ class _DailyStatsState extends State<DailyStats> {
           title: "Summary",
           actions: [
             IconButton(
-                onPressed: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                      builder: ((context, child) {
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                            colorScheme: const ColorScheme.light(
-                              primary: Constants
-                                  .primaryColor, // header background color // body text color
-                            ),
-                            textButtonTheme: TextButtonThemeData(
-                              style: TextButton.styleFrom(
-                                textStyle: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.black),
-                                foregroundColor:
-                                    Colors.black, // button text color
-                              ),
-                            ),
+              onPressed: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
+                  builder: ((context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: const ColorScheme.light(
+                          primary: Constants
+                              .primaryColor, // header background color // body text color
+                        ),
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            textStyle: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black),
+                            foregroundColor:
+                                Colors.black, // button text color
                           ),
-                          child: child!,
-                        );
-                      }));
-                  if (pickedDate != null) {
-                    String formattedDate =
-                        MyUtils.getFormattedDate(pickedDate);
-                    setState(() {
-                      current_date = formattedDate;
-                    });
-                    fetchWeeklyRecords();
-                  }
-                },
-                icon: const Icon(Icons.date_range))
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  })
+                );
+                if (pickedDate != null) {
+                  String formattedDate =
+                      MyUtils.getFormattedDate(pickedDate);
+                  setState(() {
+                    currentDate = formattedDate;
+                  });
+                  fetchWeeklyRecords();
+                }
+              },
+              icon: const Icon(Icons.date_range),
+            )
           ],
           leading: IconButton(
               onPressed: () {
@@ -408,7 +385,6 @@ class _DailyStatsState extends State<DailyStats> {
               });
             }
           }
-
           // Swiping in left direction.
           if (details.primaryVelocity! > 0) {
             if (current > 0) {
@@ -431,12 +407,12 @@ class _DailyStatsState extends State<DailyStats> {
                           padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: progresRow,
+                            children: progressRow,
                           ),
                         ),
                         reportWidget(weeklySummary[current]),
                         const Divider(color: Constants.primaryColor),
-                        weeklyComparisionChart,
+                        // weeklyComparisonChart,
                       ],
                     )
                   : reportWidget(DailySummary.empty())

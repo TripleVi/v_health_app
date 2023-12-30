@@ -26,49 +26,49 @@ class MeasurementPage extends StatelessWidget {
   List<Widget> _processMetrics(TrackingParams param) {
     final metricsWidgets = <Widget>[];
     // height 140
-    // metricsWidgets.add(TimeCounter(
-    //   timeStream: _timeStream,
-    //   builder: (secondsElapsed) {
-    //     return _metricsWidget(
-    //       txtName: "Duration",
-    //       txtValue: MyUtils.getFormattedDuration(secondsElapsed),
-    //     );
-    //   },
-    // ));
-    // final distanceMap = MyUtils.getFormattedDistance(param.distance);
-    // metricsWidgets.add(_metricsWidget(
-    //   txtName: "Distance",
-    //   txtValue: distanceMap["value"]!,
-    //   txtUnit: distanceMap["unit"]!,
-    // ));
-    // final speedMap = MyUtils.getFormattedSpeed(param.speed);
-    // metricsWidgets.add(_metricsWidget(
-    //   txtName: "Speed",
-    //   txtValue: speedMap["value"]!,
-    //   txtUnit: speedMap["unit"]!,
-    // ));
-    // final avgSpeedMap = MyUtils.getFormattedSpeed(param.avgSpeed);
-    // metricsWidgets.add(_metricsWidget(
-    //   txtName: "Avg. Speed",
-    //   txtValue: avgSpeedMap["value"]!,
-    //   txtUnit: avgSpeedMap["unit"]!,
-    // ));
-    // final paceMap = MyUtils.getFormattedPace(param.pace);
-    // metricsWidgets.add(_metricsWidget(
-    //   txtName: "Pace",
-    //   txtValue: paceMap["value"]!,
-    //   txtUnit: paceMap["unit"]!,
-    // ));
-    // final avgPaceMap = MyUtils.getFormattedPace(param.avgPace);
-    // metricsWidgets.add(_metricsWidget(
-    //   txtName: "Avg. Pace",
-    //   txtValue: avgPaceMap["value"]!,
-    //   txtUnit: avgPaceMap["unit"]!,
-    // ));
+    metricsWidgets.add(TimeCounter(
+      timeStream: _timeStream,
+      builder: (secondsElapsed) {
+        return _metricsWidget(
+          txtName: "Duration",
+          txtValue: MyUtils.getFormattedDuration(secondsElapsed),
+        );
+      },
+    ));
+    final distanceMap = MyUtils.getFormattedDistance(param.distance);
+    metricsWidgets.add(_metricsWidget(
+      txtName: "Distance",
+      txtValue: distanceMap["value"]!,
+      txtUnit: distanceMap["unit"]!,
+    ));
+    final speedMap = MyUtils.getFormattedSpeed(param.speed);
+    metricsWidgets.add(_metricsWidget(
+      txtName: "Speed",
+      txtValue: speedMap["value"]!,
+      txtUnit: speedMap["unit"]!,
+    ));
+    final avgSpeedMap = MyUtils.getFormattedSpeed(param.avgSpeed);
+    metricsWidgets.add(_metricsWidget(
+      txtName: "Avg. Speed",
+      txtValue: avgSpeedMap["value"]!,
+      txtUnit: avgSpeedMap["unit"]!,
+    ));
+    final paceMap = MyUtils.getFormattedPace(param.pace);
+    metricsWidgets.add(_metricsWidget(
+      txtName: "Pace",
+      txtValue: paceMap["value"]!,
+      txtUnit: paceMap["unit"]!,
+    ));
+    final avgPaceMap = MyUtils.getFormattedPace(param.avgPace);
+    metricsWidgets.add(_metricsWidget(
+      txtName: "Avg. Pace",
+      txtValue: avgPaceMap["value"]!,
+      txtUnit: avgPaceMap["unit"]!,
+    ));
     metricsWidgets.add(_metricsWidget(
       txtName: "Calories Burnt",
       txtValue: "${param.calories}",
-      txtUnit: "cal",
+      txtUnit: "kcal",
     ));
 
     if(param.selectedTarget.isCalories) {
@@ -95,29 +95,27 @@ class MeasurementPage extends StatelessWidget {
   }) {
     assert(txtName != null || name != null);
     assert(txtValue != null || value != null);
-    return Container(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          name ?? Text(
-            txtName!, 
-            style: nameStyle ?? AppStyle.paragraph(height: 1.0),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min, 
-            children: [
-              value ?? Text(
-                "${txtValue!} ", 
-                style: valueStyle ?? AppStyle.tracking_heading_2(),
-              ),
-              unit ?? Text(
-                txtUnit ?? "",
-                style: unitStyle ?? AppStyle.tracking_heading_3(),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        name ?? Text(
+          txtName!, 
+          style: nameStyle ?? AppStyle.paragraph(height: 1.0),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min, 
+          children: [
+            value ?? Text(
+              "${txtValue!} ", 
+              style: valueStyle ?? AppStyle.tracking_heading_2(),
+            ),
+            unit ?? Text(
+              txtUnit ?? "",
+              style: unitStyle ?? AppStyle.tracking_heading_3(),
+            ),
+          ],
+        ),
+      ],
     );
   }
 

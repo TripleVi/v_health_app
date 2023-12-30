@@ -1,9 +1,11 @@
+import '../../core/enum/activity_category.dart';
 import 'base_entity.dart';
 import 'coordinate.dart';
 import 'photo.dart';
 import 'workout_data.dart';
 
 class ActivityRecord extends BaseEntity {
+  ActivityCategory category;
   DateTime startDate;
   DateTime endDate;
   int workoutDuration;
@@ -21,6 +23,7 @@ class ActivityRecord extends BaseEntity {
 
   ActivityRecord({
     super.id,
+    required this.category,
     required this.startDate,
     required this.endDate,
     required this.workoutDuration,
@@ -39,7 +42,7 @@ class ActivityRecord extends BaseEntity {
 
   factory ActivityRecord.empty() {
     final date = DateTime.now();
-    return ActivityRecord(startDate: date, endDate: date, workoutDuration: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, avgPace: 0.0, maxPace: 0.0, steps: 0, stairsClimbed: 0, calories: 0);
+    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, workoutDuration: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, avgPace: 0.0, maxPace: 0.0, steps: 0, stairsClimbed: 0, calories: 0);
   }
 
   // ActivityRecord.before_i_days(String startDate, int i)
@@ -67,6 +70,7 @@ class ActivityRecord extends BaseEntity {
 
   Map<String, dynamic> toMap() {
     return {
+      "category": category.index,
       "startDate": startDate.millisecondsSinceEpoch,
       "endDate": endDate.millisecondsSinceEpoch,
       "workoutDuration": workoutDuration,
@@ -83,6 +87,6 @@ class ActivityRecord extends BaseEntity {
 
   @override
   String toString() {
-    return "ActivityRecord{id: $id, startDate: $startDate, endDate: $startDate, workoutDuration: $workoutDuration, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, avgPace: $avgPace, maxPace: $maxPace, steps: $steps, stairsClimbed: $stairsClimbed, calories: $calories}";
+    return "ActivityRecord{id: $id, category: ${category.name}, startDate: $startDate, endDate: $startDate, workoutDuration: $workoutDuration, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, avgPace: $avgPace, maxPace: $maxPace, steps: $steps, stairsClimbed: $stairsClimbed, calories: $calories}";
   }
 }

@@ -9,7 +9,7 @@ class AccelData {
   int t = DateTime.now().millisecondsSinceEpoch;
   int hour = DateTime.now().hour;
   int quarter = (DateTime.now().minute / 15).round() + 1;
-  String date = MyUtils.getCurrentDateAsSqlFormat();
+  String date = MyUtils.getDateAsSqlFormat(DateTime.now());
 
   AccelData(this.x, this.y, this.z, this.activity);
 

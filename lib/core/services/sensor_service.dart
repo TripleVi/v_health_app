@@ -137,6 +137,6 @@ class SensorService {
       sensorId: Sensors.ACCELEROMETER, 
       interval: Sensors.SENSOR_DELAY_GAME,
     ))
-    .map((e) => [e.data[0], e.data[1], e.data[2]]);
+    .map((e) => [e.data[0]/9.8, e.data[1]/9.8, e.data[2]/9.8]);
   }
 }

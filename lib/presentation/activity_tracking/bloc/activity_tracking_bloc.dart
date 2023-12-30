@@ -5,51 +5,74 @@ import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_activity_recognition/flutter_activity_recognition.dart' as far;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:permission_handler/permission_handler.dart';
 
+import '../../../core/enum/activity_category.dart';
 import '../../../core/enum/activity_tracking.dart';
+import '../../../core/services/classification_service.dart';
 import '../../../core/services/location_service.dart';
+import '../../../core/services/sensor_service.dart';
+import '../../../core/services/user_service.dart';
 import '../../../domain/entities/activity_record.dart';
 import '../../../domain/entities/workout_data.dart';
 import '../../../main.dart';
 import '../widgets/marker_painter.dart';
+import 'activity_tracking.dart';
+import 'cycling_activity.dart';
+import 'running_activity.dart';
+import 'walking_activity.dart';
 
 part 'activity_tracking_event.dart';
 part 'activity_tracking_state.dart';
 
-class PermissionParams {
+class LocationSettingsRequest {
   final String title;
-  final String content;
+  final String description;
   final Future<void> Function() openSettings;
 
-  PermissionParams._(this.title, this.content, this.openSettings);
+  LocationSettingsRequest({
+    required this.title, 
+    required this.description, 
+    required this.openSettings,
+  });
 
-  static PermissionParams get deniedForever {
-    return PermissionParams._(
-      "Location Services",
-      "You must open App Settings and grant Location Permission to record an activity",
-      LocationService.openAppSettings,
+  factory LocationSettingsRequest.permissionGranted() {
+    return LocationSettingsRequest(
+      title: "Location Services",
+      description: "You must open App Settings and grant Location Permission to record an activity",
+      openSettings: LocationService.openAppSettings,
     );
   }
 
-  static PermissionParams get serviceDisabled {
-    return PermissionParams._(
-      "Location Services",
-      "You must open Settings and enable Location Services to record an activity",
-      LocationService.openLocationSettings,
+  factory LocationSettingsRequest.serviceEnabled() {
+    return LocationSettingsRequest(
+      title: "Location Services",
+      description: "You must open Settings and enable Location Services to record an activity",
+      openSettings: LocationService.openLocationSettings,
     );
-  } 
+  }
 
-  static PermissionParams get accuracyStatusReduced {
-    return PermissionParams._(
-      "Location Services",
-      "You must open Settings and allow the app to use Precise Location to record an activity",
-      LocationService.openAppSettings,
+  factory LocationSettingsRequest.accuracyPrecise() {
+    return LocationSettingsRequest(
+      title: "Location Services",
+      description: "You must open Settings and allow the app to use Precise Location to record an activity",
+      openSettings: LocationService.openLocationSettings,
     );
-  }  
+  }
+
+  factory LocationSettingsRequest.permissionAlways() {
+    return LocationSettingsRequest(
+      title: "Location Services",
+      description: "You must open Settings and allow Location Permission as Always to record an activity in background",
+      openSettings: LocationService.openLocationSettings,
+    );
+  }
 }
 
 class PhotoParams {
@@ -85,14 +108,15 @@ class TrackingResult {
   });
 }
 
-class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
+class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> with WidgetsBindingObserver {
   final _geoPoints = <LatLng>[];
   final _markers = <Marker>{};
   final _photosParams = <PhotoParams>[];
-  final _workoutData = <WorkoutData>[];
-  Position? _currentPosition;
-  Position? _lastKnownPosition;
+  Position? _curtPos;
+  Position? _lastKnownPos;
   StreamSubscription<Position>? _positionSubscriber;
+  StreamSubscription<far.Activity>? _activitySubscriber;
+  ActivityTracking? activity;
 
   final _locationService = GetIt.instance<LocationService>();
   final _timeStreamController = StreamController<int>.broadcast();
@@ -104,18 +128,15 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
   var _leftMost = double.maxFinite;
   var _bottomMost = double.maxFinite;
 
-  double _totalDistance = 0.0;
-  double? _instantSpeed;
-  double? _avgSpeed;
-  double _maxSpeed = 0.0;
-  double? _instantPace;
-  double? _avgPace;
-  double _maxPace = 0.0;
-  int _calories = 0;
-
   final _mapController = Completer<GoogleMapController>();
-  DateTime? _startDate;
-  bool _permissionRequesting = true;
+  bool _isProcessing = true;
+  var _locSvcEnabled = false;
+  var _locPermission = LocationPermission.denied;
+  var _locAccuracyStatus = LocationAccuracyStatus.reduced;
+  
+
+  var rawActiveData = <List<double>>[];
+  Timer? activeTimer;
 
   ActivityTrackingBloc() : super(const TrackingState()) {
     on<TrackingStarted>(_onTrackingStarted);
@@ -130,67 +151,177 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
     on<PhotoEdited>(_onPhotoEdited);
     on<RefreshTracking>(_onRefreshTracking);
     on<LocationUpdated>(_onLocationUpdated);
+    on<CategorySelected>(_onCategorySelected);
 
-    _locationService.requestPermission().then((value) async {
-      if(value.isPrecise) {
-        await _onDesiredLocation();
-      }
-      _permissionRequesting = false;
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      requestLocationPermission().then((_) async {
+        if(_locAccuracyStatus == LocationAccuracyStatus.precise) {
+          await _onDesiredLocation();
+        }
+        _isProcessing = false;
+      });
     });
-    _handleLocationUpdates();
   }
 
-  void _handleLocationUpdates() {
-    _positionSubscriber = backgroundService
-        .on("positionAcquired")
-        .map((event) {
-          event!["position"]["altitude"] *= 1.0;
-          event["position"]["accuracy"] *= 1.0;
-          event["position"]["altitude_accuracy"] *= 1.0;
-          event["position"]["heading_accuracy"] *= 1.0;
-          event["position"]["speed"] *= 1.0;
-          event["position"]["speed_accuracy"] *= 1.0;
-          return Position.fromMap(event["position"]);
-        })
-        .listen((position) {
-      final timeFrame = _secondsElapsed;
-      _lastKnownPosition = _currentPosition;
-      _currentPosition = position;
-      if (state.status.isStarted) {
-        _geoPoints.add(LatLng(position.latitude, position.longitude));
-        _updateMetrics(_lastKnownPosition!, _currentPosition!, timeFrame);
-        _workoutData.add(WorkoutData( 
-          speed: _instantSpeed!,
-          pace: _instantPace!,
-          distance: _totalDistance,
-          timeFrame: timeFrame,
-        ));
-        _updateLatLngBounds(position);
+  Future<void> requestLocationPermission() async {
+    _locSvcEnabled = await Geolocator.isLocationServiceEnabled();
+    _locPermission = await Geolocator.checkPermission();
+    // _locPermission cannot be deniedForever at this time.
+    // No options are selected or it's been denied permanently before.
+    if(_locPermission == LocationPermission.denied) {
+      // If the permission is denied forever, the dialog won't be shown again.
+      _locPermission = await Geolocator.requestPermission();
+      try {
+        // To check whether options are selected.
+        _locAccuracyStatus = await Geolocator.getLocationAccuracy();
+        // It's been disallowed or selected and couldn't be denied.
+      } on PlatformException catch (e) {
+        // No options are selected. '_locPermission' is denied or deniedForever.
+        if(e.code != "PERMISSION_DENIED") rethrow;
+        // 'denied': the accuracy selected in the previous use is precise.
+        // 'deniedForever': it's approximate, likewise.
+        if(_locPermission == LocationPermission.deniedForever) {
+          // 'denied' is possible to request for the next time.
+          // 'deniedForever' is impossible to request and needs to open app settings.
+          _locPermission = LocationPermission.denied;
+        }
       }
-      add(const LocationUpdated());
-    });
+      return;
+    }
+    // The permission's been allowed before with approximate or precise accuracy.
+    // If it's approximate, an accuracy dialog of precise will be shown.
+    // If it's approximate permanently, nothing will happen.
+    // It's impossible to know whether the selection is permanent.
+    _locAccuracyStatus = await Geolocator.getLocationAccuracy();
+    if(_locAccuracyStatus == LocationAccuracyStatus.precise) return;
+    final result = await Permission.location.request();
+    // 'denied': the previous accuracy is precise and no options are selected.
+    // 'permanentlyDenied': the previous accuracy is approximate and no options are selected; the selected one is approximate permanently.
+    // 'granted': the selected accuracy is precise.
+    if(result.isGranted) {
+      _locAccuracyStatus = LocationAccuracyStatus.precise;
+    }
+  }
 
-    backgroundService.on("trackingError").listen((_) async {
-      //? Location update encounters errors
-      _currentPosition = null;
-      add(const LocationUpdated());
+  Future<void> handleLocationPermission(Emitter<TrackingState> emit) async {
+    // This is called when users touch 'Start' or 'Resume' button.
+    if(!_locSvcEnabled) {
+      return emit(state.copyWith(
+        request : LocationSettingsRequest.serviceEnabled(),
+      ));
+    }
+    if(_locPermission == LocationPermission.deniedForever) {
+      return emit(state.copyWith(
+        request : LocationSettingsRequest.permissionGranted(),
+      ));
+    }
+    // No options were selected in the previous request.
+    if(_locPermission == LocationPermission.denied) {
+      // If it's denied forever, the dialog won't be shown again.
+      _locPermission = await Geolocator.requestPermission();
+      try {
+        // To check whether options are selected.
+        _locAccuracyStatus = await Geolocator.getLocationAccuracy();
+        // It's been disallowed or selected and couldn't be denied.
+      } on PlatformException catch (e) {
+        // No options are selected.
+        if(e.code != "PERMISSION_DENIED") rethrow;
+        // 'denied': the selected accuracy is precise.
+        // 'deniedForever': the selected accuracy is approximate.
+        if(_locPermission == LocationPermission.deniedForever) {
+          _locPermission = LocationPermission.denied;
+        }
+      }
+      return;
+    }
+    _locAccuracyStatus = await Geolocator.getLocationAccuracy();
+    if(_locAccuracyStatus == LocationAccuracyStatus.precise) return;
+    final result = await Permission.location.request();
+    if(result.isDenied) {
+      _locAccuracyStatus = LocationAccuracyStatus.reduced;
+    }else if(result.isPermanentlyDenied) {
+      emit(state.copyWith(
+        request: LocationSettingsRequest.accuracyPrecise(),
+      ));
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed: 
+        _onAppStateResumed();
+        break;
+      case AppLifecycleState.paused:
+        backgroundService.invoke("appStateUpdated", {
+          "state": "paused"
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _onAppStateResumed() async {
+    var flag = false;
+    backgroundService.invoke("appStateUpdated", {
+      "state": "resumed"
     });
+    _locSvcEnabled = await Geolocator.isLocationServiceEnabled();
+    final permission = await Geolocator.checkPermission();
+    try {
+      // To check whether options are selected.
+      _locAccuracyStatus = await Geolocator.getLocationAccuracy();
+      // It's been disallowed or selected and couldn't be denied.
+      _locPermission = permission;
+    } on PlatformException catch (e) {
+      // No options are selected.
+      if(e.code != "PERMISSION_DENIED") rethrow;
+      if(permission == LocationPermission.deniedForever) {
+        _locPermission = LocationPermission.denied;
+      }
+    }
+    flag = !_locSvcEnabled || _locPermission == LocationPermission.denied || _locPermission == LocationPermission.deniedForever || _locAccuracyStatus == LocationAccuracyStatus.reduced;
+    if(flag) {
+      _curtPos = null;
+      activity!.pauseTracking();
+      add(const RefreshTracking());
+    }
+  }
+
+  Future<void> requestPermissions() async {
+    final activityRecognition = far.FlutterActivityRecognition.instance;
+    var reqResult = await activityRecognition.checkPermission();
+    if(reqResult == far.PermissionRequestResult.PERMANENTLY_DENIED) {
+      return;
+    }else if (reqResult == far.PermissionRequestResult.DENIED) {
+      reqResult = await activityRecognition.requestPermission();
+      if (reqResult != far.PermissionRequestResult.GRANTED) {
+        return;
+      }
+    }
+    _activitySubscriber = activityRecognition.activityStream
+        .listen((event) {
+          print(event.toString());
+          if(state.status.isStarted && state.category.isCycling && event.type != far.ActivityType.ON_BICYCLE && event.confidence == far.ActivityConfidence.HIGH) {
+            // emit(state)
+          }
+        });
   }
 
   Future<void> _onDesiredLocation() async {
     //? Accuracy status is precise and first time or location update's interrupted (currentPosition == null).
     //? currentPosition will be equal to 'null' only if it hasn't been initialized yet or tracking encounters errors.
-    //? Start listening to location updates in the foreground service.
-    backgroundService.invoke("trackingStarted");
-    _currentPosition = await _locationService.getCurrentPosition();
-    _lastKnownPosition = _currentPosition!;
+    _curtPos = await _locationService.getCurrentPosition();
+    _lastKnownPos = _curtPos!;
     final controller = await _mapController.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(
-            _currentPosition!.latitude,
-            _currentPosition!.longitude,
+            _curtPos!.latitude,
+            _curtPos!.longitude,
           ),
           zoom: 18.0,
         )
@@ -198,40 +329,62 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
     );
   }
 
+  void _onCategorySelected(
+    CategorySelected event,
+    Emitter<TrackingState> emit,
+  ) {
+    emit(state.copyWith(category: event.category));
+  }
+
+  void initTrackingSession() {
+    if(state.category.isWalking) {
+      activity = WalkingActivity();
+    }else if(state.category.isRunning) {
+      activity = RunningActivity();
+    }else if(state.category.isCycling) {
+      activity = CyclingActivity();
+    }
+  }
+
   Future<void> _onTrackingStarted(
     TrackingStarted event,
     Emitter<TrackingState> emit,
   ) async {
-    if(_permissionRequesting) return;
-    _permissionRequesting = true;
-    final response = await _locationService.requestPermission();
-    if (!response.isServiceEnabled) {
-      _permissionRequesting = false;
-      return emit(state.copyWith(
-        permissionParams: PermissionParams.serviceDisabled,
-      ));
-    } else if (response.isDeniedForever) {
-      _permissionRequesting = false;
-      return emit(state.copyWith(
-        permissionParams: PermissionParams.deniedForever,
-      ));
-    }
-    if (response.isPrecise) {
-      if(_currentPosition == null) {
+    if(_isProcessing) return;
+    _isProcessing = true;
+    await handleLocationPermission(emit);
+    if(_locAccuracyStatus == LocationAccuracyStatus.precise) {
+      if(_curtPos == null) {
         await _onDesiredLocation();
       }
-      final pos = _currentPosition!;
+      _geoPoints.add(LatLng(_curtPos!.latitude, _curtPos!.longitude));
+      _updateLatLngBounds(_curtPos!);
+      final pos = _curtPos!;
       final startingMarker = await _setCustomMarkers();
-      _startDate = DateTime.now();
       _timer = _initializeTimer();
       _markers.add(Marker(
         markerId: const MarkerId("starting_position"),
         position: LatLng(pos.latitude, pos.longitude),
         icon: startingMarker,
       ));
-      _geoPoints.add(LatLng(pos.latitude, pos.longitude));
-      _updateLatLngBounds(pos);
-      _workoutData.add(WorkoutData.empty());
+      initTrackingSession();
+      activity!.startTracking((positions) {
+        if(_geoPoints.isEmpty) {
+          positions.removeAt(0);
+        }
+        if(positions.length == 1) {
+          _lastKnownPos = _curtPos;
+          _curtPos = positions.first;
+        }else {
+          _lastKnownPos = positions[positions.length-2];
+          _curtPos = positions.last;
+        }
+        _geoPoints.addAll(positions.map((p) {
+          _updateLatLngBounds(p);
+          return LatLng(p.latitude, p.longitude);
+        }));
+        add(const LocationUpdated());
+      });
       emit(state.copyWith(
         geoPoints: _geoPoints,
         markers: _markers,
@@ -242,12 +395,8 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
           targetValue: event.targetValue,
         ),
       ));
-    }else {
-      emit(state.copyWith(
-        permissionParams: PermissionParams.accuracyStatusReduced,
-      ));
     }
-    _permissionRequesting = false;
+    _isProcessing = false;
   }
 
   void _onTrackingPaused(           
@@ -263,22 +412,22 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
     TrackingResumed event,
     Emitter<TrackingState> emit,
   ) async {
-    if(_permissionRequesting) return;
-    _permissionRequesting = true;
+    if(_isProcessing) return;
+    _isProcessing = true;
     final response = await _locationService.requestPermission();
     if (!response.isServiceEnabled) {
-      _permissionRequesting = false;
+      _isProcessing = false;
       return emit(state.copyWith(
-        permissionParams: PermissionParams.serviceDisabled,
+        request: LocationSettingsRequest.serviceEnabled(),
       ));
     } else if (response.isDeniedForever) {
-      _permissionRequesting = false;
+      _isProcessing = false;
       return emit(state.copyWith(
-        permissionParams: PermissionParams.deniedForever,
+        request: LocationSettingsRequest.permissionGranted(),
       ));
     }
     if (response.isPrecise) {
-      if(_currentPosition == null) {
+      if(_curtPos == null) {
         await _onDesiredLocation();
       }else {
         backgroundService.invoke("trackingResumed");
@@ -286,27 +435,29 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
       _timer = _initializeTimer();
       emit(state.copyWith(status: TrackingStatus.started));
     }
-    _permissionRequesting = false;
+    _isProcessing = false;
   }
 
   Future<void> _onTrackingFinished(
     TrackingFinished event, 
     Emitter<TrackingState> emit,
   ) async {
-    final record = ActivityRecord(
-      startDate: _startDate!,
-      endDate: DateTime.now(),
-      workoutDuration: _secondsElapsed,
-      distance: _totalDistance,
-      avgSpeed: _avgSpeed!,
-      maxSpeed: _maxSpeed,
-      avgPace: _avgPace!,
-      maxPace: _maxPace,
-      calories: _calories,
-      data: _workoutData,
-      steps: 0,
-      stairsClimbed: 0,
-    );
+    // final record = ActivityRecord(
+    //   category: state.category,
+    //   startDate: _startDate!,
+    //   endDate: DateTime.now(),
+    //   workoutDuration: _secondsElapsed,
+    //   distance: _totalDistance,
+    //   avgSpeed: _avgSpeed!,
+    //   maxSpeed: _maxSpeed,
+    //   avgPace: _avgPace!,
+    //   maxPace: _maxPace,
+    //   calories: _calories,
+    //   data: _workoutData,
+    //   steps: 0,
+    //   stairsClimbed: 0,
+    // );
+    final record = ActivityRecord.empty();
 
     emit(state.copyWith(
       result: TrackingResult(
@@ -326,14 +477,13 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
     _geoPoints.clear();
     _markers.clear();
     _photosParams.clear();
-    _workoutData.clear();
     _timer.cancel();
     _secondsElapsed = 0;
-    _startDate = null;
     _topMost = -double.maxFinite;
     _rightMost = -double.maxFinite;
     _leftMost = double.maxFinite;
     _bottomMost = double.maxFinite;
+    activeTimer?.cancel();
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -406,12 +556,12 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
   ) {
     emit(state.copyWith(
       trackingParams: state.trackingParams.copyWith(
-        distance: _totalDistance,
-        speed: _instantSpeed,
-        avgSpeed: _avgSpeed,
-        pace: _instantPace,
-        avgPace: _avgPace,
-        calories: _calories,
+        distance: activity!.totalDistance,
+        speed: activity!.instantSpeed,
+        avgSpeed: activity!.avgSpeed,
+        pace: activity!.instantPace,
+        avgPace: activity!.avgPace,
+        calories: activity!.totalCalories,
       )
     ));
   }
@@ -468,33 +618,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
     _leftMost = math.min(_leftMost, position.longitude);
   }
 
-  void _updateMetrics(Position prev, Position next, int timeFrame) {
-    // m
-    final distance = _locationService.distanceBetween(
-      prev.latitude, prev.longitude,
-      next.latitude, next.longitude,
-    );
-    _totalDistance += distance;
-    // s
-    final duration = next.timestamp!.difference(prev.timestamp!).inSeconds;
-    // m/s
-    _instantSpeed = distance / duration;
-    _avgSpeed = _totalDistance / timeFrame;
-    if(_instantSpeed! > _maxSpeed) {
-      _maxSpeed = _instantSpeed!;
-    }
-    // s/m
-    _instantPace = duration / distance;
-    _avgPace = timeFrame / _totalDistance;
-    if(_instantPace! > _maxPace) {
-      _maxPace = _instantPace!;
-    }
-    // final user = await _userFuture;
-    const met = 7;
-    // _workoutCalories += (timeFrame / 60 * met * 3.5 * user.weight / 200).floor();
-    _calories = _calories;
-  }
-
   Timer _initializeTimer() {
     return Timer.periodic(const Duration(seconds: 1), (timer) {
       _secondsElapsed++;
@@ -505,8 +628,10 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, TrackingState> {
   @override
   Future<void> close() async {
     await _positionSubscriber?.cancel();
+    await _activitySubscriber?.cancel();
     await _timeStreamController.close();
-    backgroundService.invoke("trackingStopped");
+    WidgetsBinding.instance.removeObserver(this);
+    // backgroundService.invoke("trackingStopped");
     return super.close();
   }
 }

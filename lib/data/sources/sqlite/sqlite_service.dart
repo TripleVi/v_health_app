@@ -17,20 +17,20 @@ class SqlService {
     String dbPath = await getDatabasesPath();
     final path = join(dbPath, filepath);
     Database d =
-        await openDatabase(path, version: 16, onCreate: createDatabase);
+        await openDatabase(path, version: 1, onCreate: createDatabase);
     return d;
   }
 
   static Future createDatabase(Database db, int version) async {
     await db.execute(createReportTable);
-    await db.execute(createUserTable);
-    await db.execute(createActivityRecordTable);
-    await db.execute(createCoordinateTable);
-    await db.execute(createPhotoTable);
-    await db.execute(createAccelDataTable);
     await db.execute(createDailySummaryTable);
-    await db.execute(createPostTable);
-    await db.execute(createWorkoutSessionTable);
+    // await db.execute(createUserTable);
+    // await db.execute(createActivityRecordTable);
+    // await db.execute(createCoordinateTable);
+    // await db.execute(createPhotoTable);
+    // await db.execute(createAccelDataTable);
+    // await db.execute(createPostTable);
+    // await db.execute(createWorkoutSessionTable);
   }
 
   Future<void> close() async {

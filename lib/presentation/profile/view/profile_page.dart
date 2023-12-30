@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fa;
 
 import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
@@ -25,13 +27,15 @@ class ProfileView extends StatelessWidget {
 
   Widget _buildSettingsBtn(BuildContext context) {
     return IconButton(
-      onPressed: () {
-        Navigator.push(
-          context, 
-          MaterialPageRoute(
-            builder: (context) => const SettingsPage(),
-          )
-        );
+      onPressed: () async {
+        // Navigator.push(
+        //   context, 
+        //   MaterialPageRoute(
+        //     builder: (context) => const SettingsPage(),
+        //   )
+        // );
+        await fa.FirebaseAuth.instance.signOut();
+        Navigator.pushNamedAndRemoveUntil(context, "/auth", (route) => true);
       },
       icon: const Icon(
         Icons.settings_outlined,
@@ -73,7 +77,6 @@ class ProfileView extends StatelessWidget {
   Widget _buildPage(BuildContext context, ProfileLoaded state) {
     final user = state.user;
     const iconSize = 72;
-
     return Scaffold(
       backgroundColor: AppColor.backgroundColor,
       appBar: CustomAppBar.get(
@@ -112,16 +115,11 @@ class ProfileView extends StatelessWidget {
                         fit: BoxFit.contain,
                         isAntiAlias: true,
                       ).image,
-                      foregroundImage: state.avatarFile == null
-                          ? null
-                          : Image.file(
-                              state.avatarFile!,
-                              cacheWidth: iconSize,
-                              cacheHeight: iconSize,
-                              filterQuality: FilterQuality.high,
-                              fit: BoxFit.contain,
-                              isAntiAlias: true,
-                            ).image,
+                      foregroundImage: CachedNetworkImageProvider(
+                        state.user.avatarUrl, 
+                        maxWidth: iconSize, 
+                        maxHeight: iconSize,
+                      ),
                     ),
                     const SizedBox(width: 40.0),
                     Expanded(
@@ -138,14 +136,14 @@ class ProfileView extends StatelessWidget {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("0", style: AppStyle.heading_2()),
+                              Text("${state.followers}", style: AppStyle.heading_2()),
                               Text("Followers", style: AppStyle.paragraph()),
                             ],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("1", style: AppStyle.heading_2()),
+                              Text("${state.followings}", style: AppStyle.heading_2()),
                               Text("Following", style: AppStyle.paragraph()),
                             ],
                           ),
@@ -158,18 +156,18 @@ class ProfileView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildSecondaryButton(
-                      label: "Edit profile",
-                      onPressed: () {
+                    // _buildSecondaryButton(
+                    //   label: "Edit profile",
+                    //   onPressed: () {
                         
-                      },
-                    ),
-                    _buildSecondaryButton(
-                      label: "Share profile",
-                      onPressed: () {
+                    //   },
+                    // ),
+                    // _buildSecondaryButton(
+                    //   label: "Share profile",
+                    //   onPressed: () {
                         
-                      },
-                    ),
+                    //   },
+                    // ),
                   ],
                 )
               ],
