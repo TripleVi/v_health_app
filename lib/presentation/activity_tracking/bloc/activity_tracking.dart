@@ -7,17 +7,17 @@ import '../../../main.dart';
 abstract class ActivityTracking {
   double totalDistance = 0.0;
   double? instantSpeed;
-  double? avgSpeed;
+  double avgSpeed = 0.0;
   double maxSpeed = 0.0;
   double? instantPace;
-  double? avgPace;
+  double avgPace = 0.0;
   double maxPace = 0.0;
   int totalCalories = 0;
   bool isPaused = false;
   StreamSubscription? locationListener;
   late final DateTime startDate;
 
-  void startTracking(void Function(List<Position> positions) onPositionsAcquired) {
+  void startRecording(void Function(List<Position> positions) onPositionsAcquired) {
     startDate = DateTime.now();
     backgroundService.invoke("trackingSessionCreated");
     backgroundService.invoke("locationUpdates");
@@ -34,21 +34,21 @@ abstract class ActivityTracking {
     onPositionsAcquired(data);
   }
 
-  void pauseTracking() {
+  void pauseRecording() {
     isPaused = true;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "paused"
     });
   } 
 
-  void resumeTracking() {
+  void resumeRecording() {
     isPaused = false;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "resumed"
     });
   }
 
-  void stopTracking() {
+  void stopRecording() {
     isPaused = false;
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "stopped"

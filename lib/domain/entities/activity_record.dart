@@ -12,8 +12,6 @@ class ActivityRecord extends BaseEntity {
   double distance;
   double avgSpeed;
   double maxSpeed;
-  double avgPace;
-  double maxPace;
   int steps;
   int stairsClimbed;
   int calories;
@@ -30,8 +28,6 @@ class ActivityRecord extends BaseEntity {
     required this.distance,
     required this.avgSpeed,
     required this.maxSpeed,
-    required this.avgPace,
-    required this.maxPace,
     required this.steps,
     required this.stairsClimbed,
     required this.calories,
@@ -42,7 +38,7 @@ class ActivityRecord extends BaseEntity {
 
   factory ActivityRecord.empty() {
     final date = DateTime.now();
-    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, workoutDuration: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, avgPace: 0.0, maxPace: 0.0, steps: 0, stairsClimbed: 0, calories: 0);
+    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, workoutDuration: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, steps: 0, stairsClimbed: 0, calories: 0);
   }
 
   // ActivityRecord.before_i_days(String startDate, int i)
@@ -77,8 +73,6 @@ class ActivityRecord extends BaseEntity {
       "distance": distance,
       "avgSpeed": avgSpeed,
       "maxSpeed": maxSpeed,
-      "avgPace": avgPace,
-      "maxPace": maxPace,
       "steps": steps,
       "stairsClimbed": stairsClimbed,
       "calories": calories,
@@ -87,6 +81,6 @@ class ActivityRecord extends BaseEntity {
 
   @override
   String toString() {
-    return "ActivityRecord{id: $id, category: ${category.name}, startDate: $startDate, endDate: $startDate, workoutDuration: $workoutDuration, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, avgPace: $avgPace, maxPace: $maxPace, steps: $steps, stairsClimbed: $stairsClimbed, calories: $calories}";
+    return "ActivityRecord{id: $id, category: ${category.name}, startDate: $startDate, endDate: $startDate, workoutDuration: $workoutDuration, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, steps: $steps, stairsClimbed: $stairsClimbed, calories: $calories}";
   }
 }

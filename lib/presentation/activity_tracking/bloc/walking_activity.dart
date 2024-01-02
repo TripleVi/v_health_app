@@ -11,8 +11,8 @@ class WalkingActivity extends ActivityTracking {
   StreamSubscription? accelListener;
 
   @override
-  void startTracking(void Function(List<Position> positions) onPositionsAcquired) {
-    super.startTracking(onPositionsAcquired);
+  void startRecording(void Function(List<Position> positions) onPositionsAcquired) {
+    super.startRecording(onPositionsAcquired);
     backgroundService.invoke("accelUpdates");
     accelListener = backgroundService.on("accelAcquired").listen((event) async {
       final data = List.castFrom<dynamic, List<double>>(event!["data"]);
@@ -53,8 +53,8 @@ class WalkingActivity extends ActivityTracking {
   }
 
   @override
-  void stopTracking() {
-    super.stopTracking();
+  void stopRecording() {
+    super.stopRecording();
     accelListener!.cancel();
   }
 }

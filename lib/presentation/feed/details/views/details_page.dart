@@ -107,9 +107,9 @@ class DetailsView extends StatelessWidget {
     final data = record.data;
     final distanceMap = MyUtils.getFormattedDistance(record.distance);
     final avgSMap = MyUtils.getFormattedDistance(record.avgSpeed);
-    final avgPMap = MyUtils.getFormattedDistance(record.avgPace);
+    final avgPMap = MyUtils.getFormattedDistance(1/record.avgSpeed);
     final maxSMap = MyUtils.getFormattedDistance(record.maxSpeed);
-    final maxPMap = MyUtils.getFormattedDistance(record.maxPace);
+    final maxPMap = MyUtils.getFormattedDistance(1/record.maxSpeed);
     return SingleChildScrollView(
       child: Column(
         children: [

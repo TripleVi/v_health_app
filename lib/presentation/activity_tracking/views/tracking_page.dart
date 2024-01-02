@@ -278,6 +278,13 @@ class TrackingView extends StatelessWidget {
                       ),
                     )
                     : const SizedBox(),
+                state.isLocationAvail
+                    ? const SizedBox()
+                    : Container(
+                      width: double.infinity,
+                      height: double.infinity,
+                      color: Colors.lightBlue.shade200.withOpacity(0.3),
+                    ),
               ],
             ),
           ),
@@ -599,7 +606,7 @@ class TrackingView extends StatelessWidget {
         ));
         return context.read<ActivityTrackingBloc>().add(TrackingSaved(value));
       }
-      context.read<ActivityTrackingBloc>().add(const RefreshTracking());
+      context.read<ActivityTrackingBloc>().add(const RefreshScreen());
     });
   }
 
@@ -620,7 +627,7 @@ class TrackingView extends StatelessWidget {
       ),
     )).then((value) => context
         .read<ActivityTrackingBloc>()
-        .add(const RefreshTracking())
+        .add(const RefreshScreen())
     );
   }
 

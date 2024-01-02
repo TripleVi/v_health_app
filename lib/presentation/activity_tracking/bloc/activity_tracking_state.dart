@@ -6,6 +6,7 @@ class ActivityTrackingState {
   final List<LatLng> geoPoints;
   final Set<Marker> markers;
   final RecordingState recState;
+  final bool isLocationAvail;
   final LocationSettingsRequest? request;
   final TrackingParams trackingParams;
   final Stream<int>? timeStream;
@@ -17,6 +18,7 @@ class ActivityTrackingState {
     this.geoPoints = const [],
     this.markers = const {},
     this.recState = RecordingState.initial,
+    this.isLocationAvail = true,
     this.request,
     this.timeStream,
     this.trackingParams = const TrackingParams(),
@@ -29,6 +31,7 @@ class ActivityTrackingState {
     List<LatLng>? geoPoints,
     Set<Marker>? markers,
     RecordingState? recState,
+    bool? isLocationAvail,
     LocationSettingsRequest? request,
     TrackingParams? trackingParams,
     Stream<int>? timeStream,
@@ -40,6 +43,7 @@ class ActivityTrackingState {
       geoPoints: geoPoints ?? this.geoPoints,
       markers: markers ?? this.markers,
       recState: recState ?? this.recState,
+      isLocationAvail: isLocationAvail ?? this.isLocationAvail,
       request: request,
       trackingParams: trackingParams ?? this.trackingParams,
       timeStream: timeStream ?? this.timeStream,

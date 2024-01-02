@@ -58,8 +58,8 @@ class PhotoEdited extends ActivityTrackingEvent {
   const PhotoEdited(this.originalBytes, this.editedBytes);
 }
 
-class RefreshTracking extends ActivityTrackingEvent {
-  const RefreshTracking();
+class RefreshScreen extends ActivityTrackingEvent {
+  const RefreshScreen();
 }
 
 class CategorySelected extends ActivityTrackingEvent {

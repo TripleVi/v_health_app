@@ -56,7 +56,7 @@ void onStart(ServiceInstance service) async {
           if(positions.isEmpty) {
             return service.invoke("positionsAcquired", {"data": [p]});
           }
-          final temp = positions.toList(growable: false);
+          final temp = positions.toList();
           positions.clear();
           service.invoke("positionsAcquired", {"data": temp});
         });
@@ -165,10 +165,10 @@ class VHealth extends StatelessWidget {
     return MaterialApp(
       title: "vHealth",
       routes: {
-        // Routes.home: (context) => const SitePage(),
-        // Routes.auth: (context) => AuthPage(),
+        Routes.home: (context) => const SitePage(),
+        Routes.auth: (context) => AuthPage(),
         // Routes.auth: (context) => const ActivityRecognition(),
-        Routes.auth: (context) => const LocationWidget(),
+        // Routes.auth: (context) => const LocationWidget(),
       },
       initialRoute: Routes.auth,
     );
