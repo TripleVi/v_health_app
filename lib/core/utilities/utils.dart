@@ -1,19 +1,9 @@
-// // ignore_for_file: non_constant_identifier_names
-
 import 'dart:io' as io;
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:intl/intl.dart';
-// import 'package:flutter/material.dart';
-// import 'package:iteration_one_fitness_tracker/data/sources/table_attributes.dart';
-// import 'package:iteration_one_fitness_tracker/domain/entities/chart_data.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart' as pp;
-
-// import 'constants.dart';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart' as pp;
 
 import 'constants.dart';
 
@@ -174,16 +164,6 @@ class MyUtils {
   //   );
   // }
 
-//   static Future<String> get _localPath async {
-//     final directory = await pp.getExternalStorageDirectory();
-//     return directory!.path;
-//   }
-
-//   static Future<io.File> getLocalFile(String name, int version) async {
-//     final path = await _localPath;
-//     return io.File('$path/${version}_$name.txt');
-//   }
-
   static String getDateFirstLetter(String date) {
     DateTime d = DateFormat(Constants.db_date_format).parse(date);
     return DateFormat('EEEE').format(d).substring(0, 3);
@@ -194,24 +174,6 @@ class MyUtils {
     return DateFormat(Constants.db_date_format)
         .format(start.subtract(Duration(days: i)));
   }
-
-//   static String toJsonString(List<String> input) {
-//     return "";
-//   }
-
-//   static List<String> getListFromString(String? input) {
-//     List<String> res = [];
-
-//     if (input == null) {
-//       return res;
-//     }
-
-//     final split = input.replaceAll("[", "").replaceAll("]", "").split(", ");
-//     for (var s in split) {
-//       res.add(s);
-//     }
-//     return res;
-//   }
 
   static Map<String, String> getFormattedDistance(double? distance) {
     const unit = "km";
@@ -231,55 +193,43 @@ class MyUtils {
     };
   }
 
-  static Map<String, String> getFormattedSpeed(double? speed) {
-    const unit = "km/h";
+  static Map<String, String> getFormattedSpeed(double? speed, [bool inSeconds = true]) {
+    final unit = inSeconds ? "m/s" : "km/h";
     if(speed == null) {
       return {
         "value": "--",
-        "unit": unit,
+        "unit": unit
       };
     }
-    // m/s -> km/h
-    speed *= 3.6;
-    final regex = RegExp(r'^\d+\.0*[1-9]');
-    final match = regex.firstMatch("$speed");
+    // speed (m/s)
     return {
-      "value": match![0]!,
+      "value": (inSeconds ? speed : speed*3.6).toStringAsFixed(2),
       "unit": unit,
     };
   }
 
-  static Map<String, String> getFormattedPace(double? pace) {
-    const unit = "/km";
-    if(pace == null) {
+  static Map<String, String> getFormattedPace(double? speed, [bool inMeters = true]) {
+    final unit = inMeters ? "/m" : "/km";
+    if(speed == null) {
       return {
         "value": "--",
-        "unit": unit,
+        "unit": unit
       };
     }
-    // s/m -> /km
-    final temp = (pace * 1000).ceil();
-    final mins = temp ~/ 60;
-    final seconds = temp - mins * 60;
+    final pace = (1 / speed * (inMeters ? 1 : 1000)).ceil();
+    final mins = pace ~/ 60;
+    final seconds = pace - mins * 60;
     return {
       "value": "$mins'$seconds''",
       "unit": unit,
     };
   }
 
-//   static DateTime getLocalDateTime(int millisecondsSinceEpoch) {
-//     return DateTime.fromMillisecondsSinceEpoch(millisecondsSinceEpoch, isUtc: false);
-//   }
-
   static String getFormattedDuration(int secondsElapsed) {
     // Duration format: 00:00:00
     final timeElapsed = Duration(seconds: secondsElapsed);
     return timeElapsed.toString().substring(0, 7);
   }
-
-//   static Future<io.Directory> getAppDirectory() {
-//     return pp.getApplicationDocumentsDirectory();
-//   }
 
   static Future<io.Directory> getAppTempDirectory() {
     return pp.getTemporaryDirectory();

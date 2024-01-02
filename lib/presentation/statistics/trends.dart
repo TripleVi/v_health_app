@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../data/repositories/daily_report_repo.dart';
-import '../../../core/utilities/constants.dart';
-import '../../../core/utilities/utils.dart';
-import '../../../data/repositories/hourly_report_repo.dart';
-import '../../../domain/entities/chart_data.dart';
-import '../../../domain/entities/daily_steps.dart';
-import '../../../domain/entities/report.dart';
-import '../../widgets/appBar.dart';
-import '../../widgets/text.dart';
+import '../../data/repositories/daily_report_repo.dart';
+import '../../core/utilities/constants.dart';
+import '../../core/utilities/utils.dart';
+import '../../data/repositories/hourly_report_repo.dart';
+import '../../domain/entities/chart_data.dart';
+import '../../domain/entities/daily_steps.dart';
+import '../../domain/entities/report.dart';
+import '../widgets/appBar.dart';
+import '../widgets/text.dart';
 
 class Trends extends StatefulWidget {
   const Trends({super.key});

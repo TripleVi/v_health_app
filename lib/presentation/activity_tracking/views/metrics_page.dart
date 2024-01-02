@@ -9,12 +9,12 @@ import '../../../core/utilities/utils.dart';
 import '../bloc/activity_tracking_bloc.dart';
 import 'time_counter.dart';
 
-class MeasurementPage extends StatelessWidget {
+class MetricsPage extends StatelessWidget {
   final TrackingParams _trackingParams;
   final Stream<int> _timeStream;
   final Widget _targetWidget;
 
-  const MeasurementPage({
+  const MetricsPage({
     super.key,
     required TrackingParams trackingParams,
     required Stream<int> timeStream,
@@ -25,7 +25,6 @@ class MeasurementPage extends StatelessWidget {
 
   List<Widget> _processMetrics(TrackingParams param) {
     final metricsWidgets = <Widget>[];
-    // height 140
     metricsWidgets.add(TimeCounter(
       timeStream: _timeStream,
       builder: (secondsElapsed) {
@@ -38,32 +37,32 @@ class MeasurementPage extends StatelessWidget {
     final distanceMap = MyUtils.getFormattedDistance(param.distance);
     metricsWidgets.add(_metricsWidget(
       txtName: "Distance",
-      txtValue: distanceMap["value"]!,
-      txtUnit: distanceMap["unit"]!,
+      txtValue: distanceMap["value"],
+      txtUnit: distanceMap["unit"],
     ));
     final speedMap = MyUtils.getFormattedSpeed(param.speed);
     metricsWidgets.add(_metricsWidget(
       txtName: "Speed",
-      txtValue: speedMap["value"]!,
-      txtUnit: speedMap["unit"]!,
+      txtValue: speedMap["value"],
+      txtUnit: speedMap["unit"],
     ));
     final avgSpeedMap = MyUtils.getFormattedSpeed(param.avgSpeed);
     metricsWidgets.add(_metricsWidget(
       txtName: "Avg. Speed",
-      txtValue: avgSpeedMap["value"]!,
-      txtUnit: avgSpeedMap["unit"]!,
+      txtValue: avgSpeedMap["value"],
+      txtUnit: avgSpeedMap["unit"],
     ));
     final paceMap = MyUtils.getFormattedPace(param.pace);
     metricsWidgets.add(_metricsWidget(
       txtName: "Pace",
-      txtValue: paceMap["value"]!,
-      txtUnit: paceMap["unit"]!,
+      txtValue: paceMap["value"],
+      txtUnit: paceMap["unit"],
     ));
     final avgPaceMap = MyUtils.getFormattedPace(param.avgPace);
     metricsWidgets.add(_metricsWidget(
       txtName: "Avg. Pace",
-      txtValue: avgPaceMap["value"]!,
-      txtUnit: avgPaceMap["unit"]!,
+      txtValue: avgPaceMap["value"],
+      txtUnit: avgPaceMap["unit"],
     ));
     metricsWidgets.add(_metricsWidget(
       txtName: "Calories Burnt",

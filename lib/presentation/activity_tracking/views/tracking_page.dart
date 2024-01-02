@@ -17,10 +17,10 @@ import '../../site/bloc/site_bloc.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/dialog.dart';
 import '../bloc/activity_tracking_bloc.dart';
-import '../image_page.dart';
+import '../../widgets/image_page.dart';
 import '../saving/view/saving_page.dart';
 import 'time_counter.dart';
-import 'measurement_page.dart';
+import 'metrics_page.dart';
 
 class TrackingPage extends StatelessWidget {
   const TrackingPage({super.key});
@@ -257,7 +257,7 @@ class TrackingView extends StatelessWidget {
                         builder: (context, value, child) {
                           return Offstage(
                             offstage: value,
-                            child: MeasurementPage(
+                            child: MetricsPage(
                               trackingParams: state.trackingParams,
                               timeStream: state.timeStream!,
                               targetWidget: _buildTargetWidget(state),

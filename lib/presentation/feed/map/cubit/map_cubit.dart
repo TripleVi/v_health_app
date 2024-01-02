@@ -10,7 +10,7 @@ import '../../../../core/resources/colors.dart';
 import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/photo.dart';
 import '../../../../domain/entities/post.dart';
-import '../../../activity_tracking/widgets/marker_painter.dart';
+import '../../../widgets/marker_painter.dart';
 
 part 'map_state.dart';
 

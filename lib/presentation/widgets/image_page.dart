@@ -6,8 +6,8 @@ import 'package:flutter/services.dart';
 
 import '../../core/resources/colors.dart';
 import '../../core/resources/style.dart';
-import '../widgets/image_editor.dart';
-import '../widgets/loading_indicator.dart';
+import 'image_editor.dart';
+import 'loading_indicator.dart';
 
 class ImageView extends StatefulWidget {
   final String? url;

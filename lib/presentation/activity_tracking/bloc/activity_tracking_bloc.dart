@@ -17,7 +17,7 @@ import '../../../core/enum/activity_tracking.dart';
 import '../../../core/services/location_service.dart';
 import '../../../domain/entities/activity_record.dart';
 import '../../../main.dart';
-import '../widgets/marker_painter.dart';
+import '../../widgets/marker_painter.dart';
 import 'activity_tracking.dart';
 import 'cycling_activity.dart';
 import 'running_activity.dart';

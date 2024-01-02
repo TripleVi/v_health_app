@@ -10,7 +10,7 @@ import '../../feed/views/feed_page.dart';
 import '../../friend/views/friend_page.dart';
 import '../../group/view/group_page.dart';
 import '../../profile/view/profile_page.dart';
-import '../../views/statistics/daily_stats.dart';
+import '../../statistics/daily_stats.dart';
 import '../bloc/site_bloc.dart';
 
 class SitePage extends StatelessWidget {
