@@ -81,7 +81,7 @@ class CommentBlock extends StatelessWidget {
                                     ),
                                     Text(
                                       timeago.format(comment.createdDate, locale: "en"),
-                                      style: AppStyle.label(),
+                                      style: AppStyle.label6(),
                                     ),
                                   ],
                                 ),
@@ -94,14 +94,14 @@ class CommentBlock extends StatelessWidget {
                                   children: [
                                     Text(
                                       "22 likes",
-                                      style: AppStyle.label(),
+                                      style: AppStyle.label6(),
                                     ),
                                     const SizedBox(width: 12.0),
                                     GestureDetector(
                                       onTap: () => onReplyToTapped(context),
                                       child: Text(
                                         "Reply",
-                                        style: AppStyle.label(),
+                                        style: AppStyle.label6(),
                                       ),
                                     ),
                                   ],
@@ -268,7 +268,7 @@ class CommentBlock extends StatelessWidget {
                     ),
                     Text(
                       timeago.format(comment.createdDate, locale: "en"),
-                      style: AppStyle.label(),
+                      style: AppStyle.label6(),
                     ),
                   ],
                 ),
@@ -291,14 +291,14 @@ class CommentBlock extends StatelessWidget {
                   children: [
                     Text(
                       "22 likes",
-                      style: AppStyle.label(),
+                      style: AppStyle.label6(),
                     ),
                     const SizedBox(width: 12.0),
                     GestureDetector(
                       onTap: () => onReplyToTapped(context),
                       child: Text(
                         "Reply",
-                        style: AppStyle.label(),
+                        style: AppStyle.label6(),
                       ),
                     ),
                   ],

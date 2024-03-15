@@ -82,7 +82,7 @@ class FeedView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Text("12", 
-                style: AppStyle.label(
+                style: AppStyle.label6(
                   fontSize: 12.0,
                   color: Colors.white,
                   height: 1.0,

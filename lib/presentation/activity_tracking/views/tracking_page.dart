@@ -61,8 +61,8 @@ class TrackingView extends StatelessWidget {
   final _txtDistanceWhole = TextEditingController(text: "1");
   final _txtDistanceFractional = TextEditingController(text: "0");
   final _txtDurationHour = TextEditingController(text: "01");
-  final _txtDurationMinute = TextEditingController(text: "01");
-  final _txtDurationSecond = TextEditingController(text: "01");
+  final _txtDurationMinute = TextEditingController(text: "00");
+  final _txtDurationSecond = TextEditingController(text: "00");
   final _txtCalories = TextEditingController(text: "01");
   final _visibilityChange = ValueNotifier(true);
 
@@ -148,11 +148,11 @@ class TrackingView extends StatelessWidget {
           children: [
             value ?? Text(
               txtValue!, 
-              style: valueStyle ?? AppStyle.tracking_heading_1(),
+              style: valueStyle ?? AppStyle.heading_2(fontSize: 40.0, height: 1.0),
             ),
             unit ?? Text(
               txtUnit ?? "", 
-              style: unitStyle ?? AppStyle.tracking_heading_2(),
+              style: unitStyle ?? AppStyle.heading_2(fontSize: 40.0, height: 1.0),
             ),
           ],
         ),
@@ -221,10 +221,10 @@ class TrackingView extends StatelessWidget {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                _googleMapWidget(
-                  context: context,
-                  state: state,
-                ),
+                // _googleMapWidget(
+                //   context: context,
+                //   state: state,
+                // ),
                 state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,
@@ -392,26 +392,24 @@ class TrackingView extends StatelessWidget {
     );
   }
 
-  Widget _textFieldWidget(
-      {required TextEditingController controller, int maxLength = 1}) {
+  Widget _textFieldWidget({
+    required TextEditingController controller, 
+    int maxLength = 1,
+  }) {
     return SizedBox(
-      width: maxLength * 32.0,
+      width: maxLength * 30.0,
       child: TextField(
         controller: controller,
-        style: AppStyle.tracking_heading_1(),
+        style: AppStyle.heading_2(fontSize: 40.0, height: 1.0,letterSpacing: 0),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.digitsOnly,
         ],
-        decoration: const InputDecoration(
-          isCollapsed: true,
-          border: InputBorder.none,
-          counter: SizedBox(),
-        ),
+        decoration: null,
         keyboardType: TextInputType.number,
         maxLength: maxLength,
         maxLines: 1,
         minLines: 1,
-        textAlign: TextAlign.center,
+        textAlign: TextAlign.right,
       ),
     );
   }
@@ -458,26 +456,24 @@ class TrackingView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        _textFieldWidget(controller: _txtDistanceWhole, maxLength: 3),
-        Text(".", style: AppStyle.tracking_heading_2()),
-        _textFieldWidget(controller: _txtDistanceFractional, maxLength: 1),
-        Text(Metrics.distance.unit, style: AppStyle.tracking_heading_2()),
+        Container(color: Colors.blue, child: _textFieldWidget(controller: _txtDistanceWhole, maxLength: 3)),
+        Text(".", style: AppStyle.label3()),
+        Container(color: Colors.blue, child: _textFieldWidget(controller: _txtDistanceFractional, maxLength: 1)),
+        Text(Metrics.distance.unit, style: AppStyle.label3()),
       ],
     );
   }
 
   Widget _durationTargetInputWidget() {
+    const fontSize = 32.0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _textFieldWidget(controller: _txtDurationHour, maxLength: 2),
-        Text(
-          ":",
-          style: AppStyle.tracking_heading_2(),
-        ),
+        Text(":", style: AppStyle.label3(fontSize: fontSize)),
         _textFieldWidget(controller: _txtDurationMinute, maxLength: 2),
-        Text(":", style: AppStyle.tracking_heading_2()),
+        Text(":", style: AppStyle.label3(fontSize: fontSize)),
         _textFieldWidget(controller: _txtDurationSecond, maxLength: 2),
       ],
     );
@@ -488,7 +484,7 @@ class TrackingView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _textFieldWidget(controller: _txtCalories, maxLength: 3),
-        Text(Metrics.calories.unit, style: AppStyle.tracking_heading_2()),
+        Text(Metrics.calories.unit, style: AppStyle.heading_2(height: 1.0)),
       ],
     );
   }
@@ -496,7 +492,7 @@ class TrackingView extends StatelessWidget {
   Widget _noTargetInputWidget() {
     return Text(
       "Boost your training with a workout target.",
-      style: AppStyle.tracking_heading_2(),
+      style: AppStyle.heading_2(),
       textAlign: TextAlign.center,
     );
   }

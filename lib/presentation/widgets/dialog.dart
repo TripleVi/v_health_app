@@ -49,7 +49,7 @@ class MyDialog {
               onPressed: () => Navigator.pop<bool>(context, false),
               child: Text(
                 noButtonName,
-                style: AppStyle.label(
+                style: AppStyle.label6(
                   color: Colors.grey,
                   height: 1.0,
                 ),
@@ -59,7 +59,7 @@ class MyDialog {
               onPressed: () => Navigator.pop<bool>(context, true),
               child: Text(
                 yesButtonName,
-                style: AppStyle.label(
+                style: AppStyle.label6(
                   color: Colors.blue,
                   height: 1.0,
                 ),
@@ -90,7 +90,7 @@ class MyDialog {
               onPressed: () => Navigator.pop<void>(context),
               child: Text(
                 yesButtonName,
-                style: AppStyle.label(
+                style: AppStyle.label6(
                   color: Colors.blue,
                   height: 1.0,
                 ),

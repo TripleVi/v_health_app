@@ -55,7 +55,7 @@ class PostingCommentItem extends StatelessWidget {
                 const SizedBox(height: 8.0,),
                 Text(
                   "Posting",
-                  style: AppStyle.label(),
+                  style: AppStyle.label6(),
                 ),
               ],
             ),

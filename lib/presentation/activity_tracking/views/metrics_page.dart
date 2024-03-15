@@ -106,11 +106,11 @@ class MetricsPage extends StatelessWidget {
           children: [
             value ?? Text(
               "${txtValue!} ", 
-              style: valueStyle ?? AppStyle.tracking_heading_2(),
+              style: valueStyle ?? AppStyle.heading_2(height: 1.0),
             ),
             unit ?? Text(
               txtUnit ?? "",
-              style: unitStyle ?? AppStyle.tracking_heading_3(),
+              style: unitStyle ?? AppStyle.heading_3(height: 1.0),
             ),
           ],
         ),

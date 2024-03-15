@@ -13,12 +13,12 @@ class LoginOptions extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 100.0),
       child: Column(
         children: [
-          Text("Log in to vHealth", style: AppStyle.heading_1(height: 1.0)),
+          Text("Log in to vHealth", style: AppStyle.heading4(height: 1.0)),
           Container(
             margin: const EdgeInsets.only(top: 8.0, bottom: 32.0),
             child: Text(
               "Manage your account, record your activities, follow other accounts, and more.",
-              style: AppStyle.paragraph(),
+              style: AppStyle.label6(),
               textAlign: TextAlign.center,
             ),
           ),
@@ -37,7 +37,7 @@ class LoginOptions extends StatelessWidget {
                   Expanded(
                     child: Text(
                       "Use email or username",
-                      style: AppStyle.heading_2(height: 1.0), 
+                      style: AppStyle.heading6(height: 1.0), 
                       textAlign: TextAlign.center,
                     ),
                   )
@@ -86,7 +86,7 @@ class LoginOptions extends StatelessWidget {
             Expanded(
               child: Text(
                 "Continue with $logoName", 
-                style: AppStyle.heading_2(height: 1.0), 
+                style: AppStyle.heading6(height: 1.0), 
                 textAlign: TextAlign.center,
               ),
             )

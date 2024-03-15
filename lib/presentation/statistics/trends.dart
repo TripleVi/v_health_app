@@ -200,34 +200,34 @@ class _TrendsState extends State<Trends> {
             ),
           ],
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 10),
-          child: SizedBox(
-            height: 200,
-            child: SfCartesianChart(
-                primaryXAxis: NumericAxis(
-                  tickPosition: TickPosition.inside,
-                ),
-                primaryYAxis: CategoryAxis(
-                    majorGridLines: const MajorGridLines(width: 0),
-                    minimum: MyUtils.getMinValue(chartData),
-                    maximum: MyUtils.getMaxValue(chartData)),
-                series: <ChartSeries>[
-                  // Renders line chart
-                  LineSeries<ChartData, int>(
-                      color: Constants.paragraphColor,
-                      dataSource: chartData,
-                      xValueMapper: (ChartData data, _) => data.x,
-                      yValueMapper: (ChartData data, _) => median),
-                  SplineSeries<ChartData, int>(
-                    color: Constants.primaryColor,
-                    dataSource: chartData,
-                    xValueMapper: (ChartData data, _) => data.x,
-                    yValueMapper: (ChartData data, _) => data.y,
-                  )
-                ]),
-          ),
-        ),
+        // Padding(
+        //   padding: const EdgeInsets.only(top: 10),
+        //   child: SizedBox(
+        //     height: 200,
+        //     child: SfCartesianChart(
+        //         primaryXAxis: NumericAxis(
+        //           tickPosition: TickPosition.inside,
+        //         ),
+        //         primaryYAxis: CategoryAxis(
+        //             majorGridLines: const MajorGridLines(width: 0),
+        //             minimum: MyUtils.getMinValue(chartData),
+        //             maximum: MyUtils.getMaxValue(chartData)),
+        //         series: <ChartSeries>[
+        //           // Renders line chart
+        //           LineSeries<ChartData, int>(
+        //               color: Constants.paragraphColor,
+        //               dataSource: chartData,
+        //               xValueMapper: (ChartData data, _) => data.x,
+        //               yValueMapper: (ChartData data, _) => median),
+        //           SplineSeries<ChartData, int>(
+        //             color: Constants.primaryColor,
+        //             dataSource: chartData,
+        //             xValueMapper: (ChartData data, _) => data.x,
+        //             yValueMapper: (ChartData data, _) => data.y,
+        //           )
+        //         ]),
+        //   ),
+        // ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -245,48 +245,48 @@ class _TrendsState extends State<Trends> {
     int time = DateTime.now().hour;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       summary,
-      Padding(
-        padding: const EdgeInsets.only(top: 10),
-        child: SizedBox(
-          height: 200,
-          child: SfCartesianChart(
-              borderWidth: 0,
-              primaryXAxis: NumericAxis(
-                majorTickLines: const MajorTickLines(
-                    size: 6, width: 2, color: Constants.paragraphColor),
-                minorTickLines: const MinorTickLines(
-                    size: 4, width: 2, color: Constants.paragraphColor),
-                minorTicksPerInterval: 2,
-                plotBands: <PlotBand>[
-                  PlotBand(
-                    color: const Color.fromARGB(255, 132, 132, 132),
-                    start: time,
-                    end: time + 0.1,
-                    isVisible: true,
-                  )
-                ],
-                tickPosition: TickPosition.inside,
-              ),
-              primaryYAxis: CategoryAxis(
-                  isVisible: false,
-                  minimum: 0,
-                  maximum: MyUtils.getMaxValue(yesterday)),
-              series: <ChartSeries>[
-                // Renders line chart
-                SplineSeries<ChartData, int>(
-                    color: Constants.paragraphColor,
-                    dataSource: yesterday,
-                    xValueMapper: (ChartData data, _) => data.x,
-                    yValueMapper: (ChartData data, _) => data.y),
-                SplineSeries<ChartData, int>(
-                  color: Constants.primaryColor,
-                  dataSource: today,
-                  xValueMapper: (ChartData data, _) => data.x,
-                  yValueMapper: (ChartData data, _) => data.y,
-                ),
-              ]),
-        ),
-      ),
+      // Padding(
+      //   padding: const EdgeInsets.only(top: 10),
+      //   child: SizedBox(
+      //     height: 200,
+      //     child: SfCartesianChart(
+      //         borderWidth: 0,
+      //         primaryXAxis: NumericAxis(
+      //           majorTickLines: const MajorTickLines(
+      //               size: 6, width: 2, color: Constants.paragraphColor),
+      //           minorTickLines: const MinorTickLines(
+      //               size: 4, width: 2, color: Constants.paragraphColor),
+      //           minorTicksPerInterval: 2,
+      //           plotBands: <PlotBand>[
+      //             PlotBand(
+      //               color: const Color.fromARGB(255, 132, 132, 132),
+      //               start: time,
+      //               end: time + 0.1,
+      //               isVisible: true,
+      //             )
+      //           ],
+      //           tickPosition: TickPosition.inside,
+      //         ),
+      //         primaryYAxis: CategoryAxis(
+      //             isVisible: false,
+      //             minimum: 0,
+      //             maximum: MyUtils.getMaxValue(yesterday)),
+      //         series: <ChartSeries>[
+      //           // Renders line chart
+      //           SplineSeries<ChartData, int>(
+      //               color: Constants.paragraphColor,
+      //               dataSource: yesterday,
+      //               xValueMapper: (ChartData data, _) => data.x,
+      //               yValueMapper: (ChartData data, _) => data.y),
+      //           SplineSeries<ChartData, int>(
+      //             color: Constants.primaryColor,
+      //             dataSource: today,
+      //             xValueMapper: (ChartData data, _) => data.x,
+      //             yValueMapper: (ChartData data, _) => data.y,
+      //           ),
+      //         ]),
+      //   ),
+      // ),
     ]);
   }
 

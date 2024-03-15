@@ -76,21 +76,27 @@ class AuthView extends StatelessWidget {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     color: Colors.grey.shade50,
+                    // color: AppStyle.labelColor,
                     border: Border(
-                        top: BorderSide(color: Colors.grey.shade200)),
+                      top: BorderSide(color: Colors.grey.shade200),
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         "Don't have an account? ",
-                        style: AppStyle.heading_2(height: 1.0),
+                        style: AppStyle.label5(height: 1.0),
                         textAlign: TextAlign.center,
                       ),
                       Text(
                         loginPage ? "Sign up" : "Log in",
-                        style: AppStyle.heading_2(
-                            color: Colors.red, height: 1.0),
+                        style: AppStyle.heading6(
+                          color: AppStyle.primaryColor, 
+                          height: 1.0,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ],

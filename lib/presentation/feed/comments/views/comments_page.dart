@@ -148,18 +148,18 @@ class CommentsView extends StatelessWidget {
                       : Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text("Replying to ", style: AppStyle.label()),
+                            Text("Replying to ", style: AppStyle.label6()),
                             Text(
                               replyToUsername, 
                               style: AppStyle.paragraph(height: 1, fontSize: 14.0)
                             ),
-                            Text(" . ", style: AppStyle.label()),
+                            Text(" . ", style: AppStyle.label6()),
                             GestureDetector(
                               onTap: context.read<CommentsCubit>().cancelReplyTo,
                               behavior: HitTestBehavior.opaque,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Text("Cancel", style: AppStyle.label()),
+                                child: Text("Cancel", style: AppStyle.label6()),
                               ),
                             ),
                           ],
