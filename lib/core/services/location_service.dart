@@ -132,7 +132,7 @@ class LocationService {
     final placemarks =  await geocoding.placemarkFromCoordinates(
       latitude, 
       longitude, 
-      localeIdentifier: localeIdentifier,
+      // localeIdentifier: localeIdentifier,
     );
 
     return ReverseGeocodingResponse(

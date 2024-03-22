@@ -47,17 +47,16 @@ dependencies:
   timeago: ^3.6.0
   cached_network_image: ^3.3.0
   extended_image: ^8.1.1
-  geocoding: ^2.1.1
+  geocoding: ^3.0.0
   firebase_core: ^2.22.0
   firebase_auth: ^4.14.0
   google_sign_in: ^6.1.6
   line_icons: ^2.0.3
-  dio: ^5.3.4
   shared_preferences: ^2.2.2
   matrix2d: ^1.0.4
   flutter_sensors: ^1.0.1
   iirjdart: ^0.1.0
-  syncfusion_flutter_charts: ^24.2.9
+  syncfusion_flutter_charts: ^25.1.35
   sqflite: ^2.3.0
   workmanager: ^0.5.2
   flutter_background_service: ^5.0.4
@@ -66,6 +65,7 @@ dependencies:
   http_parser: ^4.0.2
   bottom_sheet: ^4.0.0
   flutter_activity_recognition: ^3.0.0
+  dio: ^5.4.1
 
 dev_dependencies:
   flutter_test:
