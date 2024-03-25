@@ -221,10 +221,10 @@ class TrackingView extends StatelessWidget {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                // _googleMapWidget(
-                //   context: context,
-                //   state: state,
-                // ),
+                _googleMapWidget(
+                  context: context,
+                  state: state,
+                ),
                 state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,
@@ -456,9 +456,9 @@ class TrackingView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Container(color: Colors.blue, child: _textFieldWidget(controller: _txtDistanceWhole, maxLength: 3)),
+        Container(child: _textFieldWidget(controller: _txtDistanceWhole, maxLength: 3)),
         Text(".", style: AppStyle.label3()),
-        Container(color: Colors.blue, child: _textFieldWidget(controller: _txtDistanceFractional, maxLength: 1)),
+        Container(child: _textFieldWidget(controller: _txtDistanceFractional, maxLength: 1)),
         Text(Metrics.distance.unit, style: AppStyle.label3()),
       ],
     );

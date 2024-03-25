@@ -20,23 +20,23 @@ import 'presentation/site/views/site_page.dart';
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-  var rawAccelData = <List<double>>[];
-  final stream = await SensorService().accelerometerEvents();
-  stream.listen((event) {
-    rawAccelData.add(event);
-  });
-  const analysisInterval = 15;
-  Timer.periodic(const Duration(seconds: analysisInterval), (_) async {
-    final temp = rawAccelData.toList(growable: false);
-    rawAccelData.clear();
-    final service = ClassificationService();
-    await service.updateReports(
-      rawAccelData: temp, 
-      date: DateTime.now(),
-      samplingRate: temp.length / analysisInterval,
-    );
-  });
+  // DartPluginRegistrant.ensureInitialized();
+  // var rawAccelData = <List<double>>[];
+  // final stream = await SensorService().accelerometerEvents();
+  // stream.listen((event) {
+  //   rawAccelData.add(event);
+  // });
+  // const inactiveInterval = 15;
+  // Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
+  //   final temp = rawAccelData.toList(growable: false);
+  //   rawAccelData.clear();
+  //   final service = ClassificationService();
+  //   await service.updateReports(
+  //     rawAccelData: temp, 
+  //     date: DateTime.now(),
+  //     samplingRate: temp.length/inactiveInterval,
+  //   );
+  // });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;
@@ -51,7 +51,7 @@ void onStart(ServiceInstance service) async {
       StreamSubscription? trStatesListener;
       final positions = <Position>[];
       StreamSubscription<Position> locationUpdatesHelper() {
-        return LocationService().locationUpdates().listen((p) {
+        return LocationService().locationUpdates(5).listen((p) {
           if(backgroundMode) return positions.add(p);
           if(positions.isEmpty) {
             return service.invoke("positionsAcquired", {"data": [p]});
@@ -85,7 +85,7 @@ void onStart(ServiceInstance service) async {
         return stream.listen(signals.add);
       }
       Timer timerHelper() {
-        return Timer.periodic(const Duration(seconds: 15), (_) {
+        return Timer.periodic(const Duration(seconds: activeInterval), (_) {
           if(backgroundMode) return;
           final temp = signals.toList(growable: false);
           signals.clear();
@@ -132,6 +132,7 @@ void onStart(ServiceInstance service) async {
 }
 
 final backgroundService = FlutterBackgroundService();
+const activeInterval = 5; // seconds
 StreamSubscription<Map<String, dynamic>?>? locSubscriber;
 
 Future<void> main() async {
@@ -341,7 +342,7 @@ class _ActivityRecognitionState extends State<ActivityRecognition> {
 
   var rawAccelData = <List<double>>[];
   final sTimeFrames = <DateTime>[];
-  StreamSubscription<List<double>>? sensorSubscriber; 
+  StreamSubscription<List<double>>? sensorSubscriber;
   List<Map<String, dynamic>> accelResult = [];
 
   // void _handleError(dynamic error) {

@@ -405,21 +405,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         icon: startingMarker,
       ));
       initTrackingSession();
-      activity!.startRecording((positions) {
-        if(_geoPoints.isEmpty) {
-          positions.removeAt(0);
-        }
-        if(positions.length == 1) {
-          _curtPos = positions.first;
-        }else {
-          _curtPos = positions.last;
-        }
-        _geoPoints.addAll(positions.map((p) {
-          _updateLatLngBounds(p);
-          return LatLng(p.latitude, p.longitude);
-        }));
-        add(const LocationUpdated());
-      });
+      activity!.startRecording(
+        onMetricsUpdated: () {
+          
+        },
+        onPositionsAcquired: (positions) {
+          if(_geoPoints.isEmpty) {
+            positions.removeAt(0);
+          }
+          if(positions.length == 1) {
+            _curtPos = positions.first;
+          }else {
+            _curtPos = positions.last;
+          }
+          _geoPoints.addAll(positions.map((p) {
+            _updateLatLngBounds(p);
+            return LatLng(p.latitude, p.longitude);
+          }));
+          add(const LocationUpdated());
+        },
+      );
       emit(state.copyWith(
         geoPoints: _geoPoints,
         markers: _markers,

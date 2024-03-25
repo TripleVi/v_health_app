@@ -216,6 +216,12 @@ class MyUtils {
         "unit": unit
       };
     }
+    if(speed == 0.0) {
+      return {
+        "value": "0'0''",
+        "unit": unit,
+      };
+    }
     final pace = (1 / speed * (inMeters ? 1 : 1000)).ceil();
     final mins = pace ~/ 60;
     final seconds = pace - mins * 60;

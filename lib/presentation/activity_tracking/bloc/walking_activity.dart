@@ -11,28 +11,34 @@ class WalkingActivity extends ActivityTracking {
   StreamSubscription? accelListener;
 
   @override
-  void startRecording(void Function(List<Position> positions) onPositionsAcquired) {
-    super.startRecording(onPositionsAcquired);
+  void startRecording({
+    required void Function() onMetricsUpdated, 
+    required void Function(List<Position> positions) onPositionsAcquired,
+  }) {
+    initSession();
+    handleLocationUpdates(onPositionsAcquired);
     backgroundService.invoke("accelUpdates");
-    accelListener = backgroundService.on("accelAcquired").listen((event) async {
-      final data = List.castFrom<dynamic, List<double>>(event!["data"]);
+    accelListener = backgroundService.on("accelAcquired").listen((e) async {
+      final data = (e!["data"] as List).map((e) => 
+          (e as List).map<double>((e) => e*1.0).toList(growable: false)
+      ).toList(growable: false);
       final service = ClassificationService();
-      const duration = 5;
       final time = DateTime.now().difference(startDate).inSeconds;
-      final metrics = await service.classify(data, data.length/5);
+      final metrics = await service.classify(data, data.length/activeInterval);
       metrics["time"] = time;
-      metrics["duration"] = duration;
+      metrics["duration"] = activeInterval;
       updateMetrics(metrics);
+      onMetricsUpdated();
     });
   }
 
   @override
   void updateMetrics(Map<String, dynamic> metrics) {
-    final steps = metrics["steps"] as int;
-    final distance = metrics["distance"] as double;
-    final calories = metrics["calories"] as double;
-    final secondsElapsed = metrics["time"] as int;
-    final duration = metrics["duration"] as int;
+    int steps = metrics["steps"];
+    double distance = metrics["distance"];
+    int calories = metrics["calories"];
+    int secondsElapsed = metrics["time"];
+    int duration = metrics["duration"];
     totalSteps += steps;
     // m
     totalDistance += distance;

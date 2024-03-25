@@ -6,24 +6,27 @@ class CyclingActivity extends ActivityTracking {
   Position? curt;
 
   @override
-  void locationUpdatesHelper(
-    Map<String, dynamic>? event, 
-    void Function(List<Position> positions) onPositionsAcquired,
-  ) {
-    final data = List.castFrom<dynamic, Position>(event!["data"]);
-    Position? prev;
-    if(data.length == 1) {
-      prev = curt;
-      curt = data.first;
-    }else {
-      curt = data.last;
-      prev = data[data.length-1-1];
-    }
-    updateMetrics({
-      "prev": prev,
-      "curt": curt,
+  void startRecording({
+    required void Function() onMetricsUpdated, 
+    required void Function(List<Position> positions) onPositionsAcquired,
+  }) {
+    initSession();
+    handleLocationUpdates((positions) {
+      Position? prev;
+      if(positions.length == 1) {
+        prev = curt;
+        curt = positions.first;
+      }else {
+        curt = positions.last;
+        prev = positions[positions.length-1-1];
+      }
+      updateMetrics({
+        "prev": prev,
+        "curt": curt,
+      });
+      onPositionsAcquired(positions);
     });
-    onPositionsAcquired(data);
+    onMetricsUpdated();
   }
 
   @override

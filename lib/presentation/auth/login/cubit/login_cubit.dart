@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:matrix2d/matrix2d.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:v_health/core/enum/user_enum.dart';
 
+import '../../../../core/services/location_service.dart';
+import '../../../../core/services/sensor_service.dart';
 import '../../../../data/sources/api/user_api.dart';
 
 part 'login_state.dart';
@@ -16,6 +19,12 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> submitLoginForm(String account, String password) async {
+    print("started");
+    LocationService().locationUpdates(5).listen((p) {
+      print(p.toJson());
+      
+    });
+    return;
     try {
       emit(state.copyWith(isProcessing: true));
       final isEmail = account.contains('@');
