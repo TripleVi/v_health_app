@@ -12,6 +12,7 @@ class ActivityTrackingState {
   final Stream<int>? timeStream;
   final TrackingResult? result;
   final io.File? photo;
+  final bool isMetricsVisible;
 
   const ActivityTrackingState({
     this.category = ActivityCategory.walking,
@@ -24,6 +25,7 @@ class ActivityTrackingState {
     this.trackingParams = const TrackingParams(),
     this.result,
     this.photo,
+    this.isMetricsVisible = false,
   });
 
   ActivityTrackingState copyWith({
@@ -37,6 +39,7 @@ class ActivityTrackingState {
     Stream<int>? timeStream,
     TrackingResult? result,
     io.File? photo,
+    bool? isMetricsVisible,
   }) {
     return ActivityTrackingState(
       category: category ?? this.category,
@@ -49,6 +52,7 @@ class ActivityTrackingState {
       timeStream: timeStream ?? this.timeStream,
       result: result,
       photo: photo,
+      isMetricsVisible: isMetricsVisible ?? this.isMetricsVisible,
     );
   }
 }

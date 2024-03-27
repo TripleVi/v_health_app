@@ -147,6 +147,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     on<RefreshScreen>(_onRefreshScreen);
     on<LocationUpdated>(_onLocationUpdated);
     on<CategorySelected>(_onCategorySelected);
+    on<ToggleMetricsDialog>(_onMetricsDialogToggled);
 
     WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -375,6 +376,13 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     emit(state.copyWith(category: event.category));
   }
 
+  void _onMetricsDialogToggled(
+    ToggleMetricsDialog event,
+    Emitter<ActivityTrackingState> emit,
+  ) {
+    emit(state.copyWith(isMetricsVisible: !state.isMetricsVisible));
+  }
+
   void initTrackingSession() {
     if(state.category.isWalking) {
       activity = WalkingActivity();
@@ -389,6 +397,17 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingStarted event,
     Emitter<ActivityTrackingState> emit,
   ) async {
+    emit(state.copyWith(
+        geoPoints: _geoPoints,
+        markers: _markers,
+        timeStream: _timeStreamController.stream,
+        recState: RecordingState.recording,
+        trackingParams: TrackingParams(
+          selectedTarget: state.trackingParams.selectedTarget,
+          targetValue: event.targetValue,
+        ),
+      ));
+      return;
     if(_isProcessing) return;
     _isProcessing = true;
     await handleLocationPermission(emit);
@@ -405,26 +424,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         icon: startingMarker,
       ));
       initTrackingSession();
-      activity!.startRecording(
-        onMetricsUpdated: () {
+      // activity!.startRecording(
+      //   onMetricsUpdated: () {
           
-        },
-        onPositionsAcquired: (positions) {
-          if(_geoPoints.isEmpty) {
-            positions.removeAt(0);
-          }
-          if(positions.length == 1) {
-            _curtPos = positions.first;
-          }else {
-            _curtPos = positions.last;
-          }
-          _geoPoints.addAll(positions.map((p) {
-            _updateLatLngBounds(p);
-            return LatLng(p.latitude, p.longitude);
-          }));
-          add(const LocationUpdated());
-        },
-      );
+      //   },
+      //   onPositionsAcquired: (positions) {
+      //     if(_geoPoints.isEmpty) {
+      //       positions.removeAt(0);
+      //     }
+      //     if(positions.length == 1) {
+      //       _curtPos = positions.first;
+      //     }else {
+      //       _curtPos = positions.last;
+      //     }
+      //     _geoPoints.addAll(positions.map((p) {
+      //       _updateLatLngBounds(p);
+      //       return LatLng(p.latitude, p.longitude);
+      //     }));
+      //     add(const LocationUpdated());
+      //   },
+      // );
       emit(state.copyWith(
         geoPoints: _geoPoints,
         markers: _markers,

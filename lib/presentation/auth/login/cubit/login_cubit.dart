@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:matrix2d/matrix2d.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:v_health/core/enum/user_enum.dart';
+import 'package:v_health/core/services/weather_service.dart';
 
 import '../../../../core/services/location_service.dart';
 import '../../../../core/services/sensor_service.dart';
@@ -19,11 +20,9 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> submitLoginForm(String account, String password) async {
-    print("started");
-    LocationService().locationUpdates(5).listen((p) {
-      print(p.toJson());
-      
-    });
+    final service = WeatherService();
+    final temp = await service.fetchCurrentTemperature(21.0343313, 105.7658157);
+    print(temp);
     return;
     try {
       emit(state.copyWith(isProcessing: true));

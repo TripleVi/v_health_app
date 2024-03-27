@@ -19,7 +19,6 @@ class _TimeCounterState extends State<TimeCounter> {
   @override
   void initState() {
     super.initState();
-
     _secondSubscription = widget.timeStream.listen((event) {
       setState(() {
         _secondsElapsed++;
@@ -28,13 +27,13 @@ class _TimeCounterState extends State<TimeCounter> {
   }
 
   @override
-  Future<void> dispose() async {
-    await _secondSubscription?.cancel();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return widget.builder(_secondsElapsed);
   }
 
   @override
-  Widget build(BuildContext context) {
-    return widget.builder(_secondsElapsed);
+  Future<void> dispose() async {
+    super.dispose();
+    await _secondSubscription?.cancel();
   }
 }

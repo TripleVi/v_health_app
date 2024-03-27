@@ -64,7 +64,6 @@ class TrackingView extends StatelessWidget {
   final _txtDurationMinute = TextEditingController(text: "00");
   final _txtDurationSecond = TextEditingController(text: "00");
   final _txtCalories = TextEditingController(text: "01");
-  final _visibilityChange = ValueNotifier(true);
 
   TrackingView({super.key});
 
@@ -89,7 +88,7 @@ class TrackingView extends StatelessWidget {
                 context: context, 
                 title: state.request!.title, 
                 message: state.request!.description,
-                yesButtonName: "OPEN" 
+                yesButtonName: "OPEN"
               ).then((value) {
                 if (value!) {
                   state.request!.openSettings();
@@ -221,10 +220,10 @@ class TrackingView extends StatelessWidget {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                _googleMapWidget(
-                  context: context,
-                  state: state,
-                ),
+                // _googleMapWidget(
+                //   context: context,
+                //   state: state,
+                // ),
                 state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,
@@ -252,20 +251,12 @@ class TrackingView extends StatelessWidget {
                         ],
                       )
                     : const SizedBox(),
-                !state.recState.isInitial
-                    ? ValueListenableBuilder( 
-                        builder: (context, value, child) {
-                          return Offstage(
-                            offstage: value,
-                            child: MetricsPage(
-                              trackingParams: state.trackingParams,
-                              timeStream: state.timeStream!,
-                              targetWidget: _buildTargetWidget(state),
-                            ),
-                          );
-                        },
-                        valueListenable: _visibilityChange,
-                      )
+                state.isMetricsVisible
+                    ? MetricsPage(
+                      trackingParams: state.trackingParams,
+                      timeStream: state.timeStream!,
+                      targetWidget: _buildTargetWidget(state),
+                    )
                     : const SizedBox(),
                 state.recState.isInitial
                     ? Align(
@@ -300,11 +291,7 @@ class TrackingView extends StatelessWidget {
             ],
           ),
           padding: const EdgeInsets.symmetric(vertical: 16.0),
-          child: _trackingButtonWidgets(
-            context,
-            state.recState,
-            state.trackingParams.selectedTarget,
-          ),
+          child: _trackingButtonWidgets(context, state),
         ),
       ],
     );
@@ -629,23 +616,22 @@ class TrackingView extends StatelessWidget {
 
   Widget _trackingButtonWidgets(
     BuildContext context,
-    RecordingState recState,
-    TrackingTarget selectedTarget,
+    ActivityTrackingState state
   ) {
     const btnS = 40.0, btnL = 76.0;
     final trackingBloc = context.read<ActivityTrackingBloc>();
     final List<Widget> buttons = [];
     Widget mapBtn = const SizedBox(), cameraBtn = const SizedBox();
-    if (recState.isInitial) {
+    if (state.recState.isInitial) {
       buttons.add(_trackingButtonWidget(
         onTap: () {
-          final value = _getTargetValue(selectedTarget);
+          final value = _getTargetValue(state.trackingParams.selectedTarget);
           trackingBloc.add(TrackingStarted(value));
         },
         size: btnL,
         content: "START",
       ));
-    } else if (recState.isRecording) {
+    } else if (state.recState.isRecording) {
       buttons.add(
         _trackingButtonWidget(
           onTap: () => trackingBloc.add(const TrackingPaused()),
@@ -653,7 +639,7 @@ class TrackingView extends StatelessWidget {
           icon: Icons.square_sharp,
         ),
       );
-    } else if (recState.isPaused) {
+    } else if (state.recState.isPaused) {
       buttons.add(_trackingButtonWidget(
         onTap: () => trackingBloc.add(const TrackingResumed()),
         size: btnL,
@@ -671,17 +657,14 @@ class TrackingView extends StatelessWidget {
         content: "FINISH",
       ));
     }
-    if (!recState.isInitial) {
-      mapBtn = ValueListenableBuilder(
-        builder: (context, value, child) {
-          return _trackingButtonWidget(
-            onTap: () => _visibilityChange.value = !_visibilityChange.value,
-            size: btnS,
-            icon: Icons.location_on_outlined,
-            isActive: !value,
-          );
-        },
-        valueListenable: _visibilityChange,
+    if (!state.recState.isInitial) {
+      mapBtn = _trackingButtonWidget(
+        onTap: () => context
+            .read<ActivityTrackingBloc>()
+            .add(const ToggleMetricsDialog()),
+        size: btnS,
+        icon: Icons.location_on_outlined,
+        isActive: state.isMetricsVisible,
       );
       cameraBtn = _trackingButtonWidget(
         onTap: () async {

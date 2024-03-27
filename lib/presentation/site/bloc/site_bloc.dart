@@ -18,7 +18,7 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     // registerNotification();
     add(UserFetched());
 
-    backgroundService.startService();
+    // backgroundService.startService();
   }
 
   Future<void> _onUserFetched(UserFetched event, Emitter<SiteState> emit) async {

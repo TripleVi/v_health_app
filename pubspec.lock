@@ -209,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.1"
+  environment_sensors:
+    dependency: "direct main"
+    description:
+      name: environment_sensors
+      sha256: "1cae1bd9eb3e832092b5816fab81bf98e0dc51f20c88ef7e849929cc6ec9c5eb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.0"
   extended_image:
     dependency: "direct main"
     description:

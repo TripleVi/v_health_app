@@ -66,6 +66,7 @@ dependencies:
   bottom_sheet: ^4.0.0
   flutter_activity_recognition: ^3.0.0
   dio: ^5.4.1
+  environment_sensors: ^0.3.0
 
 dev_dependencies:
   flutter_test:
