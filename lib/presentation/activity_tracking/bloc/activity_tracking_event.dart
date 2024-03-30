@@ -77,3 +77,7 @@ class OpenSettings extends ActivityTrackingEvent {
 class ToggleMetricsDialog extends ActivityTrackingEvent {
   const ToggleMetricsDialog();
 }
+
+class TogglePage extends ActivityTrackingEvent {
+  const TogglePage();
+}

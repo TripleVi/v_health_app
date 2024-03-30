@@ -10,23 +10,21 @@ import '../bloc/activity_tracking_bloc.dart';
 import 'time_counter.dart';
 
 class MetricsPage extends StatelessWidget {
-  final TrackingParams _trackingParams;
-  final Stream<int> _timeStream;
-  final Widget _targetWidget;
+  final TrackingParams trackingParams;
+  final Stream<int> timeStream;
+  final Widget targetWidget;
 
   const MetricsPage({
     super.key,
-    required TrackingParams trackingParams,
-    required Stream<int> timeStream,
-    required Widget targetWidget,
-  }) : _trackingParams = trackingParams,
-       _timeStream = timeStream,
-       _targetWidget = targetWidget;
+    required this.trackingParams,
+    required this.timeStream,
+    required this.targetWidget,
+  });
 
   List<Widget> _processMetrics(TrackingParams param) {
     final metricsWidgets = <Widget>[];
     metricsWidgets.add(TimeCounter(
-      timeStream: _timeStream,
+      timeStream: timeStream,
       builder: (secondsElapsed) {
         return _metricsWidget(
           txtName: "Duration",
@@ -132,18 +130,15 @@ class MetricsPage extends StatelessWidget {
         children: [
           Container(
             margin: const EdgeInsets.only(bottom: 20.0),
-            child: _targetWidget,
+            child: targetWidget,
           ),
           Expanded(
             child: GridView.count(
               shrinkWrap: false,
               primary: false,
-              childAspectRatio: 1.5,
-              // padding: const EdgeInsets.all(0),
-              // crossAxisSpacing: 10,
-              // mainAxisSpacing: 10,
+              childAspectRatio: 1.0,
               crossAxisCount: 2,
-              children: _processMetrics(_trackingParams),
+              children: _processMetrics(trackingParams),
             ),
           ),
         ],

@@ -20,10 +20,8 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> submitLoginForm(String account, String password) async {
-    final service = WeatherService();
-    final temp = await service.fetchCurrentTemperature(21.0343313, 105.7658157);
-    print(temp);
-    return;
+    account = "vuongvu2001";
+    password = "0365466031";
     try {
       emit(state.copyWith(isProcessing: true));
       final isEmail = account.contains('@');

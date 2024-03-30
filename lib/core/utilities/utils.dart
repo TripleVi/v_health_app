@@ -210,16 +210,10 @@ class MyUtils {
 
   static Map<String, String> getFormattedPace(double? speed, [bool inMeters = true]) {
     final unit = inMeters ? "/m" : "/km";
-    if(speed == null) {
+    if(speed == null || speed == 0.0) {
       return {
         "value": "--",
         "unit": unit
-      };
-    }
-    if(speed == 0.0) {
-      return {
-        "value": "0'0''",
-        "unit": unit,
       };
     }
     final pace = (1 / speed * (inMeters ? 1 : 1000)).ceil();

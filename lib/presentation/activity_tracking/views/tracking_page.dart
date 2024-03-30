@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:v_health/core/enum/bottom_navbar.dart';
 
 import '../../../core/enum/activity_category.dart';
 import '../../../core/enum/activity_tracking.dart';
@@ -29,29 +30,36 @@ class TrackingPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ActivityTrackingBloc>(
       create: (context) => ActivityTrackingBloc(),
-      child: Navigator( 
-        onGenerateRoute: (settings) {
-          if(settings.name == "/tracking") {
-            return MaterialPageRoute<void>(
-              builder: (context) => TrackingView(),
-              settings: settings,
-            );
+      child: BlocListener<SiteBloc, SiteState>(
+        listener: (context, state) {
+          if(state.currentTab.isTracking || state.previousTab.isTracking) {
+            context.read<ActivityTrackingBloc>().add(const TogglePage());
           }
-          if(settings.name == "/saveForm") {
-            return MaterialPageRoute<bool>(
-              builder: (context) => const SavingPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/camera") {
-            return MaterialPageRoute<PhotoParams>(
-              builder: (context) => const CameraPage(),
-              settings: settings,
-            );
-          }
-          return null;
         },
-        initialRoute: "/tracking",
+        child: Navigator(
+          onGenerateRoute: (settings) {
+            if(settings.name == "/tracking") {
+              return MaterialPageRoute<void>(
+                builder: (context) => TrackingView(),
+                settings: settings,
+              );
+            }
+            if(settings.name == "/saveForm") {
+              return MaterialPageRoute<bool>(
+                builder: (context) => const SavingPage(),
+                settings: settings,
+              );
+            }
+            if(settings.name == "/camera") {
+              return MaterialPageRoute<PhotoParams>(
+                builder: (context) => const CameraPage(),
+                settings: settings,
+              );
+            }
+            return null;
+          },
+          initialRoute: "/tracking",
+        ),
       ),
     );
   }
@@ -220,10 +228,10 @@ class TrackingView extends StatelessWidget {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                // _googleMapWidget(
-                //   context: context,
-                //   state: state,
-                // ),
+                _googleMapWidget(
+                  context: context,
+                  state: state,
+                ),
                 state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,

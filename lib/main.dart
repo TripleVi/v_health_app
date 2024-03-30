@@ -42,6 +42,7 @@ void onStart(ServiceInstance service) async {
     StreamSubscription? appStateListener;
     StreamSubscription? locSessionListener;
     StreamSubscription? accelSessionListener;
+    StreamSubscription? pressureSessionListener;
     StreamSubscription? trackingStatesListener;
     final trackingStateStream = service.on("trackingStatesUpdated");
     var backgroundMode = false;
@@ -109,6 +110,43 @@ void onStart(ServiceInstance service) async {
         }
       });
     });
+    // Service of barometric pressure sensors
+    pressureSessionListener = service.on("pressureUpdates").listen((_) async {
+      StreamSubscription? pressureListener;
+      StreamSubscription? trStatesListener;
+      var value = 0.0;
+      final signals = <double>[];
+      Timer? timer;
+      Future<StreamSubscription<double>> pressureUpdatesHelper() async {
+        final stream = await SensorService().pressureEvents();
+        return stream.listen((e) => value = e);
+      }
+      Timer timerHelper() {
+        return Timer.periodic(const Duration(seconds: activeInterval), (_) {
+          signals.add(value);
+          if(backgroundMode) return;
+          final temp = signals.toList();
+          signals.clear();
+          return service.invoke("pressureAcquired", {"data": temp});
+        });
+      }
+      pressureListener = await pressureUpdatesHelper();
+      timer = timerHelper();
+      trStatesListener = trackingStateStream.listen((data) async {
+        final state = data!["state"].toString();
+        if(state == "resumed") {
+          pressureListener = await pressureUpdatesHelper();
+          timer = timerHelper();
+        }else if(state == "paused") {
+          timer!.cancel();
+          pressureListener!.cancel();
+        }else if(state == "stopped") {
+          timer!.cancel();
+          pressureListener!.cancel();
+          trStatesListener!.cancel();
+        }
+      });
+    });
     appStateListener = service.on("appStateUpdated").listen((data) {
       final appState = data!["state"].toString();
       if(appState == "paused") {
@@ -123,6 +161,7 @@ void onStart(ServiceInstance service) async {
         appStateListener!.cancel();
         locSessionListener!.cancel();
         accelSessionListener!.cancel();
+        pressureSessionListener!.cancel();
         trackingStatesListener!.cancel();
       }
     });

@@ -148,7 +148,7 @@ class LoginPage extends StatelessWidget {
         ),
         const SizedBox(height: 24.0),
         _buildNextButton(() {
-          if (!_loginFormKey.currentState!.validate()) return;
+          // if (!_loginFormKey.currentState!.validate()) return;
           MyUtils.closeKeyboard(context);
           context.read<LoginCubit>().submitLoginForm(
               _accountController.text, _passwordController.text,

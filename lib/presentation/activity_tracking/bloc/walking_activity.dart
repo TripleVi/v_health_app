@@ -9,6 +9,7 @@ import 'activity_tracking.dart';
 class WalkingActivity extends ActivityTracking {
   int totalSteps = 0;
   StreamSubscription? accelListener;
+  // StreamSubscription? pressureListener;
 
   @override
   void startRecording({
@@ -30,6 +31,22 @@ class WalkingActivity extends ActivityTracking {
       updateMetrics(metrics);
       onMetricsUpdated();
     });
+
+    // backgroundService.invoke("pressureUpdates");
+    // accelListener = backgroundService.on("pressureAcquired").listen((e) async {
+      // print(e);
+      // {data: [1013.25]}
+      // final data = (e!["data"] as List).map((e) => 
+      //     (e as List).map<double>((e) => e*1.0).toList(growable: false)
+      // ).toList(growable: false);
+      // final service = ClassificationService();
+      // final time = DateTime.now().difference(startDate).inSeconds;
+      // final metrics = await service.classify(data, data.length/activeInterval);
+      // metrics["time"] = time;
+      // metrics["duration"] = activeInterval;
+      // updateMetrics(metrics);
+      // onMetricsUpdated();
+    // });
   }
 
   @override
