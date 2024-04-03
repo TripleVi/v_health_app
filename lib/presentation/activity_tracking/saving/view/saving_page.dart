@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/enum/social.dart';
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../widgets/appBar.dart';
 import '../../../widgets/dialog.dart';
@@ -32,10 +31,10 @@ class SavingView extends StatelessWidget {
   Widget _discardBtn(BuildContext context) {
     return IconButton(
       onPressed: () => Navigator.pop(context),
-      icon: Icon(
+      icon: const Icon(
         Icons.close_rounded,
         size: 24.0,
-        color: AppColor.onBackgroundColor,
+        color: AppStyle.neutralColor400,
       ),
     );
   }
@@ -45,7 +44,7 @@ class SavingView extends StatelessWidget {
       onPressed: () => Navigator.pop(context),
       child: Text(
         "Resume",
-        style: AppStyle.paragraph(color: AppColor.primaryColor),
+        style: AppStyle.bodyText(color: AppStyle.primaryColor),
       ),
     );
   }
@@ -56,7 +55,7 @@ class SavingView extends StatelessWidget {
     required ListView child,
   }) {
     return showModalBottomSheet(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius:
@@ -75,13 +74,13 @@ class SavingView extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppStyle.heading_1(fontSize: 20.0, height: 1),
+                    style: AppStyle.heading1(fontSize: 20.0, height: 1),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.close_rounded,
-                      color: AppColor.onBackgroundColor,
+                      color: AppStyle.surfaceColor,
                       size: 24.0,
                     ),
                   ),
@@ -112,21 +111,21 @@ class SavingView extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppStyle.horizontalPadding,
           ),
-          iconColor: AppColor.onBackgroundColor,
-          selectedColor: AppColor.primaryColor,
+          iconColor: AppStyle.surfaceColor,
+          selectedColor: AppStyle.primaryColor,
           selected: item == selectedPrivacy,
           leading: Icon(
             item.iconData,
             size: 24.0,
-            color: item == selectedPrivacy ? AppColor.primaryColor : null,
+            color: item == selectedPrivacy ? AppStyle.primaryColor : null,
           ),
           title: Text(
             item.stringValue,
-            style: AppStyle.heading_2(),
+            style: AppStyle.heading2(),
           ),
           subtitle: Text(
             item.description,
-            style: AppStyle.paragraph(),
+            style: AppStyle.bodyText(),
           ),
           trailing: item == selectedPrivacy
               ? const Icon(Icons.check_rounded, size: 32.0)
@@ -145,22 +144,22 @@ class SavingView extends StatelessWidget {
   }) {
     return TextField(
       textAlignVertical: TextAlignVertical.center,
-      style: AppStyle.paragraph(color: AppColor.textColor),
+      style: AppStyle.bodyText(color: AppStyle.textColor),
       controller: controller,
-      cursorColor: AppColor.textColor,
+      cursorColor: AppStyle.textColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: AppStyle.paragraph(),
+        hintStyle: AppStyle.bodyText(),
         enabledBorder: OutlineInputBorder(
           borderRadius:
               const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppColor.controlNormalColor),
+          borderSide: BorderSide(color: AppStyle.controlNormalColor),
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppColor.textColor),
+          borderSide: BorderSide(color: AppStyle.textColor),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppStyle.horizontalPadding,
@@ -185,8 +184,8 @@ class SavingView extends StatelessWidget {
         padding:
             const EdgeInsets.symmetric(horizontal: AppStyle.horizontalPadding),
         decoration: BoxDecoration(
-          color: AppColor.secondaryColor,
-          border: Border.all(color: AppColor.controlNormalColor),
+          color: AppStyle.surfaceColor,
+          border: Border.all(color: AppStyle.controlNormalColor),
           borderRadius:
               const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
         ),
@@ -194,24 +193,24 @@ class SavingView extends StatelessWidget {
           children: [
             Icon(
               prefixIconData,
-              color: AppColor.textColor,
+              color: AppStyle.textColor,
               size: 20.0,
             ),
             const SizedBox(width: 8.0),
             Expanded(
               child: Text(
                 content ?? "Choose",
-                style: AppStyle.paragraph(
+                style: AppStyle.bodyText(
                   color: content == null
-                      ? AppColor.paragraphColor
-                      : AppColor.textColor,
+                      ? AppStyle.primaryColor
+                      : AppStyle.textColor,
                 ),
               ),
             ),
             const SizedBox(width: 8.0),
             const Icon(
               Icons.keyboard_arrow_down,
-              color: AppColor.textColor,
+              color: AppStyle.textColor,
               size: 24.0,
             ),
           ],
@@ -233,14 +232,14 @@ class SavingView extends StatelessWidget {
             print("$error: $stackTrace");
             return Container(
               decoration: BoxDecoration(
-                border: Border.all(color: AppColor.controlNormalColor),
+                border: Border.all(color: AppStyle.controlNormalColor),
                 borderRadius: const BorderRadius
                     .all(Radius.circular(AppStyle.borderRadius)),
               ),
-              child: Center(
+              child: const Center(
                 child: Icon(
                   Icons.broken_image_rounded, 
-                  color: AppColor.onBackgroundColor, 
+                  color: AppStyle.neutralColor400, 
                   size: 40.0,
                 ),
               ),
@@ -279,12 +278,12 @@ class SavingView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Text("Visibility", style: AppStyle.heading_1()),
+                  // Text("Visibility", style: AppStyle.heading1()),
                   const SizedBox(height: 20.0),
                   Wrap(
                     runSpacing: 16,
                     children: [
-                      Text("Who can see", style: AppStyle.heading_2()),
+                      Text("Who can see", style: AppStyle.heading2()),
                       _dropdownButton(
                         context: context,
                         onTap: () => _showModalBottomSheetHelper(
@@ -309,11 +308,11 @@ class SavingView extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(AppStyle.horizontalPadding),
             width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColor.secondaryColor,
+            decoration: const BoxDecoration(
+              color: AppStyle.surfaceColor,
               boxShadow: [
                 BoxShadow(
-                  color: AppColor.onBackgroundColor,
+                  color: AppStyle.neutralColor400,
                   blurRadius: 4.0,
                 ),
               ],
@@ -326,7 +325,7 @@ class SavingView extends StatelessWidget {
                   content: _txtContent.text,
                 ),
                 style: TextButton.styleFrom(
-                  backgroundColor: AppColor.primaryColor,
+                  backgroundColor: AppStyle.primaryColor,
                   shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(AppStyle.borderRadius),
@@ -334,8 +333,8 @@ class SavingView extends StatelessWidget {
                 ),
                 child: Text(
                   "Save Activity",
-                  style: AppStyle.heading_2(
-                      color: AppColor.secondaryColor),
+                  style: AppStyle.heading2(
+                      color: AppStyle.surfaceColor),
                 ),
               ),
             ),
@@ -351,7 +350,7 @@ class SavingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         actions: [_discardBtn(context)],
         title: "Save Activity",
@@ -359,9 +358,9 @@ class SavingView extends StatelessWidget {
       ),
       body: Container(
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColor.onBackgroundColor),
+            top: BorderSide(color: AppStyle.neutralColor400),
           ),
         ),
         child: BlocConsumer<SavingCubit, SavingState>(

@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../domain/entities/photo.dart';
 import '../../../../domain/entities/post.dart';
@@ -95,19 +94,19 @@ class MapView extends StatelessWidget {
   Widget _locationBtn(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.backgroundColor,
+        color: AppStyle.surfaceColor,
         borderRadius: BorderRadius.circular(100.0),
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
-            color: AppColor.dropShadowColor,
+            color: AppStyle.dropShadowColor,
           ),
         ],
       ),
       child: IconButton(
         onPressed: context.read<MapCubit>().viewRouteTaken,
         iconSize: 32.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
         icon: const Icon(Icons.my_location_rounded),
       ),
     );
@@ -116,19 +115,19 @@ class MapView extends StatelessWidget {
   Widget _photoVisibilityBtn(BuildContext context, MapState state) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.backgroundColor,
+        color: AppStyle.surfaceColor,
         borderRadius: BorderRadius.circular(100.0),
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
-            color: AppColor.dropShadowColor,
+            color: AppStyle.dropShadowColor,
           ),
         ],
       ),
       child: IconButton(
         onPressed: context.read<MapCubit>().toggleMarkersVisible,
         iconSize: 32.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
         icon: state.markersVisible 
             ? const Icon(Icons.visibility_rounded)
             : const Icon(Icons.visibility_off_rounded)
@@ -139,19 +138,19 @@ class MapView extends StatelessWidget {
   Widget _photoGalleryBtn(BuildContext context, MapState state) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColor.backgroundColor,
+        color: AppStyle.surfaceColor,
         borderRadius: BorderRadius.circular(100.0),
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
-            color: AppColor.dropShadowColor,
+            color: AppStyle.dropShadowColor,
           ),
         ],
       ),
       child: IconButton(
         onPressed: () => _showPhotos(context, state),
         iconSize: 32.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
         icon: const Icon(Icons.photo_library_outlined),
       ),
     );
@@ -166,7 +165,7 @@ class MapView extends StatelessWidget {
       bottomSheetBorderRadius: const BorderRadius.vertical(
         top: Radius.circular(AppStyle.borderRadius),
       ),
-      bottomSheetColor: AppColor.backgroundColor,
+      bottomSheetColor: AppStyle.surfaceColor,
       context: mapContext,
       anchors: [0, 0.5, 1],
       isSafeArea: true,

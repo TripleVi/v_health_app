@@ -115,7 +115,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
 
   final _locationService = GetIt.instance<LocationService>();
   final _timeStreamController = StreamController<int>.broadcast();
-  // final _metricsStreamController = StreamController<TrackingParams>.broadcast();
   late Timer _timer;
   int _secondsElapsed = 0;
 
@@ -428,25 +427,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       initTrackingSession();
       activity!.startRecording(
         onMetricsUpdated: () {
-          // _metricsStreamController.add(TrackingParams(
-          //   distance: activity!.totalDistance,
-          //   speed: activity!.instantSpeed,
-          //   avgSpeed: activity!.avgSpeed,
-          //   pace: activity!.instantPace,
-          //   avgPace: activity!.avgPace,
-          //   calories: activity!.totalCalories,
-          // ));
+          if(_pageVisibility) add(const LocationUpdated());
+          emit(state.copyWith(
+            trackingParams: state.trackingParams.copyWith(
+              distance: activity!.totalDistance,
+              speed: activity!.instantSpeed,
+              avgSpeed: activity!.avgSpeed,
+              pace: activity!.instantPace,
+              avgPace: activity!.avgPace,
+              calories: activity!.totalCalories,
+            ),
+          ));
         },
         onPositionsAcquired: (positions) {
-          if(_geoPoints.isEmpty) {
-            positions.removeAt(0);
-          }
+          if(_geoPoints.isEmpty) positions.removeAt(0);
           _curtPos = positions.length == 1 ? positions.first : positions.last;
           _geoPoints.addAll(positions.map((p) {
             _updateLatLngBounds(p);
             return LatLng(p.latitude, p.longitude);
           }));
-          add(const LocationUpdated());
+          if(_pageVisibility) add(const LocationUpdated());
         },
       );
       emit(state.copyWith(

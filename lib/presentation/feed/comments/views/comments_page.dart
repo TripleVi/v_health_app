@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../widgets/appBar.dart';
 import '../../../widgets/loading_indicator.dart';
@@ -26,7 +25,7 @@ class CommentsPage extends StatelessWidget {
 
 class CommentsView extends StatelessWidget {
   final _txtContent = StylableTextFieldController(
-    replyForStyle: AppStyle.paragraph(color: AppColor.primaryColor),
+    replyForStyle: AppStyle.bodyText(color: AppStyle.primaryColor),
   );
   final _visibilityChange = ValueNotifier(false);
 
@@ -35,23 +34,23 @@ class CommentsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: "Comments",
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 24.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
         ),
         child: BlocConsumer<CommentsCubit, CommentsState>(
           listener: (context, state) {
@@ -59,7 +58,7 @@ class CommentsView extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text(
                   state.snackMsg!,
-                  style: AppStyle.paragraph(color: Colors.white),
+                  style: AppStyle.bodyText(color: Colors.white),
                 ),
               ));
             }
@@ -89,7 +88,7 @@ class CommentsView extends StatelessWidget {
       icon: const Icon(
         Icons.send_rounded,
         size: 32.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
       ),
     );
   }
@@ -109,11 +108,11 @@ class CommentsView extends StatelessWidget {
           vertical: 12.0,
         ),
         width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColor.secondaryColor,
+        decoration: const BoxDecoration(
+          color: AppStyle.surfaceColor,
           boxShadow: [
             BoxShadow(
-              color: AppColor.onBackgroundColor,
+              color: AppStyle.neutralColor400,
               blurRadius: 4.0,
             ),
           ],
@@ -123,7 +122,7 @@ class CommentsView extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: avatarSize/2,
-              backgroundColor: AppColor.backgroundColor,
+              backgroundColor: AppStyle.surfaceColor,
               backgroundImage: Image.asset(
                 "assets/images/avatar.jpg",
                 cacheWidth: avatarSize,
@@ -148,18 +147,18 @@ class CommentsView extends StatelessWidget {
                       : Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text("Replying to ", style: AppStyle.label6()),
+                            Text("Replying to ", style: AppStyle.caption2()),
                             Text(
                               replyToUsername, 
-                              style: AppStyle.paragraph(height: 1, fontSize: 14.0)
+                              style: AppStyle.bodyText(height: 1, fontSize: 14.0)
                             ),
-                            Text(" . ", style: AppStyle.label6()),
+                            Text(" . ", style: AppStyle.caption2()),
                             GestureDetector(
                               onTap: context.read<CommentsCubit>().cancelReplyTo,
                               behavior: HitTestBehavior.opaque,
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Text("Cancel", style: AppStyle.label6()),
+                                child: Text("Cancel", style: AppStyle.caption2()),
                               ),
                             ),
                           ],
@@ -207,22 +206,22 @@ class CommentsView extends StatelessWidget {
         _visibilityChange.value = value.isNotEmpty;
       },
       textAlignVertical: TextAlignVertical.center,
-      style: AppStyle.paragraph(color: AppColor.textColor),
+      style: AppStyle.bodyText(),
       controller: controller,
-      cursorColor: AppColor.textColor,
+      cursorColor: AppStyle.textColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: AppStyle.paragraph(),
+        hintStyle: AppStyle.bodyText(),
         enabledBorder: OutlineInputBorder(
           borderRadius:
               const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppColor.controlNormalColor),
+          borderSide: BorderSide(color: AppStyle.controlNormalColor),
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppColor.textColor),
+          borderSide: BorderSide(color: AppStyle.textColor),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppStyle.horizontalPadding,
@@ -313,11 +312,11 @@ class CommentsView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("No comments yet", style: AppStyle.heading_2()),
+                  Text("No comments yet", style: AppStyle.heading2()),
                   const SizedBox(height: 12.0),
                   Text(
                     "Say something to start the conversation.", 
-                    style: AppStyle.paragraph(),
+                    style: AppStyle.bodyText(),
                   ),
                   const SizedBox(height: 120.0),
                 ],

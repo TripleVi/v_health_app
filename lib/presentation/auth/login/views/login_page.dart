@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../widgets/appBar.dart';
@@ -25,7 +24,7 @@ class LoginPage extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
                 state.snackMsg!,
-                style: AppStyle.paragraph(color: AppColor.dangerColor),
+                style: AppStyle.bodyText(),
               ),
             ));
           }
@@ -39,7 +38,7 @@ class LoginPage extends StatelessWidget {
           return Stack(
             children: [
               Scaffold(
-                backgroundColor: AppColor.backgroundColor,
+                backgroundColor: AppStyle.surfaceColor,
                 appBar: CustomAppBar.get(
                   title: "Log in",
                   leading: GestureDetector(
@@ -75,9 +74,9 @@ class LoginPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 40.0),
-            Text(headline, style: AppStyle.heading_1(height: 1.0)),
+            Text(headline, style: AppStyle.heading1(height: 1.0)),
             const SizedBox(height: 4.0),
-            Text(description, style: AppStyle.paragraph()),
+            Text(description, style: AppStyle.bodyText()),
             const SizedBox(height: 28.0),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +143,7 @@ class LoginPage extends StatelessWidget {
         const SizedBox(height: 24.0),
         GestureDetector(
           onTap: () {},
-          child: Text("Forgot password?", style: AppStyle.heading_2(height: 1.0)),
+          child: Text("Forgot password?", style: AppStyle.heading2(height: 1.0)),
         ),
         const SizedBox(height: 24.0),
         _buildNextButton(() {
@@ -166,14 +165,14 @@ class LoginPage extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primaryColor,
+          backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
         ),
         child: Text(
           "Log in",
-          style: AppStyle.heading_2(height: 1.0, color: Colors.white),
+          style: AppStyle.heading2(height: 1.0, color: Colors.white),
         ),
       ),
     );

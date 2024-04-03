@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
 import '../../../domain/entities/post.dart';
 import '../../widgets/appBar.dart';
@@ -82,7 +81,7 @@ class FeedView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(4.0),
               child: Text("12", 
-                style: AppStyle.label6(
+                style: AppStyle.caption2(
                   fontSize: 12.0,
                   color: Colors.white,
                   height: 1.0,
@@ -98,7 +97,7 @@ class FeedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: 'vHealth',
         actions: <Widget>[
@@ -106,8 +105,8 @@ class FeedView extends StatelessWidget {
         ]
       ),
       body: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
         ),
         child: BlocBuilder<FeedBloc, FeedState>(
           builder: (context, state) {

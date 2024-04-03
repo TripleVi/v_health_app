@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../core/resources/colors.dart';
+import '../../core/resources/style.dart';
 
 class AppProcessingIndicator extends StatelessWidget {
   const AppProcessingIndicator({super.key});
@@ -8,9 +8,9 @@ class AppProcessingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColor.backgroundColor.withOpacity(0.3),
-      child: Center(
-        child: CircularProgressIndicator(color: AppColor.onBackgroundColor),
+      color: AppStyle.surfaceColor.withOpacity(0.3),
+      child: const Center(
+        child: CircularProgressIndicator(color: AppStyle.neutralColor400),
       ),
     );
   }
@@ -24,8 +24,8 @@ class AppLoadingIndicator extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(top: 32.0),
       alignment: AlignmentDirectional.topCenter,
-      color: AppColor.backgroundColor.withOpacity(0.3),
-      child: CircularProgressIndicator(color: AppColor.onBackgroundColor),
+      color: AppStyle.surfaceColor.withOpacity(0.3),
+      child: const CircularProgressIndicator(color: AppStyle.neutralColor400),
     );
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../domain/entities/reaction.dart';
 import '../../../widgets/appBar.dart';
@@ -27,7 +26,7 @@ class LikesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: "Likes",
         leading: IconButton(
@@ -37,13 +36,13 @@ class LikesView extends StatelessWidget {
           icon: Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 24.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
         ),
       ),
       body: Container(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
         ),
         child: BlocBuilder<LikesCubit, LikesState>(
           builder: (context, state) {
@@ -69,15 +68,15 @@ class LikesView extends StatelessWidget {
 
         },
         style: TextButton.styleFrom(
-          backgroundColor: AppColor.primaryColor,
+          backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppStyle.borderRadius),
           ),
         ),
         child: Text(
           "Follow",
-          style: AppStyle.paragraph(
-            color: AppColor.secondaryColor,
+          style: AppStyle.bodyText(
+            color: AppStyle.surfaceColor,
             height: 1.0,
           ),
         ),
@@ -101,7 +100,7 @@ class LikesView extends StatelessWidget {
           ),
           leading: CircleAvatar(
             radius: avatarSize/2,
-            backgroundColor: AppColor.backgroundColor,
+            backgroundColor: AppStyle.surfaceColor,
             backgroundImage: Image.asset(
               "assets/images/avatar.jpg",
               cacheWidth: avatarSize,
@@ -121,11 +120,11 @@ class LikesView extends StatelessWidget {
           ),
           title: Text(
             reaction.username,
-            style: AppStyle.heading_2(height: 1.0),
+            style: AppStyle.heading2(height: 1.0),
           ),
           subtitle: Text(
             "${reaction.firstName} ${reaction.lastName}",
-            style: AppStyle.paragraph(height: 1.0),
+            style: AppStyle.bodyText(height: 1.0),
           ),
           trailing: _followButton(),
         );

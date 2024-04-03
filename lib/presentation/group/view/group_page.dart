@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
 import '../../widgets/appBar.dart';
 
@@ -20,7 +19,7 @@ class _GroupPageState extends State<GroupPage> {
       )), 
       icon: const Icon(Icons.people_alt_outlined,
         size: 28.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
       ),
     );
   }
@@ -29,7 +28,7 @@ class _GroupPageState extends State<GroupPage> {
     return Column(
       children: [
         Text("Let's get started. Select your challenge type",
-          style: AppStyle.heading_1(),
+          style: AppStyle.heading1(),
         ),
         const SizedBox(height: 20.0),
         _challengeTypeItem(
@@ -72,11 +71,11 @@ class _GroupPageState extends State<GroupPage> {
       ),
       title: Text(
         title,
-        style: AppStyle.heading_2(),
+        style: AppStyle.heading2(),
       ),
       subtitle: Text(
         subtitle,
-        style: AppStyle.paragraph(),
+        style: AppStyle.bodyText(),
       ),
     );
   }
@@ -86,7 +85,7 @@ class _GroupPageState extends State<GroupPage> {
       constraints: const BoxConstraints(
         minHeight: 200.0,
       ),
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -114,9 +113,9 @@ class _GroupPageState extends State<GroupPage> {
       ),
       body: Container(
         height: double.infinity,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColor.onBackgroundColor),
+            top: BorderSide(color: AppStyle.neutralColor400),
           ),
         ),
         child: Column(
@@ -124,7 +123,7 @@ class _GroupPageState extends State<GroupPage> {
             TextButton(
               onPressed: () => _showChallengeCreationForm(context),
               style: TextButton.styleFrom(
-                backgroundColor: AppColor.primaryColor,
+                backgroundColor: AppStyle.primaryColor,
                 shape: RoundedRectangleBorder(
                   borderRadius:
                       BorderRadius.circular(AppStyle.borderRadius),
@@ -133,8 +132,8 @@ class _GroupPageState extends State<GroupPage> {
               ),
               child: Text(
                 "Create Challenge",
-                style: AppStyle.heading_2(
-                    color: AppColor.secondaryColor),
+                style: AppStyle.heading2(
+                    color: AppStyle.surfaceColor),
               ),
             ),
           ],

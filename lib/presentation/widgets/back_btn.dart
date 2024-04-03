@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../core/resources/colors.dart';
 import '../../core/resources/style.dart';
 
 Widget backBtn(void Function() onPressed) {
   return IconButton(
     onPressed: onPressed,
-    icon: Icon(
+    icon: const Icon(
       Icons.arrow_back_ios_outlined,
-      color: AppColor.onBackgroundColor,
+      color: AppStyle.neutralColor400,
     ),
   );
 }
@@ -16,6 +15,6 @@ Widget backBtn(void Function() onPressed) {
 Widget closeBtn(void Function() onPressed) {
   return TextButton(
     onPressed: onPressed,
-    child: Text("Close", style: AppStyle.paragraph()),
+    child: Text("Close", style: AppStyle.bodyText()),
   );
 }

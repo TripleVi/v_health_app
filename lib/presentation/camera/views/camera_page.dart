@@ -5,7 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../core/resources/colors.dart';
+import '../../../core/resources/style.dart';
 import '../../activity_tracking/bloc/activity_tracking_bloc.dart';
 import '../../widgets/dialog.dart';
 import '../../widgets/loading_indicator.dart';
@@ -67,14 +67,14 @@ class CameraView extends StatelessWidget {
           );
         },
         style: TextButton.styleFrom(
-          backgroundColor: AppColor.backgroundColor,
+          backgroundColor: AppStyle.surfaceColor,
           shape: const CircleBorder(),
           padding: const EdgeInsets.all(8.0),
         ),
         child: const Icon(
           Icons.send_rounded,
           size: 32.0,
-          color: AppColor.primaryColor,
+          color: AppStyle.primaryColor,
         ),
       ),
     );
@@ -104,7 +104,7 @@ class CameraView extends StatelessWidget {
                 icon: const Icon(
                   Icons.arrow_back_rounded,
                   size: 30.0,
-                  color: AppColor.secondaryColor,
+                  color: AppStyle.surfaceColor,
                 ),
               ),
               IconButton(
@@ -112,7 +112,7 @@ class CameraView extends StatelessWidget {
                 icon: const Icon(
                   Icons.flip_camera_android_rounded,
                   size: 30.0,
-                  color: AppColor.secondaryColor,
+                  color: AppStyle.surfaceColor,
                 ),
               ),
             ],
@@ -127,7 +127,7 @@ class CameraView extends StatelessWidget {
               onPressed: () => context.read<CameraCubit>().captureCamera(),
               icon: const Icon(
                 Icons.radio_button_checked_rounded,
-                color: AppColor.secondaryColor,
+                color: AppStyle.surfaceColor,
                 size: 60.0,
               ),
             ),
@@ -156,7 +156,7 @@ class CameraView extends StatelessWidget {
             icon: const Icon(
               Icons.close_rounded,
               size: 30.0,
-              color: AppColor.secondaryColor,
+              color: AppStyle.surfaceColor,
             ),
           ),
         ),

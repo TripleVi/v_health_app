@@ -9,7 +9,6 @@ import 'package:v_health/core/enum/bottom_navbar.dart';
 
 import '../../../core/enum/activity_category.dart';
 import '../../../core/enum/activity_tracking.dart';
-import '../../../core/resources/colors.dart';
 import '../../../core/enum/metrics.dart';
 import '../../../core/resources/style.dart';
 import '../../../core/utilities/utils.dart';
@@ -78,7 +77,7 @@ class TrackingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: "Tracking",
         leading: _backBtn(context),
@@ -86,7 +85,7 @@ class TrackingView extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: AppColor.onBackgroundColor),
+            top: BorderSide(color: AppStyle.neutralColor400),
           ),
         ),
         child: BlocConsumer<ActivityTrackingBloc, ActivityTrackingState>(
@@ -120,8 +119,8 @@ class TrackingView extends StatelessWidget {
     return TextButton(
       onPressed: () => context.read<SiteBloc>().add(PreviousTapShown()),
       child: Text("Hide", 
-        style: AppStyle.paragraph(
-          color: AppColor.onBackgroundColor,
+        style: AppStyle.bodyText(
+          color: AppStyle.neutralColor400,
           height: 1.0,
         ),
       ),
@@ -146,7 +145,7 @@ class TrackingView extends StatelessWidget {
       children: [
         name ?? Text(
           txtName!, 
-          style: nameStyle ?? AppStyle.paragraph(),
+          style: nameStyle ?? AppStyle.bodyText(),
         ),
         const SizedBox(height: 8.0),
         Row(
@@ -155,11 +154,11 @@ class TrackingView extends StatelessWidget {
           children: [
             value ?? Text(
               txtValue!, 
-              style: valueStyle ?? AppStyle.heading_2(fontSize: 40.0, height: 1.0),
+              style: valueStyle ?? AppStyle.heading2(fontSize: 40.0, height: 1.0),
             ),
             unit ?? Text(
               txtUnit ?? "", 
-              style: unitStyle ?? AppStyle.heading_2(fontSize: 40.0, height: 1.0),
+              style: unitStyle ?? AppStyle.heading2(fontSize: 40.0, height: 1.0),
             ),
           ],
         ),
@@ -172,7 +171,7 @@ class TrackingView extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progressValue,
                 semanticsLabel: 'Linear progress indicator',
-                backgroundColor: AppColor.onBackgroundColor,
+                backgroundColor: AppStyle.neutralColor400,
                 minHeight: 8.0,
                 valueColor: const AlwaysStoppedAnimation(Colors.blueAccent),
               ),
@@ -289,11 +288,11 @@ class TrackingView extends StatelessWidget {
           ),
         ),
         Container(
-          decoration: BoxDecoration(
-            color: AppColor.secondaryColor,
+          decoration: const BoxDecoration(
+            color: AppStyle.surfaceColor,
             boxShadow: [
               BoxShadow(
-                color: AppColor.onBackgroundColor,
+                color: AppStyle.neutralColor400,
                 blurRadius: 4.0,
               ),
             ],
@@ -311,19 +310,19 @@ class TrackingView extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: AppColor.backgroundColor,
+          color: AppStyle.surfaceColor,
           borderRadius: BorderRadius.circular(100.0),
           boxShadow: [
             BoxShadow(
               blurRadius: 8.0,
-              color: AppColor.dropShadowColor,
+              color: AppStyle.dropShadowColor,
             ),
           ],
         ),
         child: SvgPicture.asset(
           state.category.svgPaths,
           width: 32.0,
-          color: AppColor.primaryColor,
+          color: AppStyle.primaryColor,
         )
       ),
     );
@@ -335,7 +334,7 @@ class TrackingView extends StatelessWidget {
   ) {
     return DropdownButton<TrackingTarget>(
       borderRadius: BorderRadius.circular(AppStyle.borderRadius),
-      dropdownColor: AppColor.backgroundColor,
+      dropdownColor: AppStyle.surfaceColor,
       elevation: 4,
       icon: Icon(
         Icons.arrow_drop_down_rounded,
@@ -354,7 +353,7 @@ class TrackingView extends StatelessWidget {
               (type) => Center(
                 child: Text(
                   type.stringValue,
-                  style: AppStyle.paragraph(),
+                  style: AppStyle.bodyText(),
                 ),
               ),
             )
@@ -369,14 +368,14 @@ class TrackingView extends StatelessWidget {
                       child: Text(
                         type.stringValue,
                         style: selectedTarget == type
-                            ? AppStyle.paragraph(color: AppColor.primaryColor)
-                            : AppStyle.paragraph(),
+                            ? AppStyle.bodyText(color: AppStyle.primaryColor)
+                            : AppStyle.bodyText(),
                       ),
                     ),
                     selectedTarget == type
                         ? const Icon(
                             Icons.check_rounded,
-                            color: AppColor.primaryColor,
+                            color: AppStyle.primaryColor,
                             size: 24.0,
                           )
                         : const SizedBox(),
@@ -395,7 +394,7 @@ class TrackingView extends StatelessWidget {
       width: maxLength * 30.0,
       child: TextField(
         controller: controller,
-        style: AppStyle.heading_2(fontSize: 40.0, height: 1.0,letterSpacing: 0),
+        style: AppStyle.heading2(fontSize: 40.0, height: 1.0,letterSpacing: 0),
         inputFormatters: <TextInputFormatter>[
           FilteringTextInputFormatter.digitsOnly,
         ],
@@ -452,9 +451,9 @@ class TrackingView extends StatelessWidget {
       textBaseline: TextBaseline.alphabetic,
       children: [
         Container(child: _textFieldWidget(controller: _txtDistanceWhole, maxLength: 3)),
-        Text(".", style: AppStyle.label3()),
+        Text(".", style: AppStyle.caption2()),
         Container(child: _textFieldWidget(controller: _txtDistanceFractional, maxLength: 1)),
-        Text(Metrics.distance.unit, style: AppStyle.label3()),
+        Text(Metrics.distance.unit, style: AppStyle.caption2()),
       ],
     );
   }
@@ -466,9 +465,9 @@ class TrackingView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _textFieldWidget(controller: _txtDurationHour, maxLength: 2),
-        Text(":", style: AppStyle.label3(fontSize: fontSize)),
+        Text(":", style: AppStyle.caption2(fontSize: fontSize)),
         _textFieldWidget(controller: _txtDurationMinute, maxLength: 2),
-        Text(":", style: AppStyle.label3(fontSize: fontSize)),
+        Text(":", style: AppStyle.caption2(fontSize: fontSize)),
         _textFieldWidget(controller: _txtDurationSecond, maxLength: 2),
       ],
     );
@@ -479,7 +478,7 @@ class TrackingView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _textFieldWidget(controller: _txtCalories, maxLength: 3),
-        Text(Metrics.calories.unit, style: AppStyle.heading_2(height: 1.0)),
+        Text(Metrics.calories.unit, style: AppStyle.heading2(height: 1.0)),
       ],
     );
   }
@@ -487,7 +486,7 @@ class TrackingView extends StatelessWidget {
   Widget _noTargetInputWidget() {
     return Text(
       "Boost your training with a workout target.",
-      style: AppStyle.heading_2(),
+      style: AppStyle.heading2(),
       textAlign: TextAlign.center,
     );
   }
@@ -519,7 +518,7 @@ class TrackingView extends StatelessWidget {
           polylineId: const PolylineId("route"),
           visible: true,
           points: state.geoPoints,
-          color: AppColor.primaryColor,
+          color: AppStyle.primaryColor,
           width: 4,
         ),
       },
@@ -550,16 +549,16 @@ class TrackingView extends StatelessWidget {
     Color foregroundColor;
     Color backgroundColor;
     if (isActive) {
-      foregroundColor = AppColor.primaryColor;
-      backgroundColor = AppColor.secondaryColor;
+      foregroundColor = AppStyle.primaryColor;
+      backgroundColor = AppStyle.surfaceColor;
     } else {
-      foregroundColor = AppColor.secondaryColor;
-      backgroundColor = AppColor.primaryColor;
+      foregroundColor = AppStyle.surfaceColor;
+      backgroundColor = AppStyle.primaryColor;
     }
     Widget child = icon == null
         ? Text(
             content!,
-            style: AppStyle.paragraph(color: foregroundColor, fontSize: 14.0),
+            style: AppStyle.bodyText(color: foregroundColor, fontSize: 14.0),
           )
         : Icon(icon, size: 24, color: foregroundColor);
     return GestureDetector(
@@ -570,11 +569,11 @@ class TrackingView extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(size * size / 2),
-          border: Border.all(color: AppColor.primaryColor, width: 2.0),
+          border: Border.all(color: AppStyle.primaryColor, width: 2.0),
           boxShadow: [
             BoxShadow(
               blurRadius: 8.0,
-              color: AppColor.dropShadowColor,
+              color: AppStyle.dropShadowColor,
             ),
           ],
         ),
@@ -717,7 +716,7 @@ class TrackingView extends StatelessWidget {
                 children: [
                   Text(
                     "Choose an Activity",
-                    style: AppStyle.heading_1(height: 1.0),
+                    style: AppStyle.heading1(height: 1.0),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(context),
@@ -734,13 +733,13 @@ class TrackingView extends StatelessWidget {
                       onTap: () => Navigator.pop(context, item),
                       iconColor: Colors.grey.shade300,
                       textColor: Colors.grey,
-                      selectedColor: AppColor.primaryColor,
+                      selectedColor: AppStyle.primaryColor,
                       selected: state.category == item,
                       leading: SvgPicture.asset(
                         item.svgPaths,
                         width: 32.0,
                         color: state.category == item
-                            ? AppColor.primaryColor
+                            ? AppStyle.primaryColor
                             : Colors.grey,
                       ),
                       title: Text(

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/enum/user_enum.dart';
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/user.dart';
@@ -39,9 +38,7 @@ class SignUpPage extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
                 state.snackMsg!,
-                style: AppStyle.paragraph(
-                  color: state.success ? Colors.white : AppColor.dangerColor,
-                ),
+                style: AppStyle.bodyText(),
               ),
             ));
           }
@@ -58,7 +55,7 @@ class SignUpPage extends StatelessWidget {
                   return false;
                 },
                 child: Scaffold(
-                  backgroundColor: AppColor.backgroundColor,
+                  backgroundColor: AppStyle.surfaceColor,
                   appBar: CustomAppBar.get(
                     title: "Sign up",
                     leading: GestureDetector(
@@ -113,7 +110,7 @@ class SignUpPage extends StatelessWidget {
           height: 4.0,
           width: 40.0,
           color: state.activeIndex == index
-              ? AppColor.primaryColor
+              ? AppStyle.primaryColor
               : Colors.black54,
         ), growable: false,
       ),
@@ -134,9 +131,9 @@ class SignUpPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 40.0),
-            Text(headline, style: AppStyle.heading_1(height: 1.0)),
+            Text(headline, style: AppStyle.heading1(height: 1.0)),
             const SizedBox(height: 4.0),
-            Text(description, style: AppStyle.paragraph()),
+            Text(description, style: AppStyle.bodyText()),
             const SizedBox(height: 28.0),
             Column(children: inputs),
           ],
@@ -221,7 +218,7 @@ class SignUpPage extends StatelessWidget {
         //           decoration: BoxDecoration(
         //             borderRadius: BorderRadius.circular(100.0),
         //             border: Border.all(
-        //               color: AppColor.onBackgroundColor,
+        //               color: AppStyle.neutralColor400,
         //               width: 2.0,
         //             ),
         //           ),
@@ -270,7 +267,7 @@ class SignUpPage extends StatelessWidget {
         //             decoration: BoxDecoration(
         //               borderRadius: BorderRadius.circular(100.0),
         //               border: Border.all(
-        //                 color: AppColor.backgroundColor,
+        //                 color: AppStyle.surfaceColor,
         //                 width: 2.0,
         //               ),
         //             ),
@@ -566,14 +563,14 @@ class SignUpPage extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColor.primaryColor,
+          backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12.0),
           ),
         ),
         child: Text(
           "Next",
-          style: AppStyle.heading_2(height: 1.0, color: Colors.white),
+          style: AppStyle.heading2(height: 1.0, color: Colors.white),
         ),
       ),
     );
@@ -648,7 +645,7 @@ class SignUpPage extends StatelessWidget {
   //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
   //         content: Text(
   //           "Registration failed, please re-try!",
-  //           style: AppStyle.paragraph(color: AppColor.dangerColor),
+  //           style: AppStyle.bodyText(color: AppStyle.dangerColor),
   //         ),
   //       ));
   //     }
@@ -674,7 +671,7 @@ class SignUpPage extends StatelessWidget {
       ),
       title: Text(
         title,
-        style: AppStyle.heading_2(),
+        style: AppStyle.heading2(),
       ),
     );
   }
@@ -696,7 +693,7 @@ class SignUpPage extends StatelessWidget {
   // Future<void> _showAvatarSelection(BuildContext context) {
   //   return showModalBottomSheet<void>(
   //     constraints: BoxConstraints.loose(const Size(double.infinity, 160.0)),
-  //     backgroundColor: AppColor.backgroundColor,
+  //     backgroundColor: AppStyle.surfaceColor,
   //     context: context,
   //     shape: const RoundedRectangleBorder(
   //       borderRadius: BorderRadius.vertical(
@@ -755,7 +752,7 @@ class SignUpPage extends StatelessWidget {
   //                     },
   //                     title: "Remove current picture",
   //                     iconData: Icons.delete_outline,
-  //                     iconColor: AppColor.dangerColor,
+  //                     iconColor: AppStyle.dangerColor,
   //                   )
   //                 : const SizedBox(),
   //           ],

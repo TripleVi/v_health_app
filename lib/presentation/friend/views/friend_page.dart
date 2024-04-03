@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
 import '../../../core/utilities/constants.dart';
 import '../../../core/utilities/utils.dart';
@@ -30,10 +29,10 @@ class FriendView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar.get(title: "Friends"),
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       body: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
         ),
         child: BlocBuilder<FriendCubit, FriendState>(
           builder: (context, state) {
@@ -90,7 +89,7 @@ class FriendView extends StatelessWidget {
   //           });
   //         },
   //         style: ElevatedButton.styleFrom(
-  //           backgroundColor: AppColor.primaryColor,
+  //           backgroundColor: AppStyle.primaryColor,
   //         ),
   //         child: const Icon(Icons.refresh),
   //       ),
@@ -181,8 +180,8 @@ class _FriendCardState extends State<FriendCard> {
     final friend = widget.friend;
 
     return Card(
-      color: AppColor.backgroundColor,
-      shadowColor: AppColor.onBackgroundColor,
+      color: AppStyle.surfaceColor,
+      shadowColor: AppStyle.neutralColor400,
       elevation: 1.5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppStyle.borderRadius),
@@ -196,7 +195,7 @@ class _FriendCardState extends State<FriendCard> {
             children: [
               CircleAvatar(
                 radius: avatarSize / 2,
-                backgroundColor: AppColor.backgroundColor,
+                backgroundColor: AppStyle.surfaceColor,
                 backgroundImage: Image.asset(
                   "assets/images/avatar.jpg",
                   cacheWidth: avatarSize,
@@ -218,14 +217,14 @@ class _FriendCardState extends State<FriendCard> {
                   children: [
                     Text(
                       "${friend.lastName} ${friend.firstName}",
-                      style: AppStyle.heading_3(height: 1.0),
+                      style: AppStyle.heading3(height: 1.0),
                     ),
                     const SizedBox(height: 4.0),
                     friend.mutual == 0 
                         ? const SizedBox()
                         : Text(
                           "${friend.mutual} mutual",
-                          style: AppStyle.label2(height: 1.0),
+                          style: AppStyle.caption2(height: 1.0),
                         ),
                   ],
                 ),
@@ -261,7 +260,7 @@ class _FriendCardState extends State<FriendCard> {
           });
         },
         style: TextButton.styleFrom(
-          backgroundColor: AppColor.primaryColor,
+          backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppStyle.borderRadius),
           ),
@@ -272,13 +271,13 @@ class _FriendCardState extends State<FriendCard> {
               height: 16.0,
               child: CircularProgressIndicator(
                   strokeWidth: 3.0,
-                  color: AppColor.secondaryColor
+                  color: AppStyle.surfaceColor
                 ),
             )
             : Text(
               "Follow",
-              style: AppStyle.heading_3(
-                color: AppColor.secondaryColor,
+              style: AppStyle.heading3(
+                color: AppStyle.surfaceColor,
                 height: 1.0,
               ),
             ),
@@ -306,7 +305,7 @@ class _FriendCardState extends State<FriendCard> {
           });
         },
         style: TextButton.styleFrom(
-          backgroundColor: AppColor.onBackgroundColor,
+          backgroundColor: AppStyle.neutralColor400,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppStyle.borderRadius),
           ),
@@ -317,12 +316,12 @@ class _FriendCardState extends State<FriendCard> {
               height: 16.0,
               child: CircularProgressIndicator(
                   strokeWidth: 3.0,
-                  color: AppColor.secondaryColor
+                  color: AppStyle.surfaceColor
                 ),
             )
             : Text(
               "Following",
-              style: AppStyle.heading_3(height: 1.0),
+              style: AppStyle.heading3(height: 1.0),
             ),
       ),
     );

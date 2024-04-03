@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/resources/colors.dart';
 import '../../core/resources/style.dart';
 import '../../core/utilities/utils.dart';
 
@@ -42,14 +41,14 @@ class MyDialog {
       builder: (BuildContext context) {
         MyUtils.closeKeyboard(context);
         return AlertDialog(
-          title: Text(title, style: AppStyle.heading_2(height: 1.0)),
-          content: Text(message, style: AppStyle.paragraph()),
+          title: Text(title, style: AppStyle.heading2(height: 1.0)),
+          content: Text(message, style: AppStyle.bodyText()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop<bool>(context, false),
               child: Text(
                 noButtonName,
-                style: AppStyle.label6(
+                style: AppStyle.caption2(
                   color: Colors.grey,
                   height: 1.0,
                 ),
@@ -59,7 +58,7 @@ class MyDialog {
               onPressed: () => Navigator.pop<bool>(context, true),
               child: Text(
                 yesButtonName,
-                style: AppStyle.label6(
+                style: AppStyle.caption2(
                   color: Colors.blue,
                   height: 1.0,
                 ),
@@ -83,14 +82,14 @@ class MyDialog {
       builder: (BuildContext context) {
         MyUtils.closeKeyboard(context);
         return AlertDialog(
-          title: Text(title, style: AppStyle.heading_2(height: 1.0)),
-          content: Text(message, style: AppStyle.paragraph()),
+          title: Text(title, style: AppStyle.heading2(height: 1.0)),
+          content: Text(message, style: AppStyle.bodyText()),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop<void>(context),
               child: Text(
                 yesButtonName,
-                style: AppStyle.label6(
+                style: AppStyle.caption2(
                   color: Colors.blue,
                   height: 1.0,
                 ),

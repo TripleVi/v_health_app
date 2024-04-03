@@ -32,12 +32,12 @@ class SignUpOptions extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 140.0),
         child: Column(
           children: [
-            Text("Sign up for vHealth", style: AppStyle.heading_1(height: 1.0)),
+            Text("Sign up for vHealth", style: AppStyle.heading1(height: 1.0)),
             Container(
               margin: const EdgeInsets.only(top: 8.0, bottom: 32.0),
               child: Text(
                 "Create a profile, follow other accounts, create your own posts, and more.",
-                style: AppStyle.paragraph(),
+                style: AppStyle.bodyText(),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -83,7 +83,7 @@ class SignUpOptions extends StatelessWidget {
             Expanded(
               child: Text(
                 "Continue with $logoName", 
-                style: AppStyle.heading_2(height: 1.0), 
+                style: AppStyle.heading2(height: 1.0), 
                 textAlign: TextAlign.center,
               ),
             )

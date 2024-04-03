@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../../core/enum/activity_tracking.dart';
-import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
 import '../../../core/utilities/utils.dart';
 import '../bloc/activity_tracking_bloc.dart';
@@ -97,18 +96,18 @@ class MetricsPage extends StatelessWidget {
       children: [
         name ?? Text(
           txtName!, 
-          style: nameStyle ?? AppStyle.paragraph(height: 1.0),
+          style: nameStyle ?? AppStyle.bodyText(height: 1.0),
         ),
         Row(
           mainAxisSize: MainAxisSize.min, 
           children: [
             value ?? Text(
               "${txtValue!} ", 
-              style: valueStyle ?? AppStyle.heading_2(height: 1.0),
+              style: valueStyle ?? AppStyle.heading2(height: 1.0),
             ),
             unit ?? Text(
               txtUnit ?? "",
-              style: unitStyle ?? AppStyle.heading_3(height: 1.0),
+              style: unitStyle ?? AppStyle.heading3(height: 1.0),
             ),
           ],
         ),
@@ -123,7 +122,7 @@ class MetricsPage extends StatelessWidget {
       height: double.infinity,
       margin: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: AppColor.backgroundColor,
+        color: AppStyle.surfaceColor,
         borderRadius: BorderRadius.circular(AppStyle.borderRadius),
       ),
       child: Column(

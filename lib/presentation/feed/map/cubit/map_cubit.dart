@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import '../../../../core/resources/colors.dart';
+import '../../../../core/resources/style.dart';
 import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/photo.dart';
 import '../../../../domain/entities/post.dart';
@@ -49,7 +49,7 @@ class MapCubit extends Cubit<MapState> {
       polylineId: const PolylineId("route"),
       points: geoPoints,
       width: 4,
-      color: AppColor.primaryColor,
+      color: AppStyle.primaryColor,
     ));
 
     emit(MapState(

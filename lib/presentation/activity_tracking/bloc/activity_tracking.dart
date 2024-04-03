@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:geolocator/geolocator.dart';
 
+import '../../../domain/entities/workout_data.dart';
 import '../../../main.dart';
 
 abstract class ActivityTracking {
@@ -14,6 +15,10 @@ abstract class ActivityTracking {
   double maxPace = 0.0;
   int totalCalories = 0;
   bool isPaused = false;
+  double? elevation;
+  double maxElevation = 0.0;
+  double elevationGain = 0.0;  
+  List<WorkoutData> workoutData = [];
   StreamSubscription? locationListener;
   late final DateTime startDate;
 

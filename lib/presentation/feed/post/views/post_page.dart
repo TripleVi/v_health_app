@@ -2,7 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/post.dart';
@@ -36,11 +35,11 @@ class PostView extends StatelessWidget {
         if(state is PostLoaded) {
           return Container(
             margin: const EdgeInsets.only(top: 8.0),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               border: Border(
                 bottom: BorderSide(
                   width: 10.0, 
-                  color: AppColor.onBackgroundColor,
+                  color: AppStyle.neutralColor400,
                 ),
               ),
             ),
@@ -95,12 +94,12 @@ class PostView extends StatelessWidget {
                                 const Icon(
                                   Icons.thumb_up_rounded, 
                                   size: 20.0, 
-                                  color: AppColor.primaryColor,
+                                  color: AppStyle.primaryColor,
                                 ),
                                 const SizedBox(width: 8.0),
                                 Text(
                                   "${state.likes}", 
-                                  style: AppStyle.paragraph(height: 1.0),
+                                  style: AppStyle.bodyText(height: 1.0),
                                 ),
                               ],
                             ),
@@ -122,9 +121,9 @@ class PostView extends StatelessWidget {
                               children: [
                                 Text(
                                   "${state.comments} ", 
-                                  style: AppStyle.paragraph(height: 1.0),
+                                  style: AppStyle.bodyText(height: 1.0),
                                 ),
-                                Text("comments", style: AppStyle.paragraph(height: 1.0)),
+                                Text("comments", style: AppStyle.bodyText(height: 1.0)),
                               ],
                             ),
                           ),
@@ -135,8 +134,8 @@ class PostView extends StatelessWidget {
                 const SizedBox(height: 8.0),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: AppStyle.horizontalPadding),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+                  decoration: const BoxDecoration(
+                    border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
                   ),
                 ),
                 const SizedBox(height: 4.0),
@@ -175,19 +174,19 @@ class PostView extends StatelessWidget {
                 ? const Icon(
                   Icons.thumb_up, 
                   size: 28.0, 
-                  color: AppColor.primaryColor,
+                  color: AppStyle.primaryColor,
                 )
-                : Icon(
+                : const Icon(
                   Icons.thumb_up_outlined, 
                   size: 28.0, 
-                  color: AppColor.onBackgroundColor,
+                  color: AppStyle.neutralColor400,
                 ),
             const SizedBox(width: 8.0),
             Text(
               "Like", 
               style: state.isLiked
-                  ? AppStyle.paragraph(color: AppColor.primaryColor, height: 1.0)
-                  : AppStyle.paragraph(height: 1.0),
+                  ? AppStyle.bodyText(color: AppStyle.primaryColor, height: 1.0)
+                  : AppStyle.bodyText(height: 1.0),
             ),
           ],
         ),
@@ -204,13 +203,13 @@ class PostView extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.mode_comment_outlined, 
               size: 28.0, 
-              color: AppColor.onBackgroundColor,
+              color: AppStyle.neutralColor400,
             ),
             const SizedBox(width: 8.0),
-            Text(" comments", style: AppStyle.paragraph(height: 1.0)),
+            Text(" comments", style: AppStyle.bodyText(height: 1.0)),
           ],
         ),
       ),
@@ -228,12 +227,12 @@ class PostView extends StatelessWidget {
           children: [
             Text(
               "Distance", 
-              style: AppStyle.paragraph(fontSize: 14, height: 1.0),
+              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
             ),
             const SizedBox(height: 4.0),
             Text(
               distanceMap["value"]!, 
-              style: AppStyle.heading_1(height: 1.0),
+              style: AppStyle.heading1(height: 1.0),
             ),
           ],
         ),
@@ -241,12 +240,12 @@ class PostView extends StatelessWidget {
           children: [
             Text(
               "Time", 
-              style: AppStyle.paragraph(fontSize: 14, height: 1.0),
+              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
             ),
             const SizedBox(height: 4.0),
             Text(
               state.recordTime, 
-              style: AppStyle.heading_1(height: 1.0),
+              style: AppStyle.heading1(height: 1.0),
             ),
           ],
         ),
@@ -254,12 +253,12 @@ class PostView extends StatelessWidget {
           children: [
             Text(
               "Calories", 
-              style: AppStyle.paragraph(fontSize: 14, height: 1.0),
+              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
             ),
             const SizedBox(height: 4.0),
             Text(
               "${record.calories}", 
-              style: AppStyle.heading_1(height: 1.0),
+              style: AppStyle.heading1(height: 1.0),
             ),
           ],
         )
@@ -305,7 +304,7 @@ class PostView extends StatelessWidget {
           },
           child: CircleAvatar(
             radius: avatarSize/2,
-            backgroundColor: AppColor.backgroundColor,
+            backgroundColor: AppStyle.surfaceColor,
             backgroundImage: Image.asset(
               "assets/images/avatar.jpg",
               cacheWidth: avatarSize,
@@ -334,7 +333,7 @@ class PostView extends StatelessWidget {
                 },
                 child: Text(
                   author.username, 
-                  style: AppStyle.heading_2(height: 1.0),
+                  style: AppStyle.heading2(height: 1.0),
                 ),
               ),
               const SizedBox(height: 2.0),
@@ -343,15 +342,15 @@ class PostView extends StatelessWidget {
                 children: [
                   Text(
                     "${state.txtDate} ",
-                    style: AppStyle.paragraph(fontSize: 14.0, height: 1.0),
+                    style: AppStyle.bodyText(fontSize: 14.0, height: 1.0),
                   ),
                   Text(
                     ".",
-                    style: AppStyle.paragraph(fontSize: 22.0, height: 0.3),
+                    style: AppStyle.bodyText(fontSize: 22.0, height: 0.3),
                   ),
                   Text(
                     " ${state.address}", 
-                    style: AppStyle.paragraph(fontSize: 14.0, height: 1.0),
+                    style: AppStyle.bodyText(fontSize: 14.0, height: 1.0),
                   ),
                 ],
               ),
@@ -362,7 +361,7 @@ class PostView extends StatelessWidget {
         Icon(
           Icons.more_horiz_rounded, 
           size: 30.0, 
-          color: AppColor.onBackgroundColor,
+          color: AppStyle.neutralColor400,
         ),
       ],
     );

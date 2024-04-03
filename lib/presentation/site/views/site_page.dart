@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/enum/bottom_navbar.dart';
-import '../../../core/resources/colors.dart';
+import '../../../core/resources/style.dart';
 import '../../../core/utilities/constants.dart';
 import '../../activity_tracking/views/tracking_page.dart';
 import '../../feed/views/feed_page.dart';
@@ -78,7 +78,7 @@ class SiteView extends StatelessWidget {
                 BottomNavigationBarItem(
                   icon: CircleAvatar(
                     radius: iconSize / 2,
-                    backgroundColor: AppColor.backgroundColor,
+                    backgroundColor: AppStyle.surfaceColor,
                     backgroundImage: Image.asset(
                       "assets/images/avatar.jpg",
                       cacheWidth: iconSize,

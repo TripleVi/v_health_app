@@ -62,7 +62,7 @@
 //       appBar: CustomAppBar.get(title: "Notifications"),
 //       body: Container(
 //         decoration: BoxDecoration(
-//           border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+//           border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
 //         ),
 //         child: BlocBuilder<NotificationBloc, NotificationState>(
 //           builder: (context, state) {
@@ -74,7 +74,7 @@
 //             }
 //             final errorMsg = (state as NotificationError).message;
 //             return Center(
-//               child: Text(errorMsg, style: AppStyle.paragraph()),
+//               child: Text(errorMsg, style: AppStyle.bodyText()),
 //             );
 //           },
 //         ),
@@ -91,7 +91,7 @@
 //           child: Text(
 //             "Your notifications are currently empty at the moment",
 //             textAlign: TextAlign.center,
-//             style: AppStyle.paragraph(),
+//             style: AppStyle.bodyText(),
 //           ),
 //         ),
 //       );
@@ -122,7 +122,7 @@
 //                 children: [
 //                   CircleAvatar(
 //                     radius: avatarSize/2,
-//                     backgroundColor: AppColor.backgroundColor,
+//                     backgroundColor: AppStyle.surfaceColor,
 //                     backgroundImage: Image.asset(
 //                       "assets/images/avatar.jpg",
 //                       cacheWidth: avatarSize,
@@ -148,7 +148,7 @@
 //                       crossAxisAlignment: CrossAxisAlignment.start,
 //                       children: [
 //                         Text(notification.content,
-//                           style: AppStyle.heading_2(fontSize: 14.0),
+//                           style: AppStyle.heading2(fontSize: 14.0),
 //                         ),
 //                         Text(timeago.format(notification.dateTime, locale: "en"),
 //                           style: AppStyle.label(fontSize: 12.0),

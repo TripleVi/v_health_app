@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
-import '../../../../core/resources/colors.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/post.dart';
@@ -32,23 +31,23 @@ class DetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: "Details",
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 24.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
         ),
       ),
       body: Container(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColor.onBackgroundColor)),
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
         ),
         child: BlocBuilder<DetailsCubit, DetailsState>(
           builder: (context, state) {
@@ -69,9 +68,9 @@ class DetailsView extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: AppStyle.paragraph(height: 1)),
+        Text(title, style: AppStyle.bodyText(height: 1)),
         const SizedBox(height: 8.0),
-        Text(content, style: AppStyle.heading_2(height: 1)),
+        Text(content, style: AppStyle.heading2(height: 1)),
       ],
     );
   }
@@ -130,34 +129,34 @@ class DetailsView extends StatelessWidget {
           //       );
           //     }
           //     return Center(child: CircularProgressIndicator(
-          //       color: AppColor.onBackgroundColor,
+          //       color: AppStyle.neutralColor400,
           //     ));
           //   }
           // ),
           const SizedBox(height: 40.0),
           _mapSection(context, state),
-          Divider(
+          const Divider(
             height: 8.0,
             thickness: 8.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
+              primaryXAxis: const CategoryAxis(
                 isVisible: true,
                 title: AxisTitle(text: "Time (mins)"),
               ),
-              primaryYAxis: NumericAxis(
+              primaryYAxis: const NumericAxis(
                 isVisible: true,
                 title: AxisTitle(text: "Speed (m/s)"),
               ),
-              title: ChartTitle(text: "Speed - Time"),
+              title: const ChartTitle(text: "Speed - Time"),
               // legend: Legend(isVisible: true),
               tooltipBehavior: _tooltipBehavior,
               series: <LineSeries<WorkoutData, String>>[
                 LineSeries<WorkoutData, String>(
-                  color: AppColor.primaryColor,
+                  color: AppStyle.primaryColor,
                   dataSource:  data,
                   xValueMapper: (datum, index) => "${(datum.timeFrame/1000/60)}",
                   yValueMapper: (datum, index) => datum.speed,
@@ -166,10 +165,10 @@ class DetailsView extends StatelessWidget {
               ],
             ),
           ),
-          Divider(
+          const Divider(
             height: 8.0,
             thickness: 8.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -177,7 +176,7 @@ class DetailsView extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Text("Workout details", style: AppStyle.heading_2(height: 1)),
+                child: Text("Workout details", style: AppStyle.heading2(height: 1)),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -190,11 +189,11 @@ class DetailsView extends StatelessWidget {
                           MyUtils.getFormattedDuration(record.workoutDuration),
                         ),
                       ),
-                      VerticalDivider(
+                      const VerticalDivider(
                         width: 2.0,
                         thickness: 2.0,
                         endIndent: 4.0,
-                        color: AppColor.onBackgroundColor,
+                        color: AppStyle.neutralColor400,
                       ),
                       Expanded(
                         child: _buildCell(
@@ -218,13 +217,13 @@ class DetailsView extends StatelessWidget {
                         "${distanceMap["value"]!} ${distanceMap["unit"]!}",
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 36.0,
                       child: VerticalDivider(
                         width: 2.0,
                         thickness: 2.0,
                         endIndent: 4.0,
-                        color: AppColor.onBackgroundColor,
+                        color: AppStyle.surfaceColor,
                       ),
                     ),
                     Expanded(
@@ -246,13 +245,13 @@ class DetailsView extends StatelessWidget {
                         "${record.calories} cal",
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 36.0,
                       child: VerticalDivider(
                         width: 2.0,
                         thickness: 2.0,
                         endIndent: 4.0,
-                        color: AppColor.onBackgroundColor,
+                        color: AppStyle.surfaceColor,
                       ),
                     ),
                     Expanded(
@@ -274,13 +273,13 @@ class DetailsView extends StatelessWidget {
                         "${avgSMap["value"]!} ${avgPMap["unit"]!}",
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 36.0,
                       child: VerticalDivider(
                         width: 2.0,
                         thickness: 2.0,
                         endIndent: 4.0,
-                        color: AppColor.onBackgroundColor,
+                        color: AppStyle.surfaceColor,
                       ),
                     ),
                     Expanded(
@@ -302,13 +301,13 @@ class DetailsView extends StatelessWidget {
                         "${avgPMap["value"]!} ${avgPMap["unit"]!}",
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 36.0,
                       child: VerticalDivider(
                         width: 2.0,
                         thickness: 2.0,
                         endIndent: 4.0,
-                        color: AppColor.onBackgroundColor,
+                        color: AppStyle.neutralColor400,
                       ),
                     ),
                     Expanded(

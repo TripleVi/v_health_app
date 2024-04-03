@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-import '../../../../../../core/resources/colors.dart';
 import '../../../../../../core/resources/style.dart';
 import '../../../../../../domain/entities/comment.dart';
 import '../../cubit/comments_cubit.dart';
@@ -28,7 +27,7 @@ class CommentBlock extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
                 state.snackMsg!,
-                style: AppStyle.paragraph(color: Colors.white),
+                style: AppStyle.bodyText(color: Colors.white),
               ),
             ));
           }
@@ -41,7 +40,7 @@ class CommentBlock extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: avatarSize/2,
-                  backgroundColor: AppColor.backgroundColor,
+                  backgroundColor: AppStyle.surfaceColor,
                   backgroundImage: Image.asset(
                     "assets/images/avatar.jpg",
                     cacheWidth: avatarSize,
@@ -74,34 +73,34 @@ class CommentBlock extends StatelessWidget {
                                   children: [
                                     Text(
                                       "${comment.author.username} ",
-                                      style: AppStyle.paragraph(
-                                        color: AppColor.textColor,
+                                      style: AppStyle.bodyText(
+                                        color: AppStyle.textColor,
                                         height: 1.0,
                                       ),
                                     ),
                                     Text(
                                       timeago.format(comment.createdDate, locale: "en"),
-                                      style: AppStyle.label6(),
+                                      style: AppStyle.caption2(),
                                     ),
                                   ],
                                 ),
                                 Text(
                                   comment.content,
-                                  style: AppStyle.paragraph(),
+                                  style: AppStyle.bodyText(),
                                 ),
                                 const SizedBox(height: 8.0,),
                                 Row(
                                   children: [
                                     Text(
                                       "22 likes",
-                                      style: AppStyle.label6(),
+                                      style: AppStyle.caption2(),
                                     ),
                                     const SizedBox(width: 12.0),
                                     GestureDetector(
                                       onTap: () => onReplyToTapped(context),
                                       child: Text(
                                         "Reply",
-                                        style: AppStyle.label6(),
+                                        style: AppStyle.caption2(),
                                       ),
                                     ),
                                   ],
@@ -112,7 +111,7 @@ class CommentBlock extends StatelessWidget {
                           IconButton(
                             onPressed: () {},
                             iconSize: 20.0,
-                            color: AppColor.primaryColor,
+                            color: AppStyle.primaryColor,
                             icon: const Icon(Icons.thumb_up),
                           ),
                         ],
@@ -151,12 +150,12 @@ class CommentBlock extends StatelessWidget {
       onTap: context.read<BlockCubit>().viewMoreReplies,
       child: Row(
         children: [
-          SizedBox(
+          const SizedBox(
             width: 28.0,
             child: Divider(
               height: 1.0,
               thickness: 1.0,
-              color: AppColor.onBackgroundColor,
+              color: AppStyle.neutralColor400,
               endIndent: 4.0,
             ),
           ),
@@ -175,12 +174,12 @@ class CommentBlock extends StatelessWidget {
       onTap: context.read<BlockCubit>().hideAllReplies,
       child: Row(
         children: [
-          SizedBox(
+          const SizedBox(
             width: 28.0,
             child: Divider(
               height: 1.0,
               thickness: 1.0,
-              color: AppColor.onBackgroundColor,
+              color: AppStyle.neutralColor400,
               endIndent: 4.0,
             ),
           ),
@@ -236,7 +235,7 @@ class CommentBlock extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: avatarSize/2,
-            backgroundColor: AppColor.backgroundColor,
+            backgroundColor: AppStyle.surfaceColor,
             backgroundImage: Image.asset(
               "assets/images/avatar.jpg",
               cacheWidth: avatarSize,
@@ -261,14 +260,14 @@ class CommentBlock extends StatelessWidget {
                   children: [
                     Text(
                       "${comment.author.username} ",
-                      style: AppStyle.paragraph(
-                        color: AppColor.textColor,
+                      style: AppStyle.bodyText(
+                        color: AppStyle.textColor,
                         height: 1.0,
                       ),
                     ),
                     Text(
                       timeago.format(comment.createdDate, locale: "en"),
-                      style: AppStyle.label6(),
+                      style: AppStyle.caption2(),
                     ),
                   ],
                 ),
@@ -277,11 +276,11 @@ class CommentBlock extends StatelessWidget {
                     children: <TextSpan>[
                       TextSpan(
                         text: "@${comment.author.username} ", 
-                        style: AppStyle.paragraph(color: AppColor.primaryColor), 
+                        style: AppStyle.bodyText(color: AppStyle.primaryColor), 
                       ),
                       TextSpan(
                         text: comment.content,
-                        style: AppStyle.paragraph(),
+                        style: AppStyle.bodyText(),
                       ),
                     ],
                   ),
@@ -291,14 +290,14 @@ class CommentBlock extends StatelessWidget {
                   children: [
                     Text(
                       "22 likes",
-                      style: AppStyle.label6(),
+                      style: AppStyle.caption2(),
                     ),
                     const SizedBox(width: 12.0),
                     GestureDetector(
                       onTap: () => onReplyToTapped(context),
                       child: Text(
                         "Reply",
-                        style: AppStyle.label6(),
+                        style: AppStyle.caption2(),
                       ),
                     ),
                   ],
@@ -309,7 +308,7 @@ class CommentBlock extends StatelessWidget {
           IconButton(
             onPressed: () {},
             iconSize: 20.0,
-            color: AppColor.primaryColor,
+            color: AppStyle.primaryColor,
             icon: const Icon(Icons.thumb_up),
           ),
         ],

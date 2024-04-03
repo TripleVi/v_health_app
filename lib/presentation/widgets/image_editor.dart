@@ -4,7 +4,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as i;
 
-import '../../core/resources/colors.dart';
 import '../../core/resources/style.dart';
 
 
@@ -60,7 +59,7 @@ class ImageEditor extends StatelessWidget {
                 },
                 child: Text(
                   "Cancel", 
-                  style: AppStyle.paragraph(
+                  style: AppStyle.bodyText(
                     color: Colors.white,
                     height: 1.0,
                   ),
@@ -77,14 +76,14 @@ class ImageEditor extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text(
                         "Image editing failed. Please re-try!",
-                        style: AppStyle.paragraph(color: AppColor.dangerColor),
+                        style: AppStyle.bodyText(),
                       ),
                     ));
                   }
                 },
                 child: Text(
                   "Done", 
-                  style: AppStyle.paragraph(
+                  style: AppStyle.bodyText(
                     color: Colors.white,
                     height: 1.0,
                   ),
@@ -136,7 +135,7 @@ class ImageEditor extends StatelessWidget {
                         const SizedBox(height: 2.0),
                         Text(
                           "Rotate", 
-                          style: AppStyle.paragraph(
+                          style: AppStyle.bodyText(
                             color: Colors.white, 
                             height: 1.0,
                           ),
@@ -163,7 +162,7 @@ class ImageEditor extends StatelessWidget {
                         const SizedBox(height: 2.0),
                         Text(
                           "Reset", 
-                          style: AppStyle.paragraph(
+                          style: AppStyle.bodyText(
                             color: Colors.white, 
                             height: 1.0,
                           ),
@@ -189,7 +188,7 @@ class ImageEditor extends StatelessWidget {
                         const SizedBox(height: 2.0),
                         Text(
                           "Flip", 
-                          style: AppStyle.paragraph(
+                          style: AppStyle.bodyText(
                             color: Colors.white, 
                             height: 1.0,
                           ),

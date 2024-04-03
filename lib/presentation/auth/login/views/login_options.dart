@@ -18,7 +18,7 @@ class LoginOptions extends StatelessWidget {
             margin: const EdgeInsets.only(top: 8.0, bottom: 32.0),
             child: Text(
               "Manage your account, record your activities, follow other accounts, and more.",
-              style: AppStyle.label6(),
+              style: AppStyle.caption2(),
               textAlign: TextAlign.center,
             ),
           ),
@@ -37,7 +37,7 @@ class LoginOptions extends StatelessWidget {
                   Expanded(
                     child: Text(
                       "Use email or username",
-                      style: AppStyle.heading6(height: 1.0), 
+                      style: AppStyle.heading5(height: 1.0), 
                       textAlign: TextAlign.center,
                     ),
                   )
@@ -86,7 +86,7 @@ class LoginOptions extends StatelessWidget {
             Expanded(
               child: Text(
                 "Continue with $logoName", 
-                style: AppStyle.heading6(height: 1.0), 
+                style: AppStyle.heading5(height: 1.0), 
                 textAlign: TextAlign.center,
               ),
             )

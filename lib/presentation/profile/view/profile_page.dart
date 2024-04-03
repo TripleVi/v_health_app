@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fa;
 
-import '../../../core/resources/colors.dart';
 import '../../../core/resources/style.dart';
-import '../../settings/view/settings_page.dart';
 import '../../widgets/appBar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../bloc/profile_bloc.dart';
@@ -40,7 +38,7 @@ class ProfileView extends StatelessWidget {
       icon: const Icon(
         Icons.settings_outlined,
         size: 24.0,
-        color: AppColor.primaryColor,
+        color: AppStyle.primaryColor,
       ),
     );
   }
@@ -56,19 +54,19 @@ class ProfileView extends StatelessWidget {
           vertical: 4.0,
           horizontal: 16.0,
         ),
-        backgroundColor: AppColor.backgroundColor,
+        backgroundColor: AppStyle.surfaceColor,
         shape: RoundedRectangleBorder(
           side: const BorderSide(
             width: 2.0,
-            color: AppColor.primaryColor,
+            color: AppStyle.primaryColor,
           ),
           borderRadius: BorderRadius.circular(16.0),
         ),
       ),
       child: Text(
         label,
-        style: AppStyle.heading_2(
-          color: AppColor.primaryColor,
+        style: AppStyle.heading2(
+          color: AppStyle.primaryColor,
         ),
       ),
     );
@@ -78,7 +76,7 @@ class ProfileView extends StatelessWidget {
     final user = state.user;
     const iconSize = 72;
     return Scaffold(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       appBar: CustomAppBar.get(
         title: user.username,
         actions: [
@@ -90,7 +88,7 @@ class ProfileView extends StatelessWidget {
           Divider(
             height: 1.0,
             thickness: 1.0,
-            color: AppColor.onBackgroundColor,
+            color: AppStyle.neutralColor400,
           ),
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -106,7 +104,7 @@ class ProfileView extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: iconSize / 2,
-                      backgroundColor: AppColor.backgroundColor,
+                      backgroundColor: AppStyle.surfaceColor,
                       backgroundImage: Image.asset(
                         "assets/images/avatar.jpg",
                         cacheWidth: iconSize,
@@ -129,22 +127,22 @@ class ProfileView extends StatelessWidget {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("3", style: AppStyle.heading_2()),
-                              Text("Posts", style: AppStyle.paragraph()),
+                              Text("3", style: AppStyle.heading2()),
+                              Text("Posts", style: AppStyle.bodyText()),
                             ],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("${state.followers}", style: AppStyle.heading_2()),
-                              Text("Followers", style: AppStyle.paragraph()),
+                              Text("${state.followers}", style: AppStyle.heading2()),
+                              Text("Followers", style: AppStyle.bodyText()),
                             ],
                           ),
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text("${state.followings}", style: AppStyle.heading_2()),
-                              Text("Following", style: AppStyle.paragraph()),
+                              Text("${state.followings}", style: AppStyle.heading2()),
+                              Text("Following", style: AppStyle.bodyText()),
                             ],
                           ),
                         ],
@@ -152,7 +150,7 @@ class ProfileView extends StatelessWidget {
                     )
                   ],
                 ),
-                Text(user.username, style: AppStyle.heading_2()),
+                Text(user.username, style: AppStyle.heading2()),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -185,7 +183,7 @@ class ProfileView extends StatelessWidget {
       builder: (context, state) {
         if(state is ProfileLoading) {
           return Scaffold(
-            backgroundColor: AppColor.backgroundColor,
+            backgroundColor: AppStyle.surfaceColor,
             appBar: CustomAppBar.get(
               title: "",
             ),
@@ -194,7 +192,7 @@ class ProfileView extends StatelessWidget {
                 Divider(
                   height: 1.0,
                   thickness: 1.0,
-                  color: AppColor.onBackgroundColor,
+                  color: AppStyle.neutralColor400,
                 ),
                 const Expanded(
                   child: AppLoadingIndicator(),

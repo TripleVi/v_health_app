@@ -4,7 +4,6 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/resources/colors.dart';
 import '../../core/resources/style.dart';
 import 'image_editor.dart';
 import 'loading_indicator.dart';
@@ -79,7 +78,7 @@ class _ImageViewState extends State<ImageView> {
         minHeight: 200.0,
         minWidth: double.infinity,
       ),
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppStyle.surfaceColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
@@ -109,7 +108,7 @@ class _ImageViewState extends State<ImageView> {
                     width: double.infinity,
                     child: Text("Save Photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading_2(height: 1.0),
+                      style: AppStyle.heading2(height: 1.0),
                     ),
                   ),
                 ),
@@ -134,7 +133,7 @@ class _ImageViewState extends State<ImageView> {
                     width: double.infinity,
                     child: Text("Edit Photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading_2(height: 1.0),
+                      style: AppStyle.heading2(height: 1.0),
                     ),
                   ),
                 ),
@@ -155,7 +154,7 @@ class _ImageViewState extends State<ImageView> {
                     width: double.infinity,
                     child: Text("Delete Photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading_2(height: 1.0),
+                      style: AppStyle.heading2(height: 1.0),
                     ),
                   ),
                 ),
@@ -219,8 +218,8 @@ class _ImageViewState extends State<ImageView> {
                               surfaceTintColor: Colors.white,
                               padding: const EdgeInsets.all(2.0),
                             ),
-                            child: Icon(Icons.close_rounded,
-                              color: AppColor.onBackgroundColor,
+                            child: const Icon(Icons.close_rounded,
+                              color: AppStyle.neutralColor400,
                               size: 32.0,
                             ),
                           ),

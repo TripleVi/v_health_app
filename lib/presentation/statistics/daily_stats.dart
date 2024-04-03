@@ -107,39 +107,39 @@ class _DailyStatsState extends State<DailyStats> {
     return FutureBuilder(
       future: fetchDailyReport(date),
       builder: ((context, snapshot) {
-        // if (snapshot.hasData) {
-          // List<ChartData> chartData =
-          //     snapshot.data!.map((e) => ChartData.hourlyData(e)).toList();
-          // return SfCartesianChart(
-          //     margin: const EdgeInsets.all(0),
-          //     plotAreaBorderWidth: 0,
-          //     primaryXAxis: CategoryAxis(
-          //         minimum: 0,
-          //         maximum: 24,
-          //         majorTickLines: const MajorTickLines(color: Colors.white),
-          //         tickPosition: TickPosition.inside,
-          //         axisLine: const AxisLine(color: Colors.white),
-          //         majorGridLines: const MajorGridLines(width: 0),
-          //         labelStyle: const TextStyle(color: Colors.white)),
-          //     primaryYAxis: CategoryAxis(
-          //         isVisible: false,
-          //         minimum: 0,
-          //         maximum: MyUtils.getMaxValue(chartData)),
-          //     series: <ChartSeries<ChartData, int>>[
-          //       ColumnSeries<ChartData, int>(
-          //           dataSource: chartData,
-          //           xValueMapper: (ChartData data, _) => data.x,
-          //           yValueMapper: (ChartData data, _) => data.y,
-          //           width: 1,
-          //           borderRadius: const BorderRadius.all(Radius.circular(5)),
-          //           color: Colors.white,
-          //           spacing: 0.1)
-          //     ]);
-        // } else {
+        if (snapshot.hasData) {
+          List<ChartData> chartData =
+              snapshot.data!.map((e) => ChartData.hourlyData(e)).toList();
+          return SfCartesianChart(
+              margin: const EdgeInsets.all(0),
+              plotAreaBorderWidth: 0,
+              primaryXAxis: CategoryAxis(
+                  minimum: 0,
+                  maximum: 24,
+                  majorTickLines: const MajorTickLines(color: Colors.white),
+                  tickPosition: TickPosition.inside,
+                  axisLine: const AxisLine(color: Colors.white),
+                  majorGridLines: const MajorGridLines(width: 0),
+                  labelStyle: const TextStyle(color: Colors.white)),
+              primaryYAxis: CategoryAxis(
+                  isVisible: false,
+                  minimum: 0,
+                  maximum: MyUtils.getMaxValue(chartData)),
+              series: <CartesianSeries<ChartData, int>>[
+                ColumnSeries<ChartData, int>(
+                    dataSource: chartData,
+                    xValueMapper: (ChartData data, _) => data.x,
+                    yValueMapper: (ChartData data, _) => data.y,
+                    width: 1,
+                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                    color: Colors.white,
+                    spacing: 0.1)
+              ]);
+        } else {
           return const Center(
             child: Text(""),
           );
-        // }
+        }
       })
     );
   }
@@ -412,7 +412,7 @@ class _DailyStatsState extends State<DailyStats> {
                         ),
                         reportWidget(weeklySummary[current]),
                         const Divider(color: Constants.primaryColor),
-                        // weeklyComparisonChart,
+                        weeklyComparisonChart,
                       ],
                     )
                   : reportWidget(DailySummary.empty())
