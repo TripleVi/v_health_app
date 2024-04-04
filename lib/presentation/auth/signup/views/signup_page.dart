@@ -5,7 +5,7 @@ import '../../../../core/enum/user_enum.dart';
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/user.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../cubit/signup_cubit.dart';
 

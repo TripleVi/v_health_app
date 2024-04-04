@@ -14,7 +14,7 @@ import '../../../core/resources/style.dart';
 import '../../../core/utilities/utils.dart';
 import '../../camera/views/camera_page.dart';
 import '../../site/bloc/site_bloc.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import '../../widgets/dialog.dart';
 import '../bloc/activity_tracking_bloc.dart';
 import '../../widgets/image_page.dart';

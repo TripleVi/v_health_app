@@ -24,8 +24,18 @@ class ChartData {
     y = data.steps;
   }
 
+  ChartData.hourlyDataMockup(int hour, int steps) {
+    x = hour;
+    y = steps;
+  }
+
   ChartData.dailySummary(int index, DailySummary data) {
     x = index;
     y = data.steps;
+  }
+
+  @override
+  String toString() {
+    return "{x: $x, y: $y}";
   }
 }

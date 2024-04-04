@@ -8,7 +8,7 @@ import '../../data/repositories/hourly_report_repo.dart';
 import '../../domain/entities/chart_data.dart';
 import '../../domain/entities/daily_steps.dart';
 import '../../domain/entities/report.dart';
-import '../widgets/appBar.dart';
+import '../widgets/app_bar.dart';
 import '../widgets/text.dart';
 
 class Trends extends StatefulWidget {

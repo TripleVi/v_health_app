@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/enum/social.dart';
 import '../../../../core/resources/style.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/dialog.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../../bloc/activity_tracking_bloc.dart';

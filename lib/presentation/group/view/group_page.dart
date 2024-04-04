@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/resources/style.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 
 class GroupPage extends StatefulWidget {
   const GroupPage({super.key});

@@ -7,7 +7,7 @@ import '../../../../core/utilities/utils.dart';
 import '../../../../domain/entities/post.dart';
 import '../../../../domain/entities/workout_data.dart';
 import '../../../site/bloc/site_bloc.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../cubit/details_cubit.dart';
 

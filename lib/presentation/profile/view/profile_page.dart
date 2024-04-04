@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fa;
 
 import '../../../core/resources/style.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../bloc/profile_bloc.dart';
 

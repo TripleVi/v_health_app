@@ -11,6 +11,7 @@ import '../../friend/views/friend_page.dart';
 import '../../group/view/group_page.dart';
 import '../../profile/view/profile_page.dart';
 import '../../statistics/daily_stats.dart';
+import '../../statistics/views/statistics_page.dart';
 import '../bloc/site_bloc.dart';
 
 class SitePage extends StatelessWidget {
@@ -31,7 +32,7 @@ class SiteView extends StatelessWidget {
     TabType.feed: FeedPage(),
     TabType.tracking: TrackingPage(),
     // TabType.group: GroupPage(),
-    TabType.group: FriendPage(),
+    TabType.statistics: StatisticsPage(),
     TabType.profile: ProfilePage(),
   };
 
@@ -73,7 +74,7 @@ class SiteView extends StatelessWidget {
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.groups_rounded),
-                  label: TabType.group.stringValue,
+                  label: TabType.statistics.stringValue,
                 ),
                 BottomNavigationBarItem(
                   icon: CircleAvatar(

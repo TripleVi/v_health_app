@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../cubit/login_cubit.dart';
 

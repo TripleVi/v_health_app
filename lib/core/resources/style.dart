@@ -62,7 +62,7 @@ class AppStyle {
 
   static TextStyle heading2({
     String fontFamily = fontFace,
-    double fontSize = 24.0,
+    double fontSize = 28.0,
     Color color = textColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
@@ -80,7 +80,7 @@ class AppStyle {
 
   static TextStyle heading3({
     String fontFamily = fontFace,
-    double fontSize = 20.0,
+    double fontSize = 24.0,
     Color color = textColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
@@ -98,7 +98,7 @@ class AppStyle {
 
   static TextStyle heading4({
     String fontFamily = fontFace,
-    double fontSize = 18.0,
+    double fontSize = 20.0,
     Color color = textColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,

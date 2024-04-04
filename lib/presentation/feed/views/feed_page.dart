@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../core/resources/style.dart';
 import '../../../domain/entities/post.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../bloc/feed_bloc.dart';
 import '../comments/views/comments_page.dart';

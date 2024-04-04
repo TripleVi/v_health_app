@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/resources/style.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/loading_indicator.dart';
 import '../block/view/block_page.dart';
 import '../cubit/comments_cubit.dart';

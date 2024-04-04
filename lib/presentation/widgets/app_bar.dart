@@ -1,9 +1,6 @@
-// ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 
-import '../../core/utilities/constants.dart';
-import 'Text.dart';
+import '../../core/resources/style.dart';
 
 class CustomAppBar {
   static AppBar get({
@@ -13,12 +10,12 @@ class CustomAppBar {
   }) {
     return AppBar(
       actions: actions,
-      backgroundColor: Colors.white,
-      foregroundColor: Constants.primaryColor,
+      backgroundColor: AppStyle.surfaceColor,
+      foregroundColor: AppStyle.textColor,
       elevation: 0,
       leading: leading,
       centerTitle: true,
-      title: TextTypes.heading_1(content: title, color: Constants.primaryColor),
+      title: Text(title, style: AppStyle.heading3()),
     );
   }
 }

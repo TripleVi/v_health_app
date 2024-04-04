@@ -6,7 +6,7 @@ import '../../../core/resources/style.dart';
 import '../../../core/utilities/constants.dart';
 import '../../../core/utilities/utils.dart';
 import '../../../domain/entities/friend.dart';
-import '../../widgets/appBar.dart';
+import '../../widgets/app_bar.dart';
 import '../../widgets/loading_indicator.dart';
 import '../cubit/friend_cubit.dart';
 

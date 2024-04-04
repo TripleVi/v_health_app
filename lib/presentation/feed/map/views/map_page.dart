@@ -9,7 +9,7 @@ import '../../../../core/resources/style.dart';
 import '../../../../domain/entities/photo.dart';
 import '../../../../domain/entities/post.dart';
 import '../../../widgets/image_page.dart';
-import '../../../widgets/appBar.dart';
+import '../../../widgets/app_bar.dart';
 import '../../../widgets/back_btn.dart';
 import '../cubit/map_cubit.dart';
 
