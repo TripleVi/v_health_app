@@ -74,7 +74,7 @@ class CommentBlock extends StatelessWidget {
                                     Text(
                                       "${comment.author.username} ",
                                       style: AppStyle.bodyText(
-                                        color: AppStyle.textColor,
+                                        color: AppStyle.primaryTextColor,
                                         height: 1.0,
                                       ),
                                     ),
@@ -261,7 +261,7 @@ class CommentBlock extends StatelessWidget {
                     Text(
                       "${comment.author.username} ",
                       style: AppStyle.bodyText(
-                        color: AppStyle.textColor,
+                        color: AppStyle.primaryTextColor,
                         height: 1.0,
                       ),
                     ),

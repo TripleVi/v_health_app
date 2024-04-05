@@ -11,7 +11,7 @@ class CustomAppBar {
     return AppBar(
       actions: actions,
       backgroundColor: AppStyle.surfaceColor,
-      foregroundColor: AppStyle.textColor,
+      foregroundColor: AppStyle.primaryTextColor,
       elevation: 0,
       leading: leading,
       centerTitle: true,

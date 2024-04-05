@@ -208,7 +208,7 @@ class CommentsView extends StatelessWidget {
       textAlignVertical: TextAlignVertical.center,
       style: AppStyle.bodyText(),
       controller: controller,
-      cursorColor: AppStyle.textColor,
+      cursorColor: AppStyle.primaryTextColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
@@ -221,7 +221,7 @@ class CommentsView extends StatelessWidget {
         focusedBorder: const OutlineInputBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.textColor),
+          borderSide: BorderSide(color: AppStyle.primaryTextColor),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppStyle.horizontalPadding,

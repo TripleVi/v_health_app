@@ -179,7 +179,7 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("0", style: AppStyle.heading3()),
+                      Text("0", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
                       Text("kcal", style: AppStyle.caption1()),
                     ],

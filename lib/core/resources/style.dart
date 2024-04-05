@@ -5,7 +5,6 @@ class AppStyle {
   static final controlNormalColor = Colors.grey.shade300;
   static const controlActivatedColor = Color(0xff434242);
   
-  static const textColor = Color(0xff1d1d1f);
   static const surfaceColor = Colors.white;
   static const primaryColor50 = Color(0xfff8ebea);
   static const primaryColor100 = Color(0xfffad0c4);
@@ -27,7 +26,17 @@ class AppStyle {
   static const neutralColor700 = Color(0xff616161);
   static const neutralColor800 = Color(0xff424242);
   static const neutralColor900 = Color(0xff212121);
-  static const onPrimaryColor = Colors.white;
+  static const backgroundColor = neutralColor;
+  static const primaryTextColor = Color(0xff1d1d1f);
+  static const secondaryTextColor = neutralColor400;
+  static const pBtnBgColor = primaryColor;
+  static const sBtnBgColor = neutralColor200;
+  static const pBtnTextColor = Colors.white;
+  static const sBtnTextColor = primaryTextColor;
+  static const primaryIconColor = primaryTextColor;
+  static const secondaryIconColor = secondaryTextColor;
+  static const inputBorderColor = neutralColor400;
+  static const inputBgColor = Colors.white;
   static const stepColor = Color(0xff59d5e0);
   static const timeColor = Color(0xfff4538a);
   static const calorieColor = Color(0xfff67f5d);
@@ -45,7 +54,7 @@ class AppStyle {
   static TextStyle heading1({
     String fontFamily = fontFace,
     double fontSize = 32.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -63,7 +72,7 @@ class AppStyle {
   static TextStyle heading2({
     String fontFamily = fontFace,
     double fontSize = 28.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -81,7 +90,7 @@ class AppStyle {
   static TextStyle heading3({
     String fontFamily = fontFace,
     double fontSize = 24.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -99,7 +108,7 @@ class AppStyle {
   static TextStyle heading4({
     String fontFamily = fontFace,
     double fontSize = 20.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -117,7 +126,7 @@ class AppStyle {
   static TextStyle heading5({
     String fontFamily = fontFace,
     double fontSize = 16.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -135,7 +144,7 @@ class AppStyle {
   static TextStyle bodyText({
     String fontFamily = fontFace,
     double fontSize = 16.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.normal,
     double letterSpacing = letterSpacing,
     double height = bodyLineHeight,
@@ -153,7 +162,7 @@ class AppStyle {
   static TextStyle bodyTextBold({
     String fontFamily = fontFace,
     double fontSize = 16.0,
-    Color color = textColor,
+    Color color = primaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = bodyLineHeight,
@@ -171,7 +180,7 @@ class AppStyle {
   static TextStyle caption1({
     String fontFamily = fontFace,
     double fontSize = 14.0,
-    Color color = neutralColor400,
+    Color color = secondaryTextColor,
     FontWeight fontWeight = FontWeight.normal,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -189,7 +198,7 @@ class AppStyle {
   static TextStyle caption1Bold({
     String fontFamily = fontFace,
     double fontSize = 14.0,
-    Color color = neutralColor400,
+    Color color = secondaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -207,7 +216,7 @@ class AppStyle {
   static TextStyle caption2({
     String fontFamily = fontFace,
     double fontSize = 12.0,
-    Color color = neutralColor400,
+    Color color = secondaryTextColor,
     FontWeight fontWeight = FontWeight.normal,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
@@ -221,5 +230,22 @@ class AppStyle {
       color: color,
     );
   }
-}
 
+  static TextStyle caption2Bold({
+    String fontFamily = fontFace,
+    double fontSize = 12.0,
+    Color color = secondaryTextColor,
+    FontWeight fontWeight = FontWeight.w500,
+    double letterSpacing = letterSpacing,
+    double height = headingLineHeight,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+      color: color,
+    );
+  }
+}

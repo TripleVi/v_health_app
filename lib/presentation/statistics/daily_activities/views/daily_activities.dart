@@ -32,7 +32,7 @@ class DailyActivitiesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.neutralColor,
+      backgroundColor: AppStyle.backgroundColor,
       appBar: CustomAppBar.get(
         title: "Daily activities",
         actions: [
@@ -159,14 +159,14 @@ class DailyActivitiesView extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected 
               ? AppStyle.primaryColor.withOpacity(0.1) 
-              : AppStyle.surfaceColor,
+              : AppStyle.neutralColor200,
           borderRadius: BorderRadius.circular(16.0),
         ),
         child: Text(
           content, 
           style: isSelected 
               ? AppStyle.caption1Bold(color: AppStyle.primaryColor)
-              : AppStyle.caption1Bold(),
+              : AppStyle.bodyTextBold(),
           textAlign: TextAlign.center,
         ),
       ),

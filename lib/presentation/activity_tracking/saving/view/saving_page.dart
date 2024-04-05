@@ -144,9 +144,9 @@ class SavingView extends StatelessWidget {
   }) {
     return TextField(
       textAlignVertical: TextAlignVertical.center,
-      style: AppStyle.bodyText(color: AppStyle.textColor),
+      style: AppStyle.bodyText(),
       controller: controller,
-      cursorColor: AppStyle.textColor,
+      cursorColor: AppStyle.primaryTextColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
@@ -159,7 +159,7 @@ class SavingView extends StatelessWidget {
         focusedBorder: const OutlineInputBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.textColor),
+          borderSide: BorderSide(color: AppStyle.inputBorderColor),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: AppStyle.horizontalPadding,
@@ -193,7 +193,7 @@ class SavingView extends StatelessWidget {
           children: [
             Icon(
               prefixIconData,
-              color: AppStyle.textColor,
+              color: AppStyle.primaryTextColor,
               size: 20.0,
             ),
             const SizedBox(width: 8.0),
@@ -203,14 +203,14 @@ class SavingView extends StatelessWidget {
                 style: AppStyle.bodyText(
                   color: content == null
                       ? AppStyle.primaryColor
-                      : AppStyle.textColor,
+                      : AppStyle.primaryTextColor,
                 ),
               ),
             ),
             const SizedBox(width: 8.0),
             const Icon(
               Icons.keyboard_arrow_down,
-              color: AppStyle.textColor,
+              color: AppStyle.primaryTextColor,
               size: 24.0,
             ),
           ],
