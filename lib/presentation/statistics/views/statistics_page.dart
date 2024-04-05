@@ -245,7 +245,7 @@ class StatisticsView extends StatelessWidget {
                 const Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 20.0,
-                  color: AppStyle.neutralColor300,
+                  color: AppStyle.secondaryIconColor,
                 )
               ],
             ),

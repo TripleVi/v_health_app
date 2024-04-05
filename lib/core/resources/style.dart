@@ -34,7 +34,7 @@ class AppStyle {
   static const pBtnTextColor = Colors.white;
   static const sBtnTextColor = primaryTextColor;
   static const primaryIconColor = primaryTextColor;
-  static const secondaryIconColor = secondaryTextColor;
+  static const secondaryIconColor = neutralColor500;
   static const inputBorderColor = neutralColor400;
   static const inputBgColor = Colors.white;
   static const stepColor = Color(0xff59d5e0);
