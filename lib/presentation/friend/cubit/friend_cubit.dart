@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:v_health/core/services/user_service.dart';
+import 'package:v_health/core/services/shared_pref_service.dart';
 
 import '../../../data/sources/api/friend_service.dart';
 import '../../../domain/entities/friend.dart';
@@ -17,7 +17,7 @@ class FriendCubit extends Cubit<FriendState> {
   }
 
   Future<void> _fetchData() async {
-    final user = await UserService.getCurrentUser();
+    final user = await SharedPrefService.getCurrentUser();
     emit(FriendLoaded(
       user: user,
       searchController: _searchController,

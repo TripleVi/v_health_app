@@ -8,7 +8,7 @@ import '../../core/utilities/constants.dart';
 import '../../core/utilities/utils.dart';
 import '../../data/repositories/hourly_report_repo.dart';
 import '../../domain/entities/chart_data.dart';
-import '../../domain/entities/daily_steps.dart';
+import '../../domain/entities/daily_report.dart';
 import '../../domain/entities/report.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/text.dart';
@@ -26,7 +26,7 @@ class _DailyStatsState extends State<DailyStats> {
   String currentDate = MyUtils.getDateAsSqlFormat(DateTime.now());
   Timer? _timer;
 
-  List<DailySummary> weeklySummary = [DailySummary.empty()];
+  List<DailyReport> weeklySummary = [DailyReport.empty()];
 
   @override
   initState() {
@@ -37,10 +37,10 @@ class _DailyStatsState extends State<DailyStats> {
     // });
   }
 
-  Future<List<DailySummary>> fetchWeeklyRecords() async {
+  Future<List<DailyReport>> fetchWeeklyRecords() async {
     print('Fetched Weekly Records');
-    final res = await ReportService.instance.fetchWeeklyReport(currentDate);
-    print(res);
+    final repo = DailyReportRepo();
+    final res = await repo.fetchWeeklyReport(currentDate);
     setState(() {
       weeklySummary = res;
       current = 6;
@@ -48,8 +48,11 @@ class _DailyStatsState extends State<DailyStats> {
     return res;
   }
 
-  Future<List<Report>> fetchDailyReport(String date) async {
-    return await HourlyReportRepo.instance.fetchDailyReport(date);
+  Future<List<Report>> fetchDailyReport(DateTime date) async {
+    final dRepo = DailyReportRepo();
+    final dReport = await dRepo.fetchDailyReport(date);
+    final hRepo = HourlyReportRepo();
+    return await hRepo.fetchReportsByDate(dReport.id);
   }
 
   Widget get weeklyComparisonChart {
@@ -103,7 +106,7 @@ class _DailyStatsState extends State<DailyStats> {
     );
   }
 
-  Widget stepsGraphByHour(String date) {
+  Widget stepsGraphByHour(DateTime date) {
     return FutureBuilder(
       future: fetchDailyReport(date),
       builder: ((context, snapshot) {
@@ -113,14 +116,14 @@ class _DailyStatsState extends State<DailyStats> {
           return SfCartesianChart(
               margin: const EdgeInsets.all(0),
               plotAreaBorderWidth: 0,
-              primaryXAxis: CategoryAxis(
+              primaryXAxis: const CategoryAxis(
                   minimum: 0,
                   maximum: 24,
-                  majorTickLines: const MajorTickLines(color: Colors.white),
+                  majorTickLines: MajorTickLines(color: Colors.white),
                   tickPosition: TickPosition.inside,
-                  axisLine: const AxisLine(color: Colors.white),
-                  majorGridLines: const MajorGridLines(width: 0),
-                  labelStyle: const TextStyle(color: Colors.white)),
+                  axisLine: AxisLine(color: Colors.white),
+                  majorGridLines: MajorGridLines(width: 0),
+                  labelStyle: TextStyle(color: Colors.white)),
               primaryYAxis: CategoryAxis(
                   isVisible: false,
                   minimum: 0,
@@ -144,7 +147,7 @@ class _DailyStatsState extends State<DailyStats> {
     );
   }
 
-  Widget reportWidget(DailySummary record) {
+  Widget reportWidget(DailyReport record) {
     return Column(
       children: [
         Padding(
@@ -221,7 +224,7 @@ class _DailyStatsState extends State<DailyStats> {
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
-                  TextTypes.heading_1(content: record.stair.toString()),
+                  TextTypes.heading_1(content: "20"),
                   const Text(" stairs"),
                 ],
               ),
@@ -232,7 +235,8 @@ class _DailyStatsState extends State<DailyStats> {
     );
   }
 
-  Widget completePercentage(DailySummary record, int position) {
+  Widget completePercentage(DailyReport report, int position) {
+    final txtDate = MyUtils.getDateAsSqlFormat(report.date);
     return GestureDetector(
       onDoubleTap: () {
         fetchWeeklyRecords();
@@ -251,11 +255,11 @@ class _DailyStatsState extends State<DailyStats> {
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
                     child: Column(
                       children: [
-                        Text(MyUtils.getDateFirstLetter(record.date)),
+                        Text(MyUtils.getDateThreeLetters(report.date)),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            record.date.split('/')[2],
+                            txtDate.split('/')[2],
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.w500),
                           ),
@@ -277,13 +281,13 @@ class _DailyStatsState extends State<DailyStats> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          MyUtils.getDateFirstLetter(record.date),
+                          MyUtils.getDateThreeLetters(report.date),
                           style: const TextStyle(color: Colors.white),
                         ),
                         Padding(
                           padding: const EdgeInsets.only(top: 8.0),
                           child: Text(
-                            record.date.split('/')[2],
+                            txtDate.split('/')[2],
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 18,
@@ -306,7 +310,7 @@ class _DailyStatsState extends State<DailyStats> {
     List<Widget> res = [];
     int i = 0;
     if (weeklySummary.isNotEmpty) {
-      for (DailySummary daily in weeklySummary) {
+      for (DailyReport daily in weeklySummary) {
         res.add(completePercentage(daily, i));
         i++;
       }
@@ -351,7 +355,7 @@ class _DailyStatsState extends State<DailyStats> {
                 );
                 if (pickedDate != null) {
                   String formattedDate =
-                      MyUtils.getFormattedDate(pickedDate);
+                      MyUtils.getFormattedDate1(pickedDate);
                   setState(() {
                     currentDate = formattedDate;
                   });
@@ -415,7 +419,7 @@ class _DailyStatsState extends State<DailyStats> {
                         weeklyComparisonChart,
                       ],
                     )
-                  : reportWidget(DailySummary.empty())
+                  : reportWidget(DailyReport.empty())
             ],
           ),
         )),

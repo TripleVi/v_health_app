@@ -478,7 +478,7 @@ class TrackingView extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _textFieldWidget(controller: _txtCalories, maxLength: 3),
-        Text(Metrics.calories.unit, style: AppStyle.heading2(height: 1.0)),
+        Text(Metrics.calorie.unit, style: AppStyle.heading2(height: 1.0)),
       ],
     );
   }

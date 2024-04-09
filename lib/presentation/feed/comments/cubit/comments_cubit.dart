@@ -4,7 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/services/user_service.dart';
+import '../../../../core/services/shared_pref_service.dart';
 import '../../../../data/sources/api/post_service.dart';
 import '../../../../domain/entities/comment.dart';
 import '../../../../domain/entities/user.dart';
@@ -30,7 +30,7 @@ class CommentsCubit extends Cubit<CommentsState> {
         _loadMoreComments();
       }
     });
-    final user = await UserService.getCurrentUser();
+    final user = await SharedPrefService.getCurrentUser();
     final service = PostService();
     final comments = await service.fetchComments(postId: _postId);
     _totalComments = await service.countIndependentComments(_postId);

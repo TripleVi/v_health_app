@@ -69,6 +69,8 @@ dependencies:
   environment_sensors: ^0.3.0
   percent_indicator: ^4.2.3
   syncfusion_flutter_datepicker: ^25.1.38
+  flutter_picker: ^2.1.0
+  quiver: ^3.2.1
 
 dev_dependencies:
   flutter_test:

@@ -1,13 +1,32 @@
 import '../table_attributes.dart';
 
 const sqlitePath = "fitness_tracker.db";
-const createDailySummaryTable =
-    "CREATE TABLE IF NOT EXISTS ${DailySummaryFields.container}("
-    "${DailySummaryFields.date} TEXT PRIMARY KEY, "
-    "${DailySummaryFields.steps} INTEGER, "
-    "${DailySummaryFields.distance} REAL, "
-    "${DailySummaryFields.stair} INTEGER, "
-    "${DailySummaryFields.calories} INTEGER)";
+
+const createDailyGoalTable =
+    "CREATE TABLE IF NOT EXISTS ${DailyGoalFields.container}("
+    "${DailyGoalFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "${DailyGoalFields.steps} INTEGER NOT NULL, "
+    "${DailyGoalFields.minutes} INTEGER NOT NULL, "
+    "${DailyGoalFields.calories} INTEGER NOT NULL)";
+
+const createDailyReportTable =
+    "CREATE TABLE IF NOT EXISTS ${DailyReportFields.container}("
+    "${DailyReportFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "${DailyReportFields.date} TEXT NOT NULL, "
+    "${DailyReportFields.steps} INTEGER NOT NULL, "
+    "${DailyReportFields.distance} REAL NOT NULL, "
+    "${DailyReportFields.activeTime} INTEGER NOT NULL, "
+    "${DailyReportFields.calories} INTEGER NOT NULL, "
+    "${DailyReportFields.goalId} INTEGER NOT NULL REFERENCES ${DailyGoalFields.container}(${DailyGoalFields.id}) ON UPDATE CASCADE)";
+
+const createHourlyReportTable =
+    "CREATE TABLE IF NOT EXISTS ${HourlyReportFields.container}("
+    "${HourlyReportFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "${HourlyReportFields.hour} INTEGER NOT NULL, "
+    "${HourlyReportFields.steps} INTEGER NOT NULL, "
+    "${HourlyReportFields.distance} REAL NOT NULL, "
+    "${HourlyReportFields.calories} INTEGER NOT NULL, "
+    "${HourlyReportFields.dayId} INTEGER NOT NULL REFERENCES ${DailyReportFields.container}(${DailyReportFields.id}) ON UPDATE CASCADE)";
 
 const createAccelDataTable =
     "CREATE TABLE IF NOT EXISTS ${AccelDataFields.table}("
@@ -21,16 +40,6 @@ const createAccelDataTable =
     "${AccelDataFields.Date} TEXT,"
     "${AccelDataFields.Activity} TEXT)";
 
-const createReportTable =
-    "CREATE TABLE IF NOT EXISTS ${ReportFields.container}("
-    "${ReportFields.rid} INTEGER PRIMARY KEY AUTOINCREMENT, "
-    "${ReportFields.date} TEXT, "
-    "${ReportFields.hour} INTEGER, "
-    "${ReportFields.steps} INTEGER, "
-    "${ReportFields.distance} REAL, "
-    "${ReportFields.stair} INTEGER, "
-    "${ReportFields.calories} INTEGER)";
-
 const createUserTable = "CREATE TABLE IF NOT EXISTS ${UserFields.container}("
     "${UserFields.id} TEXT PRIMARY KEY, "
     "${UserFields.username} TEXT NOT NULL, "
@@ -43,16 +52,6 @@ const createUserTable = "CREATE TABLE IF NOT EXISTS ${UserFields.container}("
     "${UserFields.weight} REAL, "
     "${UserFields.avatarName} TEXT NOT NULL, "
     "${UserFields.avatarUrl} TEXT NOT NULL)";
-
-const createDailyGoalTable =
-    "CREATE TABLE IF NOT EXISTS ${DailyGoalFields.container}("
-    "${DailyGoalFields.id} TEXT PRIMARY KEY, "
-    "${DailyGoalFields.date} TEXT NOT NULL, "
-    "${DailyGoalFields.steps} INTEGER NOT NULL, "
-    "${DailyGoalFields.workoutCalories} REAL NOT NULL, "
-    "${DailyGoalFields.totalCalories} REAL NOT NULL, "
-    "${DailyGoalFields.distance} REAL NOT NULL, "
-    "${DailyGoalFields.activeTime} REAL NOT NULL)";
 
 const createActivityRecordTable =
     "CREATE TABLE IF NOT EXISTS ${ActivityRecordFields.container}("
@@ -70,14 +69,6 @@ const createActivityRecordTable =
     "${ActivityRecordFields.workoutCalories} REAL, "
     "${ActivityRecordFields.totalCalories} REAL, "
     "${ActivityRecordFields.mapName} TEXT)";
-
-const createDailyStepsTable =
-    "CREATE TABLE IF NOT EXISTS ${DailyStepsFields.container}("
-    "${DailyStepsFields.id} TEXT PRIMARY KEY, "
-    "${DailyStepsFields.date} TEXT NOT NULL, "
-    "${DailyStepsFields.steps} TEXT NOT NULL, "
-    "${DailyStepsFields.distance} REAL NOT NULL, "
-    "${DailyStepsFields.calories} REAL NOT NULL)";
 
 const createCoordinateTable =
     "CREATE TABLE IF NOT EXISTS ${CoordinateFields.container}("

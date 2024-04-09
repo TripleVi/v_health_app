@@ -1,27 +1,30 @@
 // ignore_for_file: constant_identifier_names
 
-class ReportFields {
+class HourlyReportFields {
   static const container = "hourly_report";
-  static const rid = "rid";
-  static const date = "date";
+
+  static const id = "id";
   static const hour = "hour";
   static const steps = "steps";
   static const distance = "distance";
-  static const stair = "stair";
   static const calories = "calories";
+  static const dayId = "day_id";
 
-  ReportFields._();
+  HourlyReportFields._();
 }
 
-class DailySummaryFields {
-  static const container = "daily_summary";
-  static const date = "report_date";
-  static const steps = "report_steps";
-  static const distance = "report_distance";
-  static const stair = "report_stair";
-  static const calories = "report_calories";
+class DailyReportFields {
+  static const container = "daily_report";
 
-  DailySummaryFields._();
+  static const id = "id";
+  static const date = "date";
+  static const steps = "steps";
+  static const distance = "distance";
+  static const activeTime = "active_time";
+  static const calories = "calories";
+  static const goalId = "goal_id";
+
+  DailyReportFields._();
 }
 
 class AccelDataFields {
@@ -76,15 +79,12 @@ class NotificationFields {
 }
 
 class DailyGoalFields {
-  static const container = "daily_goals";
+  static const container = "daily_goal";
 
   static const id = "id";
-  static const date = "date";
   static const steps = "steps";
-  static const workoutCalories = "workout_calories";
-  static const totalCalories = "totalCalories";
-  static const distance = "distance";
-  static const activeTime = "active_time";
+  static const calories = "calories";
+  static const minutes = "minutes";
 
   DailyGoalFields._();
 }
@@ -108,18 +108,6 @@ class ActivityRecordFields {
   static const mapName = "map_name";
 
   ActivityRecordFields._();
-}
-
-class DailyStepsFields {
-  static const container = "daily_steps";
-
-  static const id = "id";
-  static const date = "date";
-  static const steps = "steps";
-  static const distance = "distance";
-  static const calories = "calories";
-
-  DailyStepsFields._();
 }
 
 class CoordinateFields {

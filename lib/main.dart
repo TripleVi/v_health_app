@@ -20,23 +20,23 @@ import 'presentation/site/views/site_page.dart';
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
-  // DartPluginRegistrant.ensureInitialized();
-  // var rawAccelData = <List<double>>[];
-  // final stream = await SensorService().accelerometerEvents();
-  // stream.listen((event) {
-  //   rawAccelData.add(event);
-  // });
-  // const inactiveInterval = 15;
-  // Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
-  //   final temp = rawAccelData.toList(growable: false);
-  //   rawAccelData.clear();
-  //   final service = ClassificationService();
-  //   await service.updateReports(
-  //     rawAccelData: temp, 
-  //     date: DateTime.now(),
-  //     samplingRate: temp.length/inactiveInterval,
-  //   );
-  // });
+  DartPluginRegistrant.ensureInitialized();
+  var rawAccelData = <List<double>>[];
+  final stream = await SensorService().accelerometerEvents();
+  stream.listen((event) {
+    rawAccelData.add(event);
+  });
+  const inactiveInterval = 15;
+  Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
+    final temp = rawAccelData.toList(growable: false);
+    rawAccelData.clear();
+    final service = ClassificationService();
+    await service.updateReports(
+      rawAccelData: temp, 
+      date: DateTime.now(),
+      samplingRate: temp.length/inactiveInterval,
+    );
+  });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;

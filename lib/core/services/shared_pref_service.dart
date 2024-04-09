@@ -4,8 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/user.dart';
 import '../enum/user_enum.dart';
 
-class UserService {
-  UserService();
+class SharedPrefService {
+  SharedPrefService();
 
   static Future<User> getCurrentUser() async {
     final prefs = await SharedPreferences.getInstance();

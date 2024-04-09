@@ -1,7 +1,7 @@
-import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import "package:path/path.dart";
+import "package:sqflite/sqflite.dart";
 
-import 'sqlite_constants.dart';
+import "sqlite_constants.dart";
 
 class SqlService {
   static final SqlService instance = SqlService._init();
@@ -22,8 +22,9 @@ class SqlService {
   }
 
   static Future createDatabase(Database db, int version) async {
-    await db.execute(createReportTable);
-    await db.execute(createDailySummaryTable);
+    await db.execute(createDailyGoalTable);
+    await db.execute(createDailyReportTable);
+    await db.execute(createHourlyReportTable);
     // await db.execute(createUserTable);
     // await db.execute(createActivityRecordTable);
     // await db.execute(createCoordinateTable);

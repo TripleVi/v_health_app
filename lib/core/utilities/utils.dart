@@ -56,17 +56,70 @@ class MyUtils {
     return outputDate.toString();
   }
 
+  static DateTime getDateFromSqlFormat(String date) {
+    return DateFormat(Constants.db_date_format).parse(date);
+  }
+
   static String getCurrentDate() {
     return DateFormat(Constants.display_date_format)
         .format(DateTime.now())
         .toString();
   }
 
-  static String getFormattedDate(DateTime time) {
+  static String getFormattedDate(DateTime date) {
+    return date.year == DateTime.now().year 
+      ? DateFormat.MMMMEEEEd().format(date)
+      : DateFormat.yMMMMEEEEd().format(date);
+  }
+
+  static String getFormattedDate1(DateTime time) {
     var outputFormat = DateFormat(Constants.db_date_format);
     var outputDate = outputFormat.format(time);
-
+    
     return outputDate.toString();
+  }
+
+  static String getOrdinalIndicator(int dayOfMonth) {
+    switch (dayOfMonth % 10) {
+      case 1:
+        return "st";
+      case 2:
+        return "nd";
+      case 3:
+        return "rd";
+      default:
+        return "th";
+    }
+  }
+
+  static String getFormattedWeek(DateTime startOfWeek, DateTime endOfWeek) {
+    if(startOfWeek.year < endOfWeek.year) {
+      return "${getFormattedDate(startOfWeek)} - ${getFormattedDate(endOfWeek)}";
+    }
+    final mondayMonth = DateFormat.MMMM().format(startOfWeek);
+    final sundayMonth = DateFormat.MMMM().format(endOfWeek);
+    // 2 date is at the same past year
+    if(endOfWeek.year < DateTime.now().year) {
+      if(startOfWeek.month < endOfWeek.month) {
+        return "$mondayMonth ${startOfWeek.day} - $sundayMonth ${endOfWeek.day}, ${endOfWeek.year}";
+      }
+      return "${startOfWeek.day} - ${endOfWeek.day} $sundayMonth, ${endOfWeek.year}";
+    }
+    // 2 date is at the same current year
+    if(startOfWeek.month < endOfWeek.month) {
+      return "$mondayMonth ${startOfWeek.day} - $sundayMonth ${endOfWeek.day}";
+    }
+    return "${startOfWeek.day} - ${endOfWeek.day} $sundayMonth";
+  }
+
+  static String formatNumber(int number) {
+    if (number >= 1000000) {
+      return '${(number / 1000000).toStringAsFixed(1)}M';
+    } else if (number >= 10000) {
+      return '${(number / 1000).toStringAsFixed(1)}K';
+    } else {
+      return '$number';
+    }
   }
 
 //   static String getFormattedDate(String date) {
@@ -76,6 +129,10 @@ class MyUtils {
 
 //     return outputDate.toString();
 //   }
+
+  static DateTime getDateAtMidnight(DateTime date) {
+    return DateTime(date.year, date.month, date.day);
+  }
 
   static bool onlyCharsAndSpace(String input) {
     final pattern = RegExp(r"^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*$");
@@ -104,15 +161,6 @@ class MyUtils {
 //       return "Username already existed!";
 //     }
 //     return null;
-//   }
-
-//   static Future<bool> existUser(String keyword) async {
-//     final snapshot = await FirebaseFirestore.instance
-//         .collection(UserFields.container)
-//         .where(UserFields.username, isEqualTo: keyword)
-//         .get(const GetOptions(source: Source.server));
-
-//     return snapshot.docs.isNotEmpty;
 //   }
 
   static String? requiredDateField(String? value) {
@@ -152,21 +200,12 @@ class MyUtils {
     return null;
   }
 
-  // static InputDecoration getDecoration(String label) {
-  //   return InputDecoration(
-  //     // prefixIconConstraints: const BoxConstraints(
-  //     //     maxHeight: 1, maxWidth: 1, minHeight: 0, minWidth: 0),
-  //     border: const OutlineInputBorder(
-  //       borderRadius: BorderRadius.all(Radius.circular(10)),
-  //     ),
-  //     labelText: label,
-  //     contentPadding: const EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
-  //   );
-  // }
+  static String getDateThreeLetters(DateTime date) {
+    return DateFormat("EEEE").format(date).substring(0, 3);
+  }
 
-  static String getDateFirstLetter(String date) {
-    DateTime d = DateFormat(Constants.db_date_format).parse(date);
-    return DateFormat('EEEE').format(d).substring(0, 3);
+  static String getDateFirstLetter(DateTime date) {
+    return DateFormat("EEEE").format(date).substring(0, 1);
   }
 
   static String get_date_subtracted_by_i(String startDate, int i) {

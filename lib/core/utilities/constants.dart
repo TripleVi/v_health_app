@@ -17,6 +17,7 @@ class Constants {
   static const heading_3_size = 16.0;
   static const letter_spacing = 0.5;
   static const line_height = 1.4;
+  static const newId = -1;
 
   static const backIcon = Icons.arrow_back_ios_outlined;
 }

@@ -354,7 +354,7 @@ class SignUpPage extends StatelessWidget {
             lastDate: DateTime(2101),
           ).then((value) {
             if(value == null) return;
-            _dobController.text = MyUtils.getFormattedDate(value);
+            _dobController.text = MyUtils.getFormattedDate1(value);
             context.read<SignUpCubit>().refreshPage();
           }),
           decoration: const InputDecoration(

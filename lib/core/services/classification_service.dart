@@ -1,13 +1,14 @@
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:matrix2d/matrix2d.dart';
 import 'package:v_health/core/utilities/utils.dart';
-import 'package:v_health/domain/entities/daily_steps.dart';
+import 'package:v_health/domain/entities/daily_report.dart';
 
+import '../../data/repositories/daily_goal_repo.dart';
 import '../../data/repositories/hourly_report_repo.dart';
 import '../../domain/entities/report.dart';
 import '../../data/repositories/daily_report_repo.dart';
+import '../utilities/constants.dart';
 import 'signal_filter_service.dart';
-import 'user_service.dart';
+import 'shared_pref_service.dart';
 
 class ClassificationService {
   ClassificationService();
@@ -58,37 +59,44 @@ class ClassificationService {
     final desiredData = _process(rawAccelData, samplingRate);
     final steps = _measureSteps(desiredData);
     if(steps == 0) return;
-    final strideLength = await UserService.getUserStrideLength();
+    final strideLength = await SharedPrefService.getUserStrideLength();
     final distance = _measureDistance(steps, strideLength);
     final calories = (steps * 0.025).round();
-    const stair = 0;
-    final sqlDate = MyUtils.getDateAsSqlFormat(date);
-    final hReport = await HourlyReportRepo.instance.fetchReport(sqlDate, date.hour);
-    if(hReport == null) {
-      final newReport = Report.empty()
-      ..date = sqlDate
-      ..hour = date.hour
+    final today = MyUtils.getDateAtMidnight(date);
+    final dailyRepo = DailyReportRepo();
+    final hourlyRepo = HourlyReportRepo();
+    var dReport = await dailyRepo.fetchDailyReport(today);
+    if(dReport.id == Constants.newId) {
+      final goalRepo = DailyGoalRepo();
+      final goal = await goalRepo.fetchLatestGoal();
+      final newReport = DailyReport.empty()
       ..steps = steps
       ..distance = distance
-      ..stair = stair
-      ..calories = calories.round();
-      await HourlyReportRepo.instance.createReport(newReport);
-    }else {
-      hReport.distance += distance;
-      hReport.steps += steps;
-      await HourlyReportRepo.instance.updateReport(hReport);
-    }
-    final dReport = await ReportService.instance.fetchDailyReport(sqlDate);
-    if(dReport == null) {
-      final newReport = DailySummary(sqlDate, steps, distance, stair, calories);
-      await ReportService.instance.createDailyReport(newReport);
+      ..calories = calories
+      ..goal = goal;
+      newReport.id = await dailyRepo.createDailyReport(newReport);
+      dReport = newReport;
     }else {
       dReport
       ..steps += steps
-      ..stair += stair
       ..calories += calories
       ..distance += distance;
-      await ReportService.instance.updateDailyReport(dReport);
+      await dailyRepo.updateDailyReport(dReport);
+    }
+    final utcHour = date.toUtc().hour;
+    final hReport = await hourlyRepo.fetchReport(dReport.id, utcHour);
+    if(hReport.id == Constants.newId) {
+      final newReport = Report.empty()
+      ..hour = utcHour
+      ..steps = steps
+      ..distance = distance
+      ..calories = calories.round()
+      ..day.id = dReport.id;
+      await hourlyRepo.createReport(newReport);
+    }else {
+      hReport.distance += distance;
+      hReport.steps += steps;
+      await hourlyRepo.updateReport(hReport);
     }
   }
 
@@ -97,7 +105,7 @@ class ClassificationService {
   ) async {
     final desiredData = _process(rawAccelData, samplingRate);
     final steps = _measureSteps(desiredData);
-    final strideLength = await UserService.getUserStrideLength();
+    final strideLength = await SharedPrefService.getUserStrideLength();
     final distance = _measureDistance(steps, strideLength);
     final calories = (steps * 0.025).round();
     return {
@@ -131,7 +139,6 @@ class ClassificationService {
       i++;
       data.add(map);
     }
-    print("Total steps: $steps");
     return data;
   }
 

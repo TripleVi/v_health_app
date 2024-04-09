@@ -81,7 +81,7 @@ class CalendarView extends StatelessWidget {
                       color: AppStyle.primaryIconColor,
                     ),
                   )
-                )
+                ),
               ],
             ),
             const SizedBox(height: 4.0),
@@ -119,6 +119,7 @@ class CalendarView extends StatelessWidget {
                 onSelectionChanged: (dateRangePickerSelectionChangedArgs) {
                   print(dateRangePickerSelectionChangedArgs.value);
                 },
+                showTodayButton: true,
                 controller: state.datePickerController,
                 onViewChanged: (dateRangePickerViewChangedArgs) {
                   print(dateRangePickerViewChangedArgs.view);
@@ -128,27 +129,27 @@ class CalendarView extends StatelessWidget {
                   // isVisible = true;
                 },
                 // monthCellStyle: DateRangePickerMonthCellStyle(text),
-                headerHeight: 0.0,
+                // headerHeight: 0.0,
                 selectionMode: DateRangePickerSelectionMode.single,
                 view: DateRangePickerView.month,
                 navigationDirection: DateRangePickerNavigationDirection.vertical,
-                initialSelectedRange: PickerDateRange(
-                  DateTime.now(),
-                  null
-                ),
-                cellBuilder: (context, cellDetails) {
-                  return Column(
-                    children: [
-                      const MetricsProgress(
-                        stepsPercent: 0.4,
-                        durationPercent: 0.4,
-                        caloriesPercent: 0.4,
-                      ),
-                      const SizedBox(height: 2.0),
-                      Text("${cellDetails.date.day}"),
-                    ],
-                  );
-                },
+                initialSelectedRange: PickerDateRange(DateTime.now(), null),
+                // cellBuilder: (context, cellDetails) {
+                //   return Column(
+                //     mainAxisAlignment: MainAxisAlignment.end,
+                //     children: [
+                //       cellDetails.date.isBefore(DateTime.now()) 
+                //         ? const MetricsProgress(
+                //           stepPercent: 0.4,
+                //           durationPercent: 0.4,
+                //           caloriePercent: 0.4,
+                //         ).small 
+                //         : const SizedBox(),
+                //       const SizedBox(height: 2.0),
+                //       Text("${cellDetails.date.day}"),
+                //     ],
+                //   );
+                // },
               ),
             ),
           ],

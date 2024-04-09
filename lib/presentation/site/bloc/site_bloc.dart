@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/enum/bottom_navbar.dart';
+import '../../../data/repositories/daily_goal_repo.dart';
 import '../../../main.dart';
 
 part 'site_event.dart';
@@ -18,7 +19,10 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     // registerNotification();
     add(UserFetched());
 
-    backgroundService.startService();
+    final repo = DailyGoalRepo();
+    repo.createDefaultGoal().then((value) {
+      backgroundService.startService();
+    });
   }
 
   Future<void> _onUserFetched(UserFetched event, Emitter<SiteState> emit) async {

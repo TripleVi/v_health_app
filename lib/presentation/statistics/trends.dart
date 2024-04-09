@@ -6,7 +6,7 @@ import '../../core/utilities/constants.dart';
 import '../../core/utilities/utils.dart';
 import '../../data/repositories/hourly_report_repo.dart';
 import '../../domain/entities/chart_data.dart';
-import '../../domain/entities/daily_steps.dart';
+import '../../domain/entities/daily_report.dart';
 import '../../domain/entities/report.dart';
 import '../widgets/app_bar.dart';
 import '../widgets/text.dart';
@@ -20,7 +20,7 @@ class Trends extends StatefulWidget {
 
 class _TrendsState extends State<Trends> {
   int currentSort = 1;
-  List<DailySummary> records = [DailySummary.empty()];
+  List<DailyReport> records = [DailyReport.empty()];
 
   List<ChartData> today = [];
   List<ChartData> yesterday = [];
@@ -47,11 +47,15 @@ class _TrendsState extends State<Trends> {
   }
 
   void fetchDailyComparision() async {
-    var t = await HourlyReportRepo.instance
-        .fetchDailyReport(MyUtils.getDateAsSqlFormat(DateTime.now()));
-    var y = await HourlyReportRepo.instance.fetchDailyReport(
-        MyUtils.get_date_subtracted_by_i(
+    final dRepo = DailyReportRepo();
+    final dReport = await dRepo.fetchDailyReport(DateTime.now());
+    final hRepo = HourlyReportRepo();
+    final date = MyUtils.getDateFromSqlFormat(MyUtils.get_date_subtracted_by_i(
             MyUtils.getDateAsSqlFormat(DateTime.now()), 1));
+    final temp = await dRepo.fetchDailyReport(date);
+    var t = await hRepo
+        .fetchReportsByDate(dReport.id);
+    var y = await hRepo.fetchReportsByDate(temp.id);
 
     int index = 0;
     int sum = 0;
@@ -78,13 +82,14 @@ class _TrendsState extends State<Trends> {
   }
 
   void fetchRecords() async {
-    List<DailySummary> res = await ReportService.instance.fetchReportByDays(
-        MyUtils.getDateAsSqlFormat(DateTime.now()), sortTypes[currentSort]!);
+    final dRepo = DailyReportRepo();
+    List<DailyReport> res = await dRepo.fetchRecentReports(
+        DateTime.now(), sortTypes[currentSort]!);
 
     var data = <ChartData>[];
     int index = 1;
     for (var d in res) {
-      data.add(ChartData.dailySummary(index, d));
+      data.add(ChartData.dailyReport(index, d));
       index++;
     }
 
@@ -98,7 +103,10 @@ class _TrendsState extends State<Trends> {
   }
 
   Future<List<Report>> fetchDailyReport(String date) async {
-    return await HourlyReportRepo.instance.fetchDailyReport(date);
+    final dRepo = DailyReportRepo();
+    final hRepo = HourlyReportRepo();
+    final dReport = await dRepo.fetchDailyReport(MyUtils.getDateFromSqlFormat(date));
+    return await hRepo.fetchReportsByDate(dReport.id);
   }
 
   double get difference {

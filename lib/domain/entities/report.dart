@@ -1,40 +1,60 @@
-import '../../core/utilities/utils.dart';
+import '../../data/sources/table_attributes.dart';
+import 'daily_report.dart';
 
 class Report {
-  int rid;
-  String date;
+  int id;
   int hour;
   int steps;
   double distance;
-  int stair;
   int calories;
+  DailyReport day;
+
 
   Report({
-    required this.rid, 
-    required this.date, 
+    required this.id, 
     required this.hour, 
     required this.steps, 
-    required this.distance, 
-    required this.stair, 
+    required this.distance,
     required this.calories,
-  });
+    DailyReport? day,
+  })
+  : day = day ?? DailyReport.empty();
 
   factory Report.empty() {
-    return Report(rid: -1, date: MyUtils.getCurrentDate(), hour: 0, steps: 0, distance: 0.0, stair: 0, calories: 0);
+    return Report(id: -1, hour: 0, steps: 0, distance: 0.0, calories: 0);
   }
 
-  factory Report.fromMap(Map<String, dynamic> map) {
-    return Report(rid: map["rid"], date: map["date"], hour: map["hour"], steps: map["steps"], distance: map["distance"], stair: map["stair"], calories: map["calories"]);
+  factory Report.fromHour(int hour) {
+    final empty = Report.empty()
+    ..hour = hour;
+    return empty;
   }
 
-  Map<String, dynamic> toMap() {
+  factory Report.fromSqlite(Map<String, dynamic> map) {
+    final day = DailyReport.empty()
+    ..id = map[HourlyReportFields.dayId];
+    return Report(
+      id: map[HourlyReportFields.id], 
+      hour: map[HourlyReportFields.hour], 
+      steps: map[HourlyReportFields.steps], 
+      distance: map[HourlyReportFields.distance], 
+      calories: map[HourlyReportFields.calories],
+      day: day,
+    );
+  }
+
+  Map<String, dynamic> toSqlite() {
     return {
-      "date": date, "hour": hour, "steps": steps, "distance": distance, "stair": stair, "calories": calories
+      HourlyReportFields.hour: hour, 
+      HourlyReportFields.steps: steps, 
+      HourlyReportFields.distance: distance,
+      HourlyReportFields.calories: calories,
+      HourlyReportFields.dayId: day.id,
     };
   }
 
   @override
   String toString() {
-    return "{id: $rid, date: $date, hour: $hour, steps: $steps, distance: $distance, stair: $stair, calories: $calories}";
+    return "{id: $id, hour: $hour, steps: $steps, distance: $distance, calories: $calories, dayId: ${day.id}}";
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'daily_steps.dart';
+import 'daily_report.dart';
 import 'report.dart';
 
 class ChartData {
@@ -29,7 +29,7 @@ class ChartData {
     y = steps;
   }
 
-  ChartData.dailySummary(int index, DailySummary data) {
+  ChartData.dailyReport(int index, DailyReport data) {
     x = index;
     y = data.steps;
   }

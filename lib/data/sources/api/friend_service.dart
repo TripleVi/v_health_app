@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/services/user_service.dart';
+import '../../../core/services/shared_pref_service.dart';
 import '../../../domain/entities/friend.dart';
 import 'dio_service.dart';
 
 class FriendService {
 
   Future<List<Friend>> fetchUsersByUsername(String username) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final queryParameters = {"username": username};
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/friends",
@@ -25,7 +25,7 @@ class FriendService {
   }
 
   Future<List<Friend>> fetchFollowings(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/friends/followings/$uid",
       options: Options(
@@ -41,7 +41,7 @@ class FriendService {
   }
 
   Future<List<Friend>> fetchFollowers(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/friends/followers/$uid",
       options: Options(
@@ -57,7 +57,7 @@ class FriendService {
   }
 
   Future<int> countFollowings(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
       "/friends/followings/$uid/count",
       options: Options(
@@ -72,7 +72,7 @@ class FriendService {
   }
 
   Future<int> countFollowers(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
       "/friends/followers/$uid/count",
       options: Options(
@@ -87,7 +87,7 @@ class FriendService {
   }
 
   Future<bool> followFriend(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final data = {"uid": uid};
     final response = await DioService.instance.dio.post(
       "/friends",
@@ -104,7 +104,7 @@ class FriendService {
   }
 
   Future<bool> unfollowFriend(String uid) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.delete(
       "/friends/$uid",
       options: Options(

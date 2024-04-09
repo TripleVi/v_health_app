@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime/mime.dart' as mime;
 
-import '../../../core/services/user_service.dart';
+import '../../../core/services/shared_pref_service.dart';
 import '../../../domain/entities/comment.dart';
 import '../../../domain/entities/coordinate.dart';
 import '../../../domain/entities/photo.dart';
@@ -27,7 +27,7 @@ class MapData {
 class PostService {
 
   Future<List<Post>> fetchPosts() async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/posts",
       options: Options(
@@ -54,7 +54,7 @@ class PostService {
   }
 
   Future<MapData?> fetchPostMap(String postId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
       "/posts/$postId/map",
       options: Options(
@@ -87,7 +87,7 @@ class PostService {
       postMap["record"] = recordMap;
       postMap["record"]["coordinates"] = coordinatesMaps;
       postMap["record"]["data"] = dataMaps;
-      final currentUser = await UserService.getCurrentUser();
+      final currentUser = await SharedPrefService.getCurrentUser();
       final response = await DioService.instance.dio.post<Map<String, dynamic>>(
         "/posts",
         data: postMap,
@@ -135,7 +135,7 @@ class PostService {
     );
     map["mapImg"] = mapFile;
     final formData = FormData.fromMap(map);
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     Response response = await DioService.instance.dio.post(
       "/posts/$postId/photos",
       data: formData,
@@ -154,7 +154,7 @@ class PostService {
   }
 
   Future<Map<String, dynamic>> countLikes(String postId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
       "/posts/$postId/likes",
       options: Options(
@@ -169,7 +169,7 @@ class PostService {
   }
 
   Future<bool> likePost(String postId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.post(
       "/posts/$postId/likes",
       options: Options(
@@ -184,7 +184,7 @@ class PostService {
   }
 
   Future<bool> unlikePost(String postId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.delete(
       "/posts/$postId/likes",
       options: Options(
@@ -199,7 +199,7 @@ class PostService {
   }
 
   Future<List<Reaction>> fetchUserReactions(String postId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/posts/$postId/reactions",
       options: Options(
@@ -215,7 +215,7 @@ class PostService {
   }
 
   Future<int> countComments(String postId, [String? path]) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final queryParameters = path == null ? null : {"path": path};
     final response = await DioService.instance.dio.get<Map<String, dynamic>>(
       "/posts/$postId/comments/count",
@@ -240,7 +240,7 @@ class PostService {
     String? path,
     DateTime? lessThanDate,
   }) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final queryParameters = <String, dynamic>{};
     if(path != null) {
       queryParameters["path"] = path;
@@ -276,7 +276,7 @@ class PostService {
         "path": comment.replyTo!.path,
       };
     }
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.post<Map<String, dynamic>>(
       "/posts/$postId/comments",
       data: map,
@@ -291,7 +291,7 @@ class PostService {
   }
 
   Future<bool> deleteComment(String commentId) async {
-    final currentUser = await UserService.getCurrentUser();
+    final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.delete(
       "/comments/$commentId",
       options: Options(

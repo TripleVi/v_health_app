@@ -1,12 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_svg/flutter_svg.dart";
 
-import '../../../core/resources/style.dart';
-import '../../widgets/app_bar.dart';
-import '../cubit/statistics_cubit.dart';
-import '../daily_activities/views/daily_activities.dart';
+import "../../../core/resources/style.dart";
+import "../../../core/utilities/utils.dart";
+import "../../widgets/app_bar.dart";
+import "../../widgets/loading_indicator.dart";
+import "../cubit/statistics_cubit.dart";
+import "../daily_activities/goal_settings/goal_settings_page.dart";
+import "../daily_activities/views/daily_activities.dart";
+import "metrics_progress.dart";
 
 class StatisticsPage extends StatelessWidget {
   const StatisticsPage({super.key});
@@ -29,6 +32,12 @@ class StatisticsPage extends StatelessWidget {
               settings: settings,
             );
           }
+          if(settings.name == "/goalSettings") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const GoalSettingsPage(),
+              settings: settings,
+            );
+          }
           return null;
         },
         initialRoute: "/statistics",
@@ -43,33 +52,34 @@ class StatisticsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.neutralColor,
+      backgroundColor: AppStyle.backgroundColor,
       appBar: CustomAppBar.get(
         title: "Statistics",
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
-        ),
-        child: BlocBuilder<StatisticsCubit, StatisticsState>(
-          builder: (context, state) {
+      body: BlocBuilder<StatisticsCubit, StatisticsState>(
+        builder: (context, state) {
+          if(state is StatisticsLoaded) {
             return SingleChildScrollView(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 children: [
-                  todayGoalWidget(),
+                  todayGoalWidget(state),
                   const SizedBox(height: 12.0),
-                  sevenDaysGoalsWidget(context),
+                  sevenDaysGoalsWidget(context, state),
                 ],
               ),
             );
-          },
-        ),
+          }
+          return const SizedBox(
+            height: 32.0, 
+            child: AppLoadingIndicator(),
+          );
+        },
       )
     );
   }
 
-  Widget todayGoalWidget() {
+  Widget todayGoalWidget(StatisticsLoaded state) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -109,9 +119,12 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("0", style: AppStyle.heading3()),
+                      Text("${state.stepValue}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
-                      Text("step", style: AppStyle.caption1()),
+                      Text(
+                        state.stepValue > 1 ? "steps" : "step", 
+                        style: AppStyle.caption1(),
+                      ),
                     ],
                   ),
                 ],
@@ -144,9 +157,12 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("0", style: AppStyle.heading3()),
+                      Text("${state.minuteValue}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
-                      Text("minute", style: AppStyle.caption1()),
+                      Text(
+                        state.minuteValue > 1 ? "minutes" : "minute", 
+                        style: AppStyle.caption1(),
+                      ),
                     ],
                   ),
                 ],
@@ -179,7 +195,7 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("0", style: AppStyle.heading4()),
+                      Text("${state.calorieValue}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
                       Text("kcal", style: AppStyle.caption1()),
                     ],
@@ -188,46 +204,19 @@ class StatisticsView extends StatelessWidget {
               )
             ],
           ),
-          CircularPercentIndicator(
-            radius: 60.0,
-            animation: true,
-            animationDuration: 1200,
-            lineWidth: 12.0,
-            percent: 0.4,
-            center: CircularPercentIndicator(
-              radius: 46.0,
-              animation: true,
-              animationDuration: 1200,
-              lineWidth: 12.0,
-              percent: 0.4,
-              center: CircularPercentIndicator(
-                radius: 32.0,
-                animation: true,
-                animationDuration: 1200,
-                lineWidth: 12.0,
-                percent: 0.4,
-                circularStrokeCap: CircularStrokeCap.round,
-                backgroundColor: AppStyle.calorieColor.withOpacity(0.2),
-                progressColor: AppStyle.calorieColor,
-              ),
-              circularStrokeCap: CircularStrokeCap.round,
-              backgroundColor: AppStyle.timeColor.withOpacity(0.2),
-              progressColor: AppStyle.timeColor,
-            ),
-            circularStrokeCap: CircularStrokeCap.round,
-            backgroundColor: AppStyle.stepColor.withOpacity(0.2),
-            progressColor: AppStyle.stepColor,
-          ),
+          MetricsProgress(
+            stepPercent: state.stepValue/state.stepTarget,
+            durationPercent: state.minuteValue/state.minuteTarget,
+            caloriePercent: state.calorieValue/state.calorieTarget,
+          ).big,
         ],
       ),
     );
   }
 
-  Widget sevenDaysGoalsWidget(BuildContext context) {
+  Widget sevenDaysGoalsWidget(BuildContext context, StatisticsLoaded state) {
     return GestureDetector(
-      onTap: () {
-        Navigator.pushNamed<void>(context, "/dailyActivities");
-      },
+      onTap: () => Navigator.pushNamed<void>(context, "/dailyActivities"),
       child: Container(
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
@@ -250,7 +239,7 @@ class StatisticsView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 8.0),
-            Text("7 days ago", style: AppStyle.caption1()),
+            Text("Last 7 days", style: AppStyle.caption1()),
             const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,147 +247,47 @@ class StatisticsView extends StatelessWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text("0/7", style: AppStyle.heading4()),
-                    Text("Achieved", style: AppStyle.caption1()),
+                    Text(
+                      "0/7", 
+                      style: AppStyle.heading4(color: AppStyle.primaryColor),
+                    ),
+                    Text(
+                      "Achieved", 
+                      style: AppStyle.caption1(color: AppStyle.primaryColor),
+                    ),
                   ],
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Column(
+                  children: List<Widget>.generate(13, (index) {
+                    if(index % 2 != 0) {
+                      return const SizedBox(width: 4.0);
+                    }
+                    final report = state.recentReports[index~/2];
+                    return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
+                        MetricsProgress(
+                          stepPercent: report.steps/report.goal.steps,
+                          durationPercent: report.activeTime/report.goal.activeTime,
+                          caloriePercent: report.calories/report.goal.calories,
+                        ).small,
                         const SizedBox(height: 4.0),
-                        Text("T2", style: AppStyle.caption1()),
-                      ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
+                        Text(
+                          MyUtils.getDateFirstLetter(report.date), 
+                          style: index == 12
+                              ? AppStyle.caption1(color: AppStyle.primaryColor)
+                              : AppStyle.caption1(),
                         ),
-                        const SizedBox(height: 4.0),
-                        Text("T3", style: AppStyle.caption1()),
                       ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text("T4", style: AppStyle.caption1()),
-                      ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text("T5", style: AppStyle.caption1()),
-                      ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text("T6", style: AppStyle.caption1()),
-                      ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text("T7", style: AppStyle.caption1()),
-                      ],
-                    ),
-                    const SizedBox(width: 4.0),
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        goalProgressWidget(
-                          stepsPercent: 0.4,
-                          timePercent: 0.4,
-                          caloriesPercent: 0.4,
-                        ),
-                        const SizedBox(height: 4.0),
-                        Text("CN", style: AppStyle.caption1Bold()),
-                      ],
-                    ),
-                  ],
+                    );
+                  }),
                 )
               ],
             )
           ],
         )
       ),
-    );
-  }
-
-  Widget goalProgressWidget({
-    double stepsPercent = 0.0,
-    double timePercent = 0.0,
-    double caloriesPercent = 0.0,
-  }) {
-    return CircularPercentIndicator(
-      radius: 12.5,
-      animation: true,
-      animationDuration: 1200,
-      lineWidth: 2.5,
-      percent: stepsPercent,
-      center: CircularPercentIndicator(
-        radius: 9,
-        animation: true,
-        animationDuration: 1200,
-        lineWidth: 2.5,
-        percent: timePercent,
-        center: CircularPercentIndicator(
-          radius: 5.5,
-          animation: true,
-          animationDuration: 1200,
-          lineWidth: 2.5,
-          percent: caloriesPercent,
-          circularStrokeCap: CircularStrokeCap.round,
-          backgroundColor: AppStyle.calorieColor.withOpacity(0.2),
-          progressColor: AppStyle.calorieColor,
-        ),
-        circularStrokeCap: CircularStrokeCap.round,
-        backgroundColor: AppStyle.timeColor.withOpacity(0.2),
-        progressColor: AppStyle.timeColor,
-      ),
-      circularStrokeCap: CircularStrokeCap.round,
-      backgroundColor: AppStyle.stepColor.withOpacity(0.2),
-      progressColor: AppStyle.stepColor,
     );
   }
 }
