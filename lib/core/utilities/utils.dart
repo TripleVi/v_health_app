@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import "dart:math" as math;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -72,6 +73,27 @@ class MyUtils {
       : DateFormat.yMMMMEEEEd().format(date);
   }
 
+  static String getFormattedMonth(DateTime date) {
+    final today = DateTime.now();
+    return date.year == today.year
+        ? DateFormat.MMMM().format(date)
+        : DateFormat.yMMMM().format(date);
+  }
+
+  static DateTime subtractMonth(DateTime date, int months) {
+    int years = months ~/ 12;
+    int temp = months % 12;
+    return date.month <= temp 
+        ? DateTime(date.year-years-1, date.month-temp+12) 
+        : DateTime(date.year-years, date.month-temp);
+  }
+
+  static int monthsDifference(DateTime greater, DateTime smaller) {
+    final years = greater.year - smaller.year;
+    final months = greater.month - smaller.month;
+    return years * 12 + months;
+  }
+
   static String getFormattedDate1(DateTime time) {
     var outputFormat = DateFormat(Constants.db_date_format);
     var outputDate = outputFormat.format(time);
@@ -120,6 +142,26 @@ class MyUtils {
     } else {
       return '$number';
     }
+  }
+
+  static List<int> generateIntList(int length, int max) {
+    return List.generate(length, (index) {
+      final rng = math.Random();
+      return rng.nextInt(max);
+    });
+  }
+
+  static int generateInt(int max, [int min = 0]) {
+    final rng = math.Random();
+    return rng.nextInt(max) + min;
+  }
+
+  static int getDaysInYear(int year) {
+    return 365 - 28 + DateUtils.getDaysInMonth(year, 2);
+  }
+
+  static int roundToNearestHundred(int number) {
+    return (number / 100).ceil() * 100;
   }
 
 //   static String getFormattedDate(String date) {
@@ -201,11 +243,19 @@ class MyUtils {
   }
 
   static String getDateThreeLetters(DateTime date) {
-    return DateFormat("EEEE").format(date).substring(0, 3);
+    return DateFormat.E().format(date);
   }
 
   static String getDateFirstLetter(DateTime date) {
-    return DateFormat("EEEE").format(date).substring(0, 1);
+    return DateFormat.EEEEE().format(date);
+  }
+
+  static String getFormattedWeekday(DateTime date) {
+    return DateFormat.EEEE().format(date);
+  }
+
+  static String getMonthThreeLetter(int month) {
+    return DateFormat.MMM().format(DateTime(2020, month));
   }
 
   static String get_date_subtracted_by_i(String startDate, int i) {
@@ -297,5 +347,9 @@ class MyUtils {
       value = "Night";
     }
     return value;
+  }
+
+  static String getCompactNumberFormat(num number) {
+    return NumberFormat.compact().format(number);
   }
 }

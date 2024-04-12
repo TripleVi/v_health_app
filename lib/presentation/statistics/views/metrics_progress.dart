@@ -50,19 +50,19 @@ class MetricsProgress {
   Widget get small {
     return CircularPercentIndicator(
       radius: 12.5,
-      animation: true,
+      animation: false,
       animationDuration: 1200,
       lineWidth: 2.5,
       percent: stepPercent,
       center: CircularPercentIndicator(
         radius: 9,
-        animation: true,
+        animation: false,
         animationDuration: 1200,
         lineWidth: 2.5,
         percent: durationPercent,
         center: CircularPercentIndicator(
           radius: 5.5,
-          animation: true,
+          animation: false,
           animationDuration: 1200,
           lineWidth: 2.5,
           percent: caloriePercent,

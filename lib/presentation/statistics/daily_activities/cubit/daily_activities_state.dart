@@ -25,40 +25,19 @@ final class DailyActivitiesLoaded extends DailyActivitiesState {
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,
   });
-
-  DailyActivitiesLoaded copyWith({
-    DailyReport? report,
-    TimeType? timeType,
-    List<int>? hourlySteps,
-    List<int>? hourlyActiveTime,
-    List<int>? hourlyCalories,
-    int? maxStepsAxis,
-    int? maxActiveTimeAxis,
-    int? maxCaloriesAxis,
-  }) {
-    return DailyActivitiesLoaded(
-      report: report ?? this.report,
-      timeType: timeType ?? this.timeType,
-      hourlySteps: hourlySteps ?? this.hourlySteps,
-      hourlyActiveTime: hourlyActiveTime ?? this.hourlyActiveTime,
-      hourlyCalories: hourlyCalories ?? this.hourlyCalories,
-      maxStepsAxis: maxStepsAxis ?? this.maxStepsAxis,
-      maxActiveTimeAxis: maxActiveTimeAxis ?? this.maxActiveTimeAxis,
-      maxCaloriesAxis: maxCaloriesAxis ?? this.maxCaloriesAxis,
-    );
-  }
 }
 
 final class WeeklyActivitiesLoaded extends DailyActivitiesState {
   final DateTime startOfWeek;
   final DateTime endOfWeek;
   final TimeType timeType;
-  final int steps;
-  final int activeTime;
-  final int calories;
   final int stepsTarget;
   final int activeTimeTarget;
   final int caloriesTarget;
+  final int totalStepsTarget;
+  final int totalActiveTimeTarget;
+  final int totalCaloriesTarget;
+  final int goalsAchieved;
   final List<int> dailySteps;
   final List<int> dailyActiveTime;
   final List<int> dailyCalories;
@@ -70,12 +49,13 @@ final class WeeklyActivitiesLoaded extends DailyActivitiesState {
     required this.startOfWeek,
     required this.endOfWeek,
     this.timeType = TimeType.week,
-    this.steps = 0,
-    this.activeTime = 0,
-    this.calories = 0,
     required this.stepsTarget,
     required this.activeTimeTarget,
     required this.caloriesTarget,
+    required this.totalStepsTarget,
+    required this.totalActiveTimeTarget,
+    required this.totalCaloriesTarget,
+    required this.goalsAchieved,
     required this.dailySteps,
     required this.dailyActiveTime,
     required this.dailyCalories,
@@ -83,50 +63,16 @@ final class WeeklyActivitiesLoaded extends DailyActivitiesState {
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,
   });
-
-  WeeklyActivitiesLoaded copyWith({
-    DateTime? startOfWeek,
-    DateTime? endOfWeek,
-    TimeType? timeType,
-    int? steps,
-    int? activeTime,
-    int? calories,
-    int? stepsTarget,
-    int? activeTimeTarget,
-    int? caloriesTarget,
-    List<int>? dailySteps,
-    List<int>? dailyActiveTime,
-    List<int>? dailyCalories,
-    int? maxStepsAxis,
-    int? maxActiveTimeAxis,
-    int? maxCaloriesAxis,
-  }) {
-    return WeeklyActivitiesLoaded(
-      startOfWeek: startOfWeek ?? this.startOfWeek,
-      endOfWeek: endOfWeek ?? this.endOfWeek,
-      timeType: timeType ?? this.timeType,
-      steps: steps ?? this.steps,
-      activeTime: activeTime ?? this.activeTime,
-      calories: calories ?? this.calories,
-      stepsTarget: stepsTarget ?? this.stepsTarget,
-      activeTimeTarget: activeTimeTarget ?? this.activeTimeTarget,
-      caloriesTarget: caloriesTarget ?? this.caloriesTarget,
-      dailySteps: dailySteps ?? this.dailySteps,
-      dailyActiveTime: dailyActiveTime ?? this.dailyActiveTime,
-      dailyCalories: dailyCalories ?? this.dailyCalories,
-      maxStepsAxis: maxStepsAxis ?? this.maxStepsAxis,
-      maxActiveTimeAxis: maxActiveTimeAxis ?? this.maxActiveTimeAxis,
-      maxCaloriesAxis: maxCaloriesAxis ?? this.maxCaloriesAxis,
-    );
-  }
 }
 
 final class MonthlyActivitiesLoaded extends DailyActivitiesState {
   final DateTime startOfMonth;
+  final DateTime endOfMonth;
   final TimeType timeType;
-  final int steps;
-  final int activeTime;
-  final int calories;
+  final int stepsTarget;
+  final int activeTimeTarget;
+  final int caloriesTarget;
+  final int goalsAchieved;
   final List<int> dailySteps;
   final List<int> dailyActiveTime;
   final List<int> dailyCalories;
@@ -136,10 +82,12 @@ final class MonthlyActivitiesLoaded extends DailyActivitiesState {
 
   MonthlyActivitiesLoaded({
     required this.startOfMonth,
-    this.timeType = TimeType.week,
-    this.steps = 0,
-    this.activeTime = 0,
-    this.calories = 0,
+    required this.endOfMonth,
+    this.timeType = TimeType.month,
+    required this.stepsTarget,
+    required this.activeTimeTarget,
+    required this.caloriesTarget,
+    required this.goalsAchieved,
     required this.dailySteps,
     required this.dailyActiveTime,
     required this.dailyCalories,
@@ -147,32 +95,28 @@ final class MonthlyActivitiesLoaded extends DailyActivitiesState {
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,
   });
+}
 
-  MonthlyActivitiesLoaded copyWith({
-    DateTime? startOfMonth,
-    TimeType? timeType,
-    int? steps,
-    int? activeTime,
-    int? calories,
-    List<int>? dailySteps,
-    List<int>? dailyActiveTime,
-    List<int>? dailyCalories,
-    int? maxStepsAxis,
-    int? maxActiveTimeAxis,
-    int? maxCaloriesAxis,
-  }) {
-    return MonthlyActivitiesLoaded(
-      startOfMonth: startOfMonth ?? this.startOfMonth,
-      timeType: timeType ?? this.timeType,
-      steps: steps ?? this.steps,
-      activeTime: activeTime ?? this.activeTime,
-      calories: calories ?? this.calories,
-      dailySteps: dailySteps ?? this.dailySteps,
-      dailyActiveTime: dailyActiveTime ?? this.dailyActiveTime,
-      dailyCalories: dailyCalories ?? this.dailyCalories,
-      maxStepsAxis: maxStepsAxis ?? this.maxStepsAxis,
-      maxActiveTimeAxis: maxActiveTimeAxis ?? this.maxActiveTimeAxis,
-      maxCaloriesAxis: maxCaloriesAxis ?? this.maxCaloriesAxis,
-    );
-  }
+final class YearlyActivitiesLoaded extends DailyActivitiesState {
+  final int year;
+  final TimeType timeType;
+  final int goalsAchieved;
+  final List<int> monthlySteps;
+  final List<int> monthlyActiveTime;
+  final List<int> monthlyCalories;
+  final int maxStepsAxis;
+  final int maxActiveTimeAxis;
+  final int maxCaloriesAxis;
+
+  YearlyActivitiesLoaded({
+    required this.year,
+    this.timeType = TimeType.year,
+    required this.goalsAchieved,
+    required this.monthlySteps,
+    required this.monthlyActiveTime,
+    required this.monthlyCalories,
+    required this.maxStepsAxis,
+    required this.maxActiveTimeAxis,
+    required this.maxCaloriesAxis,
+  });
 }

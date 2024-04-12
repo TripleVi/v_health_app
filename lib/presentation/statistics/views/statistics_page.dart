@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_svg/flutter_svg.dart";
@@ -205,9 +207,9 @@ class StatisticsView extends StatelessWidget {
             ],
           ),
           MetricsProgress(
-            stepPercent: state.stepValue/state.stepTarget,
-            durationPercent: state.minuteValue/state.minuteTarget,
-            caloriePercent: state.calorieValue/state.calorieTarget,
+            stepPercent: math.min(state.stepValue/state.stepTarget, 1),
+            durationPercent: math.min(state.minuteValue/state.minuteTarget, 1),
+            caloriePercent: math.min(state.calorieValue/state.calorieTarget, 1),
           ).big,
         ],
       ),
@@ -248,7 +250,7 @@ class StatisticsView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "0/7", 
+                      "3/7", 
                       style: AppStyle.heading4(color: AppStyle.primaryColor),
                     ),
                     Text(
@@ -268,9 +270,9 @@ class StatisticsView extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         MetricsProgress(
-                          stepPercent: report.steps/report.goal.steps,
-                          durationPercent: report.activeTime/report.goal.activeTime,
-                          caloriePercent: report.calories/report.goal.calories,
+                          stepPercent: math.min(report.steps/report.goal.steps, 1),
+                          durationPercent: math.min(report.activeTime/report.goal.activeTime, 1),
+                          caloriePercent: math.min(report.calories/report.goal.calories, 1),
                         ).small,
                         const SizedBox(height: 4.0),
                         Text(

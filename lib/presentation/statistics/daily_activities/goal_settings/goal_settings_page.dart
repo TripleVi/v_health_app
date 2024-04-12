@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/enum/metrics.dart';
 import '../../../../core/resources/style.dart';
 import '../../../widgets/app_bar.dart';
+import '../../../widgets/loading_indicator.dart';
 import 'cubit/goal_settings_cubit.dart';
 
 class GoalSettingsPage extends StatelessWidget {
@@ -32,6 +33,13 @@ class GoalSettingsView extends StatelessWidget {
       ),
       body: BlocBuilder<GoalSettingsCubit, GoalSettingsState>(
         builder: (context, state) {
+          if(state is GoalSettingsLoading) {
+            return const SizedBox(
+              height: 32.0, 
+              child: AppLoadingIndicator(),
+            ); 
+          }
+          state as GoalSettingsLoaded;
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(
               vertical: 12.0,
@@ -39,7 +47,7 @@ class GoalSettingsView extends StatelessWidget {
             ),
             child: Column(
               children: [
-                metricsCard(context),
+                metricsCard(context, state),
               ],
             ),
           );
@@ -48,7 +56,7 @@ class GoalSettingsView extends StatelessWidget {
     );
   }
 
-  Widget metricsCard(BuildContext context) {
+  Widget metricsCard(BuildContext context, GoalSettingsLoaded state) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -61,7 +69,7 @@ class GoalSettingsView extends StatelessWidget {
           metricsTile(
             context: context, 
             item: Metrics.step, 
-            value: 5000, 
+            value: state.dailyGoal.steps, 
             onTap: () => showPickerNumber(
               context: context,
               title: "Steps",
@@ -69,12 +77,14 @@ class GoalSettingsView extends StatelessWidget {
               begin: 1000,
               end: 50000,
               jump: 100,
+              initial: state.dailyGoal.steps,
+              number: 0,
             ),
           ),
           metricsTile(
             context: context, 
             item: Metrics.time, 
-            value: 6000, 
+            value: state.dailyGoal.activeTime, 
             onTap: () =>  showPickerNumber(
               context: context,
               title: "Time",
@@ -82,12 +92,14 @@ class GoalSettingsView extends StatelessWidget {
               begin: 30,
               end: 360,
               jump: 10,
+              initial: state.dailyGoal.activeTime,
+              number: 1,
             ),
           ),
           metricsTile(
             context: context, 
             item: Metrics.calorie, 
-            value: 500,
+            value: state.dailyGoal.calories,
             onTap: () => showPickerNumber(
               context: context,
               title: "Calories",
@@ -95,6 +107,8 @@ class GoalSettingsView extends StatelessWidget {
               begin: 100,
               end: 50000,
               jump: 10,
+              initial: state.dailyGoal.calories,
+              number: 2,
             ),
           ),
         ]
@@ -137,6 +151,8 @@ class GoalSettingsView extends StatelessWidget {
     required int begin,
     required int end,
     required int jump,
+    required int initial,
+    required int number,
   }) {
     BuildContext? dialogContext;
     Picker(
@@ -145,7 +161,7 @@ class GoalSettingsView extends StatelessWidget {
           begin: begin, 
           end: end, 
           jump: jump, 
-          initValue: 1000,
+          initValue: initial,
         ),
       ]),
       textStyle: AppStyle.bodyText(),
@@ -188,8 +204,16 @@ class GoalSettingsView extends StatelessWidget {
         ],
       ),
       onConfirm: (Picker picker, List value) {
-        print(picker.getSelectedValues().first);
-        context.read<GoalSettingsCubit>().setDailyGoalDetails();
+        final value = picker.getSelectedValues().first as int;
+        if(number == 0) {
+          context.read<GoalSettingsCubit>().setDailyGoalDetails(steps: value);
+        }
+        if(number == 1) {
+          context.read<GoalSettingsCubit>().setDailyGoalDetails(minutes: value);
+        }
+        if(number == 2) {
+          context.read<GoalSettingsCubit>().setDailyGoalDetails(calories: value);
+        }
       }
     ).showDialog(
       context, 

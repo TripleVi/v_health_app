@@ -1,8 +1,26 @@
 part of 'calendar_cubit.dart';
 
 @immutable
-final class CalendarState {
-  final DateRangePickerController datePickerController;
+sealed class CalendarState {}
 
-  const CalendarState(this.datePickerController);
+final class CalendarStateLoading extends CalendarState {}
+
+final class CalendarStateLoaded extends CalendarState {
+  final DateRangePickerController controller;
+  final List<List<DailyReport>> reports;
+
+  CalendarStateLoaded({
+    required this.controller,
+    required this.reports,
+  });
+
+  CalendarStateLoaded copyWith({
+    DateTime? startDate,
+    List<List<DailyReport>>? reports,
+  }) {
+    return CalendarStateLoaded(
+      controller: controller,
+      reports: reports ?? this.reports,
+    );
+  }
 }

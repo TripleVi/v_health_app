@@ -1,4 +1,4 @@
-import "package:quiver/time.dart" as qv;
+import "package:flutter/material.dart";
 
 import "../../domain/entities/daily_report.dart";
 import "../sources/table_attributes.dart";
@@ -27,6 +27,9 @@ class DailyReportRepo {
   }
 
   Future<DailyReport> fetchDailyReport(DateTime date) async {
+    if(date.isAfter(DateTime.now())) {
+      return DailyReport.fromDate(date);
+    }
     final db = await SqlService.instance.database;
     final result = await db.query(
       DailyReportFields.container,
@@ -66,13 +69,23 @@ class DailyReportRepo {
     return reports;
   }
 
-  Future<List<DailyReport>> fetchReportsByMonth(DateTime startOfMonth) async {
+  Future<List<DailyReport>> fetchReportsByMonth(DateTime startDate) async {
     final reports = <DailyReport>[];
-    final days = qv.daysInMonth(startOfMonth.year, startOfMonth.month);
+    final days = DateUtils.getDaysInMonth(startDate.year, startDate.month);
     for (int i = 0; i < days; i++) {
-      final aDate = startOfMonth.add(Duration(days: i));
+      final aDate = startDate.add(Duration(days: i));
       final report = await fetchDailyReport(aDate);
       reports.add(report);
+    }
+    return reports;
+  }
+
+  Future<List<List<DailyReport>>> fetchReportsByYear(int year) async {
+    final reports = <List<DailyReport>>[];
+    for (int i = 1; i <= 12; i++) {
+      final startOfMonth = DateTime(year, i);
+      final reportsByMonth = await fetchReportsByMonth(startOfMonth);
+      reports.add(reportsByMonth);
     }
     return reports;
   }

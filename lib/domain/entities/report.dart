@@ -9,7 +9,6 @@ class Report {
   int calories;
   DailyReport day;
 
-
   Report({
     required this.id, 
     required this.hour, 
