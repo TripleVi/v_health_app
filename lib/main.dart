@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_activity_recognition/flutter_activity_recognition.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -273,6 +274,7 @@ Future<void> main() async {
   );
   FirebaseAuth.instanceFor(app: app);
   initializeDependencies();
+  await dotenv.load(fileName: ".env");
 
   await backgroundService.configure(
     androidConfiguration: AndroidConfiguration(

@@ -44,4 +44,5 @@ app.*.map.json
 /android/app/release
 
 # This file contains API keys
-/android/app/src/main/AndroidManifest.xml
+./android/app/src/main/AndroidManifest.xml
+*.env
