@@ -71,6 +71,8 @@ dependencies:
   syncfusion_flutter_datepicker: ^25.1.38
   flutter_picker: ^2.1.0
   quiver: ^3.2.1
+  google_geocoding_api: ^1.5.2
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:

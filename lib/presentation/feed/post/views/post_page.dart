@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:google_geocoding_api/google_geocoding_api.dart';
 
 import '../../../../core/resources/style.dart';
 import '../../../../core/utilities/utils.dart';
@@ -299,8 +301,20 @@ class PostView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         GestureDetector(
-          onTap: () {
-            
+          onTap: () async {
+            // final placemarks =  await placemarkFromCoordinates(
+            //   21.0344114,
+            //   105.7644853, 
+            // );
+            // print(placemarks);
+
+            const String googelApiKey = "AIzaSyCbf8cc-CuoaS5xShMcYsRM6IBWocEK07w";
+            final bool isDebugMode = true;  
+            final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);  
+            final reversedSearchResults = await api.reverse(
+              '21.0344114,105.7644853',
+              language: 'en',
+            );
           },
           child: CircleAvatar(
             radius: avatarSize/2,
@@ -333,7 +347,7 @@ class PostView extends StatelessWidget {
                 },
                 child: Text(
                   author.username, 
-                  style: AppStyle.heading2(height: 1.0),
+                  style: AppStyle.heading5(height: 1.0),
                 ),
               ),
               const SizedBox(height: 2.0),
@@ -342,15 +356,15 @@ class PostView extends StatelessWidget {
                 children: [
                   Text(
                     "${state.txtDate} ",
-                    style: AppStyle.bodyText(fontSize: 14.0, height: 1.0),
+                    style: AppStyle.caption1(),
                   ),
                   Text(
                     ".",
-                    style: AppStyle.bodyText(fontSize: 22.0, height: 0.3),
+                    style: AppStyle.caption1(),
                   ),
                   Text(
                     " ${state.address}", 
-                    style: AppStyle.bodyText(fontSize: 14.0, height: 1.0),
+                    style: AppStyle.caption1(),
                   ),
                 ],
               ),
