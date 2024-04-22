@@ -11,7 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'core/services/classification_service.dart';
+import 'core/services/acceleration_service.dart';
 import 'core/services/location_service.dart';
 import 'core/services/sensor_service.dart';
 import 'firebase_options.dart';
@@ -22,29 +22,27 @@ import 'presentation/site/views/site_page.dart';
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-  var rawAccelData = <List<double>>[];
-  final stream = await SensorService().accelerometerEvents();
-  stream.listen((event) {
-    rawAccelData.add(event);
-  });
-  const inactiveInterval = 15;
-  Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
-    final temp = rawAccelData.toList(growable: false);
-    rawAccelData.clear();
-    final service = ClassificationService();
-    await service.updateReports(
-      rawAccelData: temp, 
-      date: DateTime.now(),
-      samplingRate: temp.length/inactiveInterval,
-    );
-  });
+  // var rawAccelData = <List<double>>[];
+  // final stream = await SensorService().accelerometerEvents();
+  // stream.listen((event) {
+  //   rawAccelData.add(event);
+  // });
+  // const inactiveInterval = 15;
+  // Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
+  //   final temp = rawAccelData.toList(growable: false);
+  //   rawAccelData.clear();
+  //   final service = ClassificationService();
+  //   await service.updateReports(
+  //     rawAccelData: temp, 
+  //     date: DateTime.now(),
+  //     samplingRate: temp.length/inactiveInterval,
+  //   );
+  // });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;
     StreamSubscription? locSessionListener;
-    // StreamSubscription? accelSessionListener;
-    // StreamSubscription? pressureSessionListener;
-    StreamSubscription? sensorsSessionListener;
+    StreamSubscription? accelSessionListener;
     StreamSubscription? trackingStatesListener;
     final trackingStateStream = service.on("trackingStatesUpdated");
     var backgroundMode = false;
@@ -52,16 +50,21 @@ void onStart(ServiceInstance service) async {
     locSessionListener = service.on("locationUpdates").listen((_) {
       StreamSubscription? posListener;
       StreamSubscription? trStatesListener;
-      final positions = <Position>[];
+      var positions = <Map<String, dynamic>>[];
       StreamSubscription<Position> locationUpdatesHelper() {
         return LocationService().locationUpdates(5).listen((p) {
-          if(backgroundMode) return positions.add(p);
+          if(backgroundMode) {
+            return positions.add({
+              "latitude": p.latitude,
+              "longitude": p.longitude,
+              "accuracy": p.accuracy,
+            });
+          }
           if(positions.isEmpty) {
             return service.invoke("positionsAcquired", {"data": [p]});
           }
-          final temp = positions.toList();
-          positions.clear();
-          service.invoke("positionsAcquired", {"data": temp});
+          service.invoke("positionsAcquired", {"data": positions});
+          positions = [];
         });
       }
       posListener = locationUpdatesHelper();
@@ -77,168 +80,52 @@ void onStart(ServiceInstance service) async {
         }
       });
     });
-    sensorsSessionListener = service.on("sensorsUpdates").listen((event) async {
-      final bool acceleration = event!["acceleration"];
-      final bool pressure = event["pressure"];
-      var accelSignals = <List<double>>[];
-      var pressureSignals = <double>[];
+    // Service of acceleration sensors
+    accelSessionListener = service.on("accelUpdates").listen((_) async {
+      StreamSubscription? accelListener;
+      StreamSubscription? trStatesListener;
+      var signals = <List<double>>[];
       var accelAnalyzed = <Map<String, dynamic>>[];
-      var pressureValue = 0.0;
       Timer? timer;
+      Future<StreamSubscription<List<double>>> accelUpdatesHelper() async {
+        final stream = await SensorService().accelerometerEvents();
+        return stream.listen(signals.add);
+      }
+      var secondsElapsed = 0;
       Timer timerHelper() {
         return Timer.periodic(const Duration(seconds: activeInterval), (_) async {
-          if(acceleration) {
-            final accelTemp = accelSignals;
-            accelSignals = [];
-            final service = ClassificationService();
-            final result = await service
-                .classify(accelTemp, accelTemp.length/activeInterval);
-            accelAnalyzed.add(result);
-          }
-          if(pressure) {
-            pressureSignals.add(pressureValue);
-          }
+          final accelTemp = signals;
+          signals = [];
+          secondsElapsed += 5;
+          final accelService = AccelerationService();
+          final result = await accelService
+              .analyze(signals, accelTemp.length/activeInterval);
+          result["speed"] = result["distance"] / activeInterval;
+          result["timeFrame"] = secondsElapsed;
+          accelAnalyzed.add(result);
           if(backgroundMode) return;
-          final data = <String, dynamic>{};
-          if(acceleration) {
-            data["acceleration"] = accelAnalyzed;
-            accelAnalyzed = [];
-          }
-          if(pressure) {
-            data["pressure"] = pressureSignals;
-            pressureSignals = [];
-          }
-          service.invoke("sensorsAcquired", data);
+          service.invoke("accelAcquired", {"data": accelAnalyzed});
+          accelAnalyzed = [];
         });
       }
-      if(acceleration) {
-        StreamSubscription? trStatesListener;
-        StreamSubscription? accelListener;
-        Future<StreamSubscription<List<double>>> accelUpdatesHelper() async {
-          final stream = await SensorService().accelerometerEvents();
-          return stream.listen(accelSignals.add);
+
+      accelListener = await accelUpdatesHelper();
+      timer = timerHelper();
+      trStatesListener = trackingStateStream.listen((data) async {
+        final state = data!["state"].toString();
+        if(state == "resumed") {
+          accelListener = await accelUpdatesHelper();
+          timer = timerHelper();
+        }else if(state == "paused") {
+          timer!.cancel();
+          accelListener!.cancel();
+        }else if(state == "stopped") {
+          timer!.cancel();
+          accelListener!.cancel();
+          trStatesListener!.cancel();
         }
-        accelListener = await accelUpdatesHelper();
-        trStatesListener = trackingStateStream.listen((data) async {
-          final state = data!["state"].toString();
-          if(state == "resumed") {
-            accelListener = await accelUpdatesHelper();
-          }else if(state == "paused") {
-            accelListener!.cancel();
-          }else if(state == "stopped") {
-            accelListener!.cancel();
-            trStatesListener!.cancel();
-          }
-        });
-      }
-      if(pressure) {
-        StreamSubscription? pressureListener;
-        StreamSubscription? trStatesListener;
-        Future<StreamSubscription<double>> pressureUpdatesHelper() async {
-          final stream = await SensorService().pressureEvents();
-          return stream.listen((e) => pressureValue = e);
-        }
-        pressureListener = await pressureUpdatesHelper();
-        trStatesListener = trackingStateStream.listen((data) async {
-          final state = data!["state"].toString();
-          if(state == "resumed") {
-            pressureListener = await pressureUpdatesHelper();
-          }else if(state == "paused") {
-            pressureListener!.cancel();
-          }else if(state == "stopped") {
-            pressureListener!.cancel();
-            trStatesListener!.cancel();
-          }
-        });
-      }
-      if(acceleration || pressure) {
-        timer = timerHelper();
-        StreamSubscription? trStatesListener;
-        trStatesListener = trackingStateStream.listen((data) async {
-          final state = data!["state"].toString();
-          if(state == "resumed") {
-            timer = timerHelper();
-          }else if(state == "paused") {
-            timer?.cancel();
-          }else if(state == "stopped") {
-            timer?.cancel();
-            trStatesListener?.cancel();
-          }
-        });
-      }
+      });
     });
-    // Service of acceleration sensors
-    // accelSessionListener = service.on("accelUpdates").listen((_) async {
-    //   StreamSubscription? accelListener;
-    //   StreamSubscription? trStatesListener;
-    //   final signals = <List<double>>[];
-    //   Timer? timer;
-    //   Future<StreamSubscription<List<double>>> accelUpdatesHelper() async {
-    //     final stream = await SensorService().accelerometerEvents();
-    //     return stream.listen(signals.add);
-    //   }
-    //   Timer timerHelper() {
-    //     return Timer.periodic(const Duration(seconds: activeInterval), (_) {
-    //       if(backgroundMode) return;
-    //       final temp = signals.toList(growable: false);
-    //       signals.clear();
-    //       return service.invoke("accelAcquired", {"data": temp});
-    //     });
-    //   }
-    //   accelListener = await accelUpdatesHelper();
-    //   timer = timerHelper();
-    //   trStatesListener = trackingStateStream.listen((data) async {
-    //     final state = data!["state"].toString();
-    //     if(state == "resumed") {
-    //       accelListener = await accelUpdatesHelper();
-    //       timer = timerHelper();
-    //     }else if(state == "paused") {
-    //       timer!.cancel();
-    //       accelListener!.cancel();
-    //     }else if(state == "stopped") {
-    //       timer!.cancel();
-    //       accelListener!.cancel();
-    //       trStatesListener!.cancel();
-    //     }
-    //   });
-    // });
-    // Service of barometric pressure sensors
-    // pressureSessionListener = service.on("pressureUpdates").listen((_) async {
-    //   StreamSubscription? pressureListener;
-    //   StreamSubscription? trStatesListener;
-    //   var value = 0.0;
-    //   final signals = <double>[];
-    //   Timer? timer;
-    //   Future<StreamSubscription<double>> pressureUpdatesHelper() async {
-    //     final stream = await SensorService().pressureEvents();
-    //     return stream.listen((e) => value = e);
-    //   }
-    //   Timer timerHelper() {
-    //     return Timer.periodic(const Duration(seconds: activeInterval), (_) {
-    //       signals.add(value);
-    //       if(backgroundMode) return;
-    //       final temp = signals.toList();
-    //       signals.clear();
-    //       return service.invoke("pressureAcquired", {"data": temp});
-    //     });
-    //   }
-    //   pressureListener = await pressureUpdatesHelper();
-    //   timer = timerHelper();
-    //   trStatesListener = trackingStateStream.listen((data) async {
-    //     final state = data!["state"].toString();
-    //     if(state == "resumed") {
-    //       pressureListener = await pressureUpdatesHelper();
-    //       timer = timerHelper();
-    //     }else if(state == "paused") {
-    //       timer!.cancel();
-    //       pressureListener!.cancel();
-    //     }else if(state == "stopped") {
-    //       timer!.cancel();
-    //       pressureListener!.cancel();
-    //       trStatesListener!.cancel();
-    //     }
-    //   });
-    // });
     appStateListener = service.on("appStateUpdated").listen((data) {
       final appState = data!["state"].toString();
       if(appState == "paused") {
@@ -252,9 +139,7 @@ void onStart(ServiceInstance service) async {
       if(trackingState == "stopped") {
         appStateListener!.cancel();
         locSessionListener!.cancel();
-        // accelSessionListener!.cancel();
-        // pressureSessionListener!.cancel();
-        sensorsSessionListener!.cancel();
+        accelSessionListener!.cancel();
         trackingStatesListener!.cancel();
       }
     });
@@ -265,7 +150,6 @@ void onStart(ServiceInstance service) async {
 
 final backgroundService = FlutterBackgroundService();
 const activeInterval = 5; // seconds
-StreamSubscription<Map<String, dynamic>?>? locSubscriber;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -357,7 +241,6 @@ class _LocationWidgetState extends State<LocationWidget> with WidgetsBindingObse
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text("Location")),
@@ -576,7 +459,7 @@ class _ActivityRecognitionState extends State<ActivityRecognition> {
               print("Length: ${rawAccelData.length} - ${activities.length}");
               final samplingRate = rawAccelData.length / 15;
               print("Sampling rate: $samplingRate");
-              final classifierService = ClassificationService();
+              final classifierService = AccelerationService();
               sensorSubscriber?.cancel();
               sensorSubscriber = null;
               accelResult = classifierService.test(rawAccelData, sTimeFrames, samplingRate);

@@ -183,7 +183,7 @@ class SignUpPage extends StatelessWidget {
           ..dateOfBirth = _dobController.text
           ..gender = _gender
           ..weight = double.parse(_weightController.text)
-          ..height = double.parse(_heightController.text);
+          ..height = int.parse(_heightController.text);
           context.read<SignUpCubit>().signUp(user);
         }),
         const SizedBox(height: 32.0),

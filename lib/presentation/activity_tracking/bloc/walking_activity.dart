@@ -1,64 +1,81 @@
-import 'dart:async';
-import 'dart:math' as math;
+import "dart:async";
+import "dart:math" as math;
 
-import 'package:geolocator/geolocator.dart';
-
-import '../../../domain/entities/workout_data.dart';
-import '../../../main.dart';
-import 'activity_tracking.dart';
+import "../../../domain/entities/workout_data.dart";
+import "../../../main.dart";
+import "activity_tracking.dart";
 
 class WalkingActivity extends ActivityTracking {
   int totalSteps = 0;
   StreamSubscription? accelListener;
-  StreamSubscription? pressureListener;
+  StreamSubscription? locationListener;
+  void Function(List<Map> positions)? onPositionsAcquired;
+  void Function()? onMetricsUpdated;
 
-  @override
-  void startRecording({
-    required void Function() onMetricsUpdated, 
-    required void Function(List<Position> positions) onPositionsAcquired,
-  }) {
-    initSession();
-    handleLocationUpdates(onPositionsAcquired);
-    backgroundService.invoke("sensorsUpdates", {
-      "acceleration": true,
-      "pressure": false,
-    });
-    backgroundService.on("sensorsAcquired").listen((e) async {
-      updateMetrics(e!);
-      onMetricsUpdated();
+  WalkingActivity({
+    this.onPositionsAcquired,
+    this.onMetricsUpdated,
+  });
+
+  void handleLocationUpdates() {
+    backgroundService.invoke("locationUpdates");
+    locationListener = backgroundService.on("positionsAcquired").listen(
+      (event) {
+        for (var p in event!["data"]) {
+          p["latitude"] *= 1.0;
+          p["longitude"] *= 1.0;
+          p["accuracy"] *= 1.0;
+        }
+        onPositionsAcquired??(event["data"]);
+      },
+    );
+  }
+
+  void handleAccelerationUpdate() {
+    backgroundService.invoke("accelUpdates");
+    accelListener = backgroundService.on("accelAcquired").listen((event) async {
+      var totalDistance = 0.0, totalCalories = 0.0, totalSteps = 0;
+      var maxSpeed = 0;
+      for (var e in event!["data"]) {
+        final speed = e["speed"] * 1.0; // m/s
+        final steps = e["steps"] as int;
+        final calories = e["calories"] * 1.0; // kcal
+        final distance = e["distance"] * 1.0;
+        final timeFrame = e["timeFrame"];
+        totalDistance += distance;
+        totalCalories += calories;
+        totalSteps += steps;
+        maxSpeed = math.max(maxSpeed, speed);
+        workoutData.add(WorkoutData(
+          speed: speed,
+          distance: distance,
+          steps: steps,
+          calories: totalCalories,
+          timeFrame: timeFrame,
+        ));
+      }
+      this.totalDistance += totalDistance;
+      this.totalSteps += totalSteps;
+      this.totalCalories += totalCalories;
+      instantSpeed = event["data"].last["speed"];
+      avgSpeed = totalDistance / workoutData.last.timeFrame;
+      avgPace = 1 / avgSpeed;
+      maxPace = 1 / maxSpeed;
+      onMetricsUpdated??();
     });
   }
 
   @override
-  void updateMetrics(Map<String, dynamic> metrics) {
-    final accel = metrics["acceleration"] as List;
-    final time = DateTime.now().difference(startDate).inSeconds;
-    var secondsElapsed = activeInterval;
-    for (var i = 0; i < accel.length; i++) {
-      // m
-      double distance = accel[i]["distance"] * 1.0;
-      // m/s
-      double speed = distance / activeInterval;
-      totalDistance += distance;
-      totalSteps += accel[i]["steps"] as int;
-      maxSpeed = math.max(maxSpeed, speed);
-      workoutData.add(WorkoutData(
-        speed: speed,
-        totalDistance: totalDistance,
-        timeFrame: secondsElapsed,
-      ));
-      secondsElapsed += activeInterval;
-    }
-    instantSpeed = workoutData.last.totalDistance / time;
-    avgSpeed = totalDistance / time;
-    // s/m
-    avgPace = 1 / avgSpeed;
-    maxPace = 1 / maxSpeed;
+  void startRecording() {
+    super.startRecording();
+    handleLocationUpdates();
+    handleAccelerationUpdate();
   }
 
   @override
   void stopRecording() {
     super.stopRecording();
     accelListener!.cancel();
+    locationListener!.cancel();
   }
 }

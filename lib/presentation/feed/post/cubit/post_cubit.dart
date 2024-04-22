@@ -25,11 +25,12 @@ class PostCubit extends Cubit<PostState> {
     final comments = await service.countComments(post.id);
     var address = "";
     try {
-      final geoResponse = await LocationService.getAddressFromPosition(
-        latitude: post.latitude!,
-        longitude: post.longitude!,
-      );
-      address = "${geoResponse.administrativeArea}, ${geoResponse.country}";
+      // final geoResponse = await LocationService.getAddressFromPosition(
+      //   latitude: post.latitude!,
+      //   longitude: post.longitude!,
+      // );
+      // address = "${geoResponse.administrativeArea}, ${geoResponse.country}";
+      address = "Hanoi, Vietnam";
     } on PlatformException catch (e) {
       print(e);
     }

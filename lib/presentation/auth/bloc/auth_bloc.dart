@@ -1,13 +1,13 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:google_sign_in/google_sign_in.dart";
 
-import '../../../core/services/auth_service.dart';
-import '../../../data/sources/api/user_api.dart';
+import "../../../core/services/auth_service.dart";
+import "../../../data/sources/api/user_api.dart";
 
-part 'auth_event.dart';
-part 'auth_state.dart';
+part "auth_event.dart";
+part "auth_state.dart";
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   static String? _email;
@@ -33,6 +33,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSignUpWithGoogle(SignUpWithGoogle event, Emitter<AuthState> emit) async {
     final authService = AuthService();
     final googleUser = await authService.getGoogleSignInAccount();
+    return;
     if(googleUser == null) return;
     // final userService = UserService();
     // final result = await userService.emailExists(googleUser.email);

@@ -1,24 +1,24 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../core/resources/style.dart';
-import '../../../domain/entities/post.dart';
-import '../../widgets/app_bar.dart';
-import '../../widgets/loading_indicator.dart';
-import '../bloc/feed_bloc.dart';
-import '../comments/views/comments_page.dart';
-import '../details/views/details_page.dart';
-import '../likes/views/likes_page.dart';
-import '../map/views/map_page.dart';
-import '../post/views/post_page.dart';
+import "../../../core/resources/style.dart";
+import "../../../domain/entities/post.dart";
+import "../../widgets/app_bar.dart";
+import "../../widgets/loading_indicator.dart";
+import "../comments/views/comments_page.dart";
+import "../cubit/feed_cubit.dart";
+import "../details/views/details_page.dart";
+import "../likes/views/likes_page.dart";
+import "../map/views/map_page.dart";
+import "../post/views/post_page.dart";
 
 class FeedPage extends StatelessWidget {
   const FeedPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<FeedBloc>(
-      create: (context) => FeedBloc(),
+    return BlocProvider<FeedCubit>(
+      create: (context) => FeedCubit(),
       child: Navigator(
         onGenerateRoute: (settings) {
           if(settings.name == "/feed") {
@@ -62,6 +62,37 @@ class FeedPage extends StatelessWidget {
 class FeedView extends StatelessWidget {
   const FeedView({super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppStyle.backgroundColor,
+      appBar: CustomAppBar.get(
+        title: "vHealth",
+        actions: <Widget>[
+          _notificationButton(context),
+        ]
+      ),
+      body: RefreshIndicator(
+        color: AppStyle.primaryColor,
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 5));
+          return context.read<FeedCubit>().pullToRefresh();
+        },
+        child: BlocBuilder<FeedCubit, FeedState>(
+          builder: (context, state) {
+            if(state is FeedLoading) {
+              return const AppLoadingIndicator();
+            }
+            if(state is FeedLoaded) {
+              return mainContent(state.posts);
+            }
+            return Center(child: Text((state as FeedError).message));
+          },
+        ),
+      ),
+    );
+  }
+
   _notificationButton(BuildContext context) {
     return Stack(
       alignment: AlignmentDirectional.center,
@@ -94,41 +125,17 @@ class FeedView extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppStyle.surfaceColor,
-      appBar: CustomAppBar.get(
-        title: 'vHealth',
-        actions: <Widget>[
-          _notificationButton(context),
-        ]
+  Widget mainContent(List<Post> posts) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(
+        maxWidth: 500.0,
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
-        ),
-        child: BlocBuilder<FeedBloc, FeedState>(
-          builder: (context, state) {
-            if(state is FeedLoading) {
-              return const AppLoadingIndicator();
-            }
-            if(state is FeedLoaded) {
-              return _buildListView(state.posts);
-            }
-            return Center(child: Text((state as FeedError).message));
-          },
-        ),
+      child: ListView.builder(
+        itemCount: posts.length,
+        itemBuilder: (context, index) {
+          return PostPage(posts[index]);
+        }
       ),
-    );
-  }
-
-  ListView _buildListView(List<Post> posts) {
-    return ListView.builder(
-      itemCount: posts.length,
-      itemBuilder: (context, index) {
-        return PostPage(posts[index]);
-      }
     );
   }
 }

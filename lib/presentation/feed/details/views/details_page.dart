@@ -106,9 +106,11 @@ class DetailsView extends StatelessWidget {
     final data = record.data;
     final distanceMap = MyUtils.getFormattedDistance(record.distance);
     final avgSMap = MyUtils.getFormattedDistance(record.avgSpeed);
-    final avgPMap = MyUtils.getFormattedDistance(1/record.avgSpeed);
+    // final avgPMap = MyUtils.getFormattedDistance(1/record.avgSpeed);
+    final avgPMap = MyUtils.getFormattedDistance(0);
     final maxSMap = MyUtils.getFormattedDistance(record.maxSpeed);
-    final maxPMap = MyUtils.getFormattedDistance(1/record.maxSpeed);
+    final maxPMap = MyUtils.getFormattedDistance(0);
+    // final maxPMap = MyUtils.getFormattedDistance(1/record.maxSpeed);
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -186,7 +188,7 @@ class DetailsView extends StatelessWidget {
                       Expanded(
                         child: _buildCell(
                           "Workout duration",
-                          MyUtils.getFormattedDuration(record.workoutDuration),
+                          MyUtils.getFormattedDuration(record.activeTime),
                         ),
                       ),
                       const VerticalDivider(

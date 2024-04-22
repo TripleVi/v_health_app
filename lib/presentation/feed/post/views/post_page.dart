@@ -1,15 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geocoding/geocoding.dart';
-import 'package:google_geocoding_api/google_geocoding_api.dart';
+import "package:cached_network_image/cached_network_image.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_dotenv/flutter_dotenv.dart";
+import "package:google_geocoding_api/google_geocoding_api.dart";
 
-import '../../../../core/resources/style.dart';
-import '../../../../core/utilities/utils.dart';
-import '../../../../domain/entities/post.dart';
-import '../../../site/bloc/site_bloc.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../cubit/post_cubit.dart';
+import "../../../../core/resources/style.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../../domain/entities/post.dart";
+import "../../../site/bloc/site_bloc.dart";
+import "../cubit/post_cubit.dart";
 
 class PostPage extends StatelessWidget {
   final Post post;
@@ -29,166 +28,158 @@ class PostView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<PostCubit, PostState>(
-      builder: (context, state) {
-        if(state is PostLoading) {
-          return const AppLoadingIndicator();
-        }
-        if(state is PostLoaded) {
-          return Container(
-            margin: const EdgeInsets.only(top: 8.0),
-            decoration: const BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  width: 10.0, 
-                  color: AppStyle.neutralColor400,
-                ),
-              ),
-            ),
+    return Container(
+      padding: const EdgeInsets.only(top: 8.0),
+      margin: const EdgeInsets.only(bottom: 8.0),
+      color: AppStyle.surfaceColor,
+      child: BlocBuilder<PostCubit, PostState>(
+        builder: (context, state) {
+            // return Column(
+            //   children: [
+            //     const CardLoading(
+            //       height: 150,
+            //       borderRadius: BorderRadius.all(Radius.circular(10)),
+            //       margin: EdgeInsets.only(bottom: 10),
+            //     ),
+            //     const CardLoading(
+            //       height: 150,
+            //       borderRadius: BorderRadius.all(Radius.circular(10)),
+            //       margin: EdgeInsets.only(bottom: 10),
+            //     ),
+            //   ],
+            // );
+            // return const SizedBox();
+          if(state is PostLoading) {
+          }
+          if(state is PostLoaded) {
+            return mainContent(context, state);
+          }
+          return const SizedBox();
+        },
+      ),
+    );
+  }
+
+  Widget mainContent(BuildContext context, PostLoaded state) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () => Navigator
+              .pushNamed(context, "/detailsPage", arguments: state.post),
+          child: Padding(
+            padding: const EdgeInsets
+                .symmetric(horizontal: AppStyle.horizontalPadding),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                GestureDetector(
-                  onTap: () => Navigator.pushNamed(
-                    context, 
-                    "/detailsPage",
-                    arguments: state.post,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppStyle.horizontalPadding,
-                    ),
-                    color: Colors.transparent,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _headerSection(state),
-                        const SizedBox(height: 20.0),
-                        _metricsSection(state),
-                        const SizedBox(height: 12.0),
-                      ],
-                    ),
-                  ),
-                ),
-                _mapSection(context, state),
+                _headerSection(state),
+                const SizedBox(height: 20.0),
+                _metricsSection(state),
                 const SizedBox(height: 8.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppStyle.horizontalPadding
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      state.likes == 0
-                        ? const SizedBox() 
-                        : GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context, "/likesPage", 
-                            arguments: state.post.id,
-                          ),
-                          child: Container(
-                            color: Colors.transparent,
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Icon(
-                                  Icons.thumb_up_rounded, 
-                                  size: 20.0, 
-                                  color: AppStyle.primaryColor,
-                                ),
-                                const SizedBox(width: 8.0),
-                                Text(
-                                  "${state.likes}", 
-                                  style: AppStyle.bodyText(height: 1.0),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      state.comments == 0 
-                        ? const SizedBox()
-                        : GestureDetector(
-                          onTap: () => Navigator.pushNamed(
-                            context, "/commentsPage", 
-                            arguments: state.post.id,
-                          ),
-                          child: Container(
-                            color: Colors.transparent,
-                            padding: const EdgeInsets.all(4.0),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  "${state.comments} ", 
-                                  style: AppStyle.bodyText(height: 1.0),
-                                ),
-                                Text("comments", style: AppStyle.bodyText(height: 1.0)),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8.0),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppStyle.horizontalPadding),
-                  decoration: const BoxDecoration(
-                    border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
-                  ),
-                ),
-                const SizedBox(height: 4.0),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppStyle.horizontalPadding,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _likeButton(context, state),
-                      _commentButton(context, state),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4.0),
               ],
             ),
-          );
-        }
-        return const SizedBox();
-      },
+          ),
+        ),
+        _mapSection(context, state),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            state.likes+state.comments == 0 ? const SizedBox() : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                state.likes == 1
+                  ? const SizedBox() 
+                  : GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context, "/likesPage", 
+                      arguments: state.post.id,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          const Icon(
+                            Icons.thumb_up_rounded, 
+                            size: 20.0, 
+                            color: AppStyle.primaryColor,
+                          ),
+                          const SizedBox(width: 8.0),
+                          Text(
+                            "${state.likes}", 
+                            style: AppStyle.caption1(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                state.comments == 0 
+                  ? const SizedBox()
+                  : GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context, "/commentsPage", 
+                      arguments: state.post.id,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        "${state.comments} ${state.comments > 1 ? "comments" : "comment"}", 
+                        style: AppStyle.caption1(),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets
+                  .symmetric(horizontal: AppStyle.horizontalPadding),
+              child: Container(
+                height: 1.0,
+                color: AppStyle.neutralColor200,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _likeButton(context, state),
+            _commentButton(context, state),
+          ],
+        ),
+        const SizedBox(height: 4.0),
+      ],
     );
   }
 
   Widget _likeButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
       onTap: () => context.read<PostCubit>().likePost(),
-      child: Container(
-        padding: const EdgeInsets.all(4.0),
-        color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             state.isLiked 
                 ? const Icon(
                   Icons.thumb_up, 
-                  size: 28.0, 
+                  size: 20.0, 
                   color: AppStyle.primaryColor,
                 )
                 : const Icon(
                   Icons.thumb_up_outlined, 
-                  size: 28.0, 
+                  size: 20.0, 
                   color: AppStyle.neutralColor400,
                 ),
             const SizedBox(width: 8.0),
             Text(
               "Like", 
               style: state.isLiked
-                  ? AppStyle.bodyText(color: AppStyle.primaryColor, height: 1.0)
-                  : AppStyle.bodyText(height: 1.0),
+                  ? AppStyle.caption1(color: AppStyle.primaryColor)
+                  : AppStyle.caption1(),
             ),
           ],
         ),
@@ -199,19 +190,18 @@ class PostView extends StatelessWidget {
   Widget _commentButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, "/commentsPage", arguments: state.post.id),
-      child: Container(
-        padding: const EdgeInsets.all(4.0),
-        color: Colors.transparent,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             const Icon(
               Icons.mode_comment_outlined, 
-              size: 28.0, 
+              size: 20.0, 
               color: AppStyle.neutralColor400,
             ),
             const SizedBox(width: 8.0),
-            Text(" comments", style: AppStyle.bodyText(height: 1.0)),
+            Text("Comment", style: AppStyle.caption1()),
           ],
         ),
       ),
@@ -221,46 +211,45 @@ class PostView extends StatelessWidget {
   Row _metricsSection(PostLoaded state) {
     final record = state.post.record;
     final distanceMap = MyUtils.getFormattedDistance(record.distance);
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               "Distance", 
-              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
+              style: AppStyle.caption1(),
             ),
-            const SizedBox(height: 4.0),
             Text(
               distanceMap["value"]!, 
-              style: AppStyle.heading1(height: 1.0),
+              style: AppStyle.heading4(),
             ),
           ],
         ),
         Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               "Time", 
-              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
+              style: AppStyle.caption1(),
             ),
-            const SizedBox(height: 4.0),
             Text(
               state.recordTime, 
-              style: AppStyle.heading1(height: 1.0),
+              style: AppStyle.heading4(),
             ),
           ],
         ),
         Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               "Calories", 
-              style: AppStyle.bodyText(fontSize: 14, height: 1.0),
+              style: AppStyle.caption1(),
             ),
-            const SizedBox(height: 4.0),
             Text(
               "${record.calories}", 
-              style: AppStyle.heading1(height: 1.0),
+              style: AppStyle.heading4(),
             ),
           ],
         )
@@ -269,50 +258,45 @@ class PostView extends StatelessWidget {
   }
 
   Widget _mapSection(BuildContext context, PostLoaded state) {
-    return GestureDetector(
-      onTap: () async {
-        context.read<SiteBloc>().add(NavbarHidden());
-        await Navigator.pushNamed<void>(
-          context, "/mapPage", 
-          arguments: state.post,
-        );
-        await Future.delayed(const Duration(milliseconds: 500))
-            .then((_) => context.read<SiteBloc>().add(NavbarShown()));
-      },
-      child: AspectRatio(
-        aspectRatio: 2 / 1,
-        child: Image.network(
-          state.post.mapUrl,
-          // loadingBuilder: (context, child, loadingProgress) {
-          //   return const AppLoadingIndicator();
-          // },
-          filterQuality: FilterQuality.high,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 180.0),
+      child: GestureDetector(
+        onTap: () async {
+          context.read<SiteBloc>().add(NavbarHidden());
+          await Navigator.pushNamed<void>(
+            context, "/mapPage", 
+            arguments: state.post,
+          );
+          await Future.delayed(const Duration(milliseconds: 500))
+              .then((_) => context.read<SiteBloc>().add(NavbarShown()));
+        },
+        child: CachedNetworkImage(
+          imageUrl: state.post.mapUrl,
           fit: BoxFit.contain,
-          isAntiAlias: true,
+          filterQuality: FilterQuality.high,
+          progressIndicatorBuilder: (context, url, download) => Container(
+            color: AppStyle.backgroundColor,
+            child: Center(
+              child: CircularProgressIndicator(value: download.progress)
+            ),
+          ),
+          errorWidget: (context, url, error) => const Icon(Icons.error),
         ),
       ),
     );
   }
 
-  Widget _headerSection(PostLoaded state) {
+  Row _headerSection(PostLoaded state) {
     final author = state.post.author;
-    const avatarSize = 40;
+    const avatarSize = 32;
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         GestureDetector(
           onTap: () async {
-            // final placemarks =  await placemarkFromCoordinates(
-            //   21.0344114,
-            //   105.7644853, 
-            // );
-            // print(placemarks);
-
-            const String googelApiKey = "AIzaSyCbf8cc-CuoaS5xShMcYsRM6IBWocEK07w";
             final bool isDebugMode = true;  
-            final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);  
+            final api = GoogleGeocodingApi(dotenv.env["GOOGLE_API_KEY"]!, isLogged: isDebugMode);  
             final reversedSearchResults = await api.reverse(
-              '21.0344114,105.7644853',
+              "21.0344114,105.7644853",
               language: 'en',
             );
           },
@@ -338,33 +322,39 @@ class PostView extends StatelessWidget {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
                 onTap: () {
-
+              
                 },
-                child: Text(
-                  author.username, 
-                  style: AppStyle.heading5(height: 1.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Text(
+                    author.username, 
+                    style: AppStyle.heading5(),
+                  ),
                 ),
               ),
-              const SizedBox(height: 2.0),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
                     "${state.txtDate} ",
-                    style: AppStyle.caption1(),
+                    style: AppStyle.caption2(),
                   ),
-                  Text(
-                    ".",
-                    style: AppStyle.caption1(),
+                  const SizedBox(width: 4.0),
+                  Container(
+                    width: 4.0,
+                    height: 4.0,
+                    decoration: const BoxDecoration(
+                      color: AppStyle.secondaryTextColor,
+                      shape: BoxShape.circle,
+                    ),
                   ),
+                  const SizedBox(width: 4.0),
                   Text(
                     " ${state.address}", 
-                    style: AppStyle.caption1(),
+                    style: AppStyle.caption2(),
                   ),
                 ],
               ),
@@ -372,9 +362,9 @@ class PostView extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8.0),
-        Icon(
+        const Icon(
           Icons.more_horiz_rounded, 
-          size: 30.0, 
+          size: 24.0, 
           color: AppStyle.neutralColor400,
         ),
       ],

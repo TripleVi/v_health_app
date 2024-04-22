@@ -61,7 +61,7 @@ class AuthView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.neutralColor,
+      backgroundColor: AppStyle.backgroundColor,
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           final loginPage = state.loginPage;
@@ -74,28 +74,20 @@ class AuthView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
                   width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade50,
-                    border: Border(
-                      top: BorderSide(color: Colors.grey.shade200),
-                    ),
-                  ),
+                  color: AppStyle.surfaceColor,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
-                        "Don't have an account? ",
-                        style: AppStyle.caption2(height: 1.0),
+                        loginPage ? "Don't have an account? " : "Have an account? ",
+                        style: AppStyle.caption1(),
                         textAlign: TextAlign.center,
                       ),
                       Text(
                         loginPage ? "Sign up" : "Log in",
-                        style: AppStyle.heading5(
-                          color: AppStyle.primaryColor, 
-                          height: 1.0,
-                        ),
+                        style: AppStyle.heading5(color: AppStyle.primaryColor),
                         textAlign: TextAlign.center,
                       ),
                     ],

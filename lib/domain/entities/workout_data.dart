@@ -1,28 +1,32 @@
 class WorkoutData {
   double speed;
-  double totalDistance;
+  double distance;
+  int steps;
+  double calories;
   int timeFrame;
 
   WorkoutData({
     required this.speed,
-    required this.totalDistance,
+    required this.distance,
+    required this.steps,
+    required this.calories,
     required this.timeFrame,
   });
 
-  factory WorkoutData.empty() {
-    return WorkoutData(speed: 0.0, totalDistance: 0.0, timeFrame: 0);
-  }
+  // factory WorkoutData.empty() {
+  //   return WorkoutData(speed: 0.0, distance: 0.0, timeFrame: 0);
+  // }
 
   Map<String, dynamic> toMap() {
     return {
       "speed": speed,
-      "distance": totalDistance,
+      "distance": distance,
       "timeFrame": timeFrame,
     };
   }
 
   @override
   String toString() {
-    return "WorkoutData{speed: $speed, distance: $totalDistance, timeFrame: $timeFrame}";
+    return "WorkoutData{speed: $speed, distance: $distance, timeFrame: $timeFrame}";
   }
 }

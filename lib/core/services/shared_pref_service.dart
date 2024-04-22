@@ -14,7 +14,7 @@ class SharedPrefService {
     ..email = prefs.getString("email")!
     ..username = prefs.getString("username")!
     ..gender = UserGender.values[prefs.getInt("gender")!]
-    ..height = prefs.getDouble("height")!
+    ..height = prefs.getInt("height")!
     ..weight = prefs.getDouble("weight")!
     ..avatarUrl = prefs.getString("avatarUrl")!;
     return user;
@@ -25,7 +25,6 @@ class SharedPrefService {
     // m
     //? 0: male, 1: female
     const multipliers = [0.415, 0.413];
-    // const averages = [78.0, 70.0];
     return user.gender.isOther
         ? multipliers.sum / multipliers.length * user.height
         : multipliers[user.gender.index] * user.height;

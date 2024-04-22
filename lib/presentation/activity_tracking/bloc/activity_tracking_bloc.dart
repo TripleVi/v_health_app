@@ -397,11 +397,34 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
 
   void initTrackingSession() {
     if(state.category.isWalking) {
-      activity = WalkingActivity();
+      activity = WalkingActivity(
+        onPositionsAcquired: (positions) {
+          // if(_geoPoints.isEmpty) positions.removeAt(0);
+          // _curtPos = positions.length == 1 ? positions.first : positions.last;
+          // _geoPoints.addAll(positions.map((p) {
+          //   _updateLatLngBounds(p);
+          //   return LatLng(p.latitude, p.longitude);
+          // }));
+          // if(_pageVisibility) add(const LocationUpdated());  
+        },
+        onMetricsUpdated: () {
+          // if(_pageVisibility) add(const LocationUpdated());
+          // emit(state.copyWith(
+          //   trackingParams: state.trackingParams.copyWith(
+          //     distance: activity!.totalDistance,
+          //     speed: activity!.instantSpeed,
+          //     avgSpeed: activity!.avgSpeed,
+          //     pace: activity!.instantPace,
+          //     avgPace: activity!.avgPace,
+          //     calories: activity!.totalCalories,
+          //   ),
+          // ));
+        },
+      );
     }else if(state.category.isRunning) {
-      activity = RunningActivity();
+      // activity = RunningActivity();
     }else if(state.category.isCycling) {
-      activity = CyclingActivity();
+      // activity = CyclingActivity();
     }
   }
 
@@ -425,30 +448,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         icon: startingMarker,
       ));
       initTrackingSession();
-      activity!.startRecording(
-        onMetricsUpdated: () {
-          if(_pageVisibility) add(const LocationUpdated());
-          emit(state.copyWith(
-            trackingParams: state.trackingParams.copyWith(
-              distance: activity!.totalDistance,
-              speed: activity!.instantSpeed,
-              avgSpeed: activity!.avgSpeed,
-              pace: activity!.instantPace,
-              avgPace: activity!.avgPace,
-              calories: activity!.totalCalories,
-            ),
-          ));
-        },
-        onPositionsAcquired: (positions) {
-          if(_geoPoints.isEmpty) positions.removeAt(0);
-          _curtPos = positions.length == 1 ? positions.first : positions.last;
-          _geoPoints.addAll(positions.map((p) {
-            _updateLatLngBounds(p);
-            return LatLng(p.latitude, p.longitude);
-          }));
-          if(_pageVisibility) add(const LocationUpdated());
-        },
-      );
+      activity!.startRecording();
       emit(state.copyWith(
         geoPoints: _geoPoints,
         markers: _markers,
@@ -495,7 +495,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
-    ..workoutDuration = _secondsElapsed
+    // ..workoutDuration = 
     ..distance = activity!.totalDistance
     ..avgSpeed = activity!.avgSpeed
     ..maxSpeed = activity!.maxSpeed

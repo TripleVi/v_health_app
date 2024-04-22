@@ -1,9 +1,5 @@
-import 'dart:async';
-
-import 'package:geolocator/geolocator.dart';
-
-import '../../../domain/entities/workout_data.dart';
-import '../../../main.dart';
+import "../../../domain/entities/workout_data.dart";
+import "../../../main.dart";
 
 abstract class ActivityTracking {
   double totalDistance = 0.0;
@@ -13,46 +9,14 @@ abstract class ActivityTracking {
   double? instantPace;
   double avgPace = 0.0;
   double maxPace = 0.0;
-  int totalCalories = 0;
+  double totalCalories = 0.0;
   bool isPaused = false;
-  double? elevation;
-  double maxElevation = 0.0;
-  double elevationGain = 0.0;  
   List<WorkoutData> workoutData = [];
-  StreamSubscription? locationListener;
   late final DateTime startDate;
 
-  void initSession() {
+  void startRecording() {
     startDate = DateTime.now();
     backgroundService.invoke("trackingSessionCreated");
-  }
-
-  void startRecording({
-    required void Function() onMetricsUpdated,
-    required void Function(List<Position> positions) onPositionsAcquired,
-  });
-
-  void handleLocationUpdates(
-    void Function(List<Position> positions) onPositionsAcquired
-  ) {
-    backgroundService.invoke("locationUpdates");
-    locationListener = backgroundService.on("positionsAcquired").listen(
-      (event) {
-        final positions = (event!["data"] as List).map((e) {
-          e["latitude"] *= 1.0;
-          e["longitude"] *= 1.0;
-          e["accuracy"] *= 1.0;
-          e["altitude"] *= 1.0;
-          e["altitude_accuracy"] *= 1.0;
-          e["heading"] *= 1.0;
-          e["heading_accuracy"] *= 1.0;
-          e["speed"] *= 1.0;
-          e["speed_accuracy"] *= 1.0;
-          return Position.fromMap(e);
-        }).toList();
-        onPositionsAcquired(positions);
-      },
-    );
   }
 
   void pauseRecording() {
@@ -74,8 +38,13 @@ abstract class ActivityTracking {
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "stopped"
     });
-    locationListener!.cancel();
   }
+}
 
-  void updateMetrics(Map<String, dynamic> metrics);
+class ActivityPosition {
+  double latitude;
+  double longitude;
+  double accuracy;
+
+  ActivityPosition(this.latitude, this.longitude, this.accuracy);
 }

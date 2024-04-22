@@ -22,6 +22,13 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> submitLoginForm(String account, String password) async {
     account = "vuongvu2001";
     password = "0365466031";
+    print("hello world");
+
+    await LocationService().requestPermission();
+    final post = await LocationService().getCurrentPosition();
+    print(post!.toJson());
+
+    return;
     try {
       emit(state.copyWith(isProcessing: true));
       final isEmail = account.contains('@');
@@ -44,7 +51,7 @@ class LoginCubit extends Cubit<LoginState> {
       await prefs.setString("email", user!.email);
       await prefs.setString("username", user.username);
       await prefs.setInt("gender", user.gender.index);
-      await prefs.setDouble("height", user.height);
+      await prefs.setInt("height", user.height);
       await prefs.setDouble("weight", user.weight);
       await prefs.setString("avatarUrl", user.avatarUrl);
       emit(state.copyWith(isProcessing: true, success: true));

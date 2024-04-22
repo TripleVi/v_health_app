@@ -1,6 +1,6 @@
-import 'dart:async';
-import 'package:geocoding/geocoding.dart' as geocoding;
-import 'package:geolocator/geolocator.dart';
+import "dart:async";
+
+import "package:geolocator/geolocator.dart";
 
 class PermissionResponse {
   final bool isServiceEnabled;
@@ -124,21 +124,21 @@ class LocationService {
     return Geolocator.getPositionStream(locationSettings: locationSettings);
   }
 
-  static Future<ReverseGeocodingResponse> getAddressFromPosition({
+  static Future<void> getAddressFromPosition({
     required double latitude, 
     required double longitude,
     String localeIdentifier = "en",
   }) async {
-    final placemarks =  await geocoding.placemarkFromCoordinates(
-      latitude, 
-      longitude, 
-      // localeIdentifier: localeIdentifier,
-    );
+    // final placemarks =  await geocoding.placemarkFromCoordinates(
+    //   latitude, 
+    //   longitude, 
+    //   // localeIdentifier: localeIdentifier,
+    // );
 
-    return ReverseGeocodingResponse(
-      country: placemarks.first.country!,
-      administrativeArea: placemarks.first.administrativeArea!,
-    );
+    // return ReverseGeocodingResponse(
+    //   country: placemarks.first.country!,
+    //   administrativeArea: placemarks.first.administrativeArea!,
+    // );
   }
 }
 

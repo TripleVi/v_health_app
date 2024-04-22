@@ -8,13 +8,12 @@ class ActivityRecord extends BaseEntity {
   ActivityCategory category;
   DateTime startDate;
   DateTime endDate;
-  int workoutDuration;
+  int activeTime;
   double distance;
   double avgSpeed;
   double maxSpeed;
   int steps;
-  int stairsClimbed;
-  int calories;
+  double calories;
   List<Coordinate> coordinates;
   List<Photo> photos;
   List<WorkoutData> data;
@@ -24,12 +23,11 @@ class ActivityRecord extends BaseEntity {
     required this.category,
     required this.startDate,
     required this.endDate,
-    required this.workoutDuration,
+    required this.activeTime,
     required this.distance,
     required this.avgSpeed,
     required this.maxSpeed,
     required this.steps,
-    required this.stairsClimbed,
     required this.calories,
     this.coordinates = const [],
     this.photos = const [],
@@ -38,7 +36,7 @@ class ActivityRecord extends BaseEntity {
 
   factory ActivityRecord.empty() {
     final date = DateTime.now();
-    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, workoutDuration: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, steps: 0, stairsClimbed: 0, calories: 0);
+    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, activeTime: 0, distance: 0.0, avgSpeed: 0.0, maxSpeed: 0.0, steps: 0, calories: 0);
   }
 
   // ActivityRecord.before_i_days(String startDate, int i)
@@ -69,18 +67,17 @@ class ActivityRecord extends BaseEntity {
       "category": category.index,
       "startDate": startDate.millisecondsSinceEpoch,
       "endDate": endDate.millisecondsSinceEpoch,
-      "workoutDuration": workoutDuration,
+      "activeTime": activeTime,
       "distance": distance,
       "avgSpeed": avgSpeed,
       "maxSpeed": maxSpeed,
       "steps": steps,
-      "stairsClimbed": stairsClimbed,
       "calories": calories,
     };
   }
 
   @override
   String toString() {
-    return "ActivityRecord{id: $id, category: ${category.name}, startDate: $startDate, endDate: $startDate, workoutDuration: $workoutDuration, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, steps: $steps, stairsClimbed: $stairsClimbed, calories: $calories}";
+    return "ActivityRecord{id: $id, category: ${category.name}, startDate: $startDate, endDate: $startDate, activeTime: $activeTime, distance: $distance, avgSpeed: $avgSpeed, maxSpeed: $maxSpeed, steps: $steps, calories: $calories}";
   }
 }

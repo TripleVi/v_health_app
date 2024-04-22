@@ -10,8 +10,8 @@ import '../utilities/constants.dart';
 import 'signal_filter_service.dart';
 import 'shared_pref_service.dart';
 
-class ClassificationService {
-  ClassificationService();
+class AccelerationService {
+  AccelerationService();
 
   double getStrideByHeight(double height, int gender) {
     return gender == 1 ? height * 0.415 : height * 0.413;
@@ -100,7 +100,7 @@ class ClassificationService {
     }
   }
 
-  Future<Map<String, dynamic>> classify(
+  Future<Map<String, dynamic>> analyze(
     List<List<double>> rawAccelData, double samplingRate
   ) async {
     final desiredData = _process(rawAccelData, samplingRate);
