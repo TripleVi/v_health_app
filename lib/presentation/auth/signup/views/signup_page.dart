@@ -1,32 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_picker/flutter_picker.dart";
 
-import '../../../../core/enum/user_enum.dart';
-import '../../../../core/resources/style.dart';
-import '../../../../core/utilities/utils.dart';
-import '../../../../domain/entities/user.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../cubit/signup_cubit.dart';
+import "../../../../core/enum/user_enum.dart";
+import "../../../../core/resources/style.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../cubit/signup_cubit.dart";
 
 class SignUpPage extends StatelessWidget {
-  final _dobController = TextEditingController();
-  final _heightController = TextEditingController();
-  final _weightController = TextEditingController();
-
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  final _credentialFormKey = GlobalKey<FormState>();
-  final _personalFormKey = GlobalKey<FormState>();
-  final _fitnessFormKey = GlobalKey<FormState>();
-
-  var _gender = UserGender.male;
   // io.File? _avatar;
   // Uint8List? _editedAvatar;
 
-  SignUpPage({super.key});
+  const SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +23,9 @@ class SignUpPage extends StatelessWidget {
         listener: (context, state) {
           if(state.snackMsg != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: AppStyle.surfaceColor,
+              showCloseIcon: true,
+              closeIconColor: AppStyle.secondaryIconColor,
               content: Text(
                 state.snackMsg!,
                 style: AppStyle.bodyText(),
@@ -55,20 +45,38 @@ class SignUpPage extends StatelessWidget {
                   return false;
                 },
                 child: Scaffold(
-                  backgroundColor: AppStyle.surfaceColor,
+                  backgroundColor: AppStyle.backgroundColor,
                   appBar: CustomAppBar.get(
                     title: "Sign up",
                     leading: GestureDetector(
                       onTap: () => _backPressed(context, state),
-                      child: const Icon(Icons.arrow_back_rounded, size: 32.0),
+                      child: const Icon(Icons.arrow_back_rounded),
                     ),
                   ),
-                  body: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        bodyBuilder(context, state), 
-                        _buildProgressIndicator(state),
-                      ],
+                  body: Center(
+                    child: Container(
+                      height: double.infinity,
+                      constraints: const BoxConstraints(maxWidth: 320.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                      child: Stack(
+                        children: [
+                          SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                const SizedBox(height: 40.0),
+                                bodyBuilder(context, state),
+                              ],
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: _buildProgressIndicator(context, state),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -95,25 +103,59 @@ class SignUpPage extends StatelessWidget {
       case 1:
         return _buildPersonalForm(context, state);
       case 2:
-        return _buildFitnessForm(context);
+        return _buildFitnessForm(context, state);
       case 0:
       default:
         return _buildCredentialForm(context, state);
     }
   }
 
-  Widget _buildProgressIndicator(SignUpState state) {
+  Function() submitBtnExecutor(BuildContext context, SignUpState state) {
+    switch (state.activeIndex) {
+      case 1:
+        return () {
+          if (!state.personalFormKey.currentState!.validate()) return;
+          context.read<SignUpCubit>().nextForm();
+        };
+      case 2:
+        return () {
+          if(!state.fitnessFormKey.currentState!.validate()) return;
+          MyUtils.closeKeyboard(context);
+          context.read<SignUpCubit>().signUp();
+        };
+      case 0:
+      default:
+        return () {
+          if(!state.credentialFormKey.currentState!.validate()) return;
+          MyUtils.closeKeyboard(context);
+          context.read<SignUpCubit>().submitCredentialForm();
+        };
+    }
+  }
+
+  Widget _buildProgressIndicator(BuildContext context, SignUpState state) {
+    const btnWidth = 80.0;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(state.totalIndex+1, (index) => Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4.0),
-          height: 4.0,
-          width: 40.0,
-          color: state.activeIndex == index
-              ? AppStyle.primaryColor
-              : Colors.black54,
-        ), growable: false,
-      ),
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const SizedBox(width: btnWidth),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(state.totalIndex+1, (index) => Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4.0),
+              height: 6.0,
+              width: 6.0,
+              decoration: BoxDecoration(
+                color: state.activeIndex == index
+                    ? AppStyle.primaryColor
+                    : AppStyle.secondaryIconColor,
+                shape: BoxShape.circle,
+              ),
+            ), growable: false,
+          ),
+        ),
+        _buildNextButton(btnWidth, submitBtnExecutor(context, state)),
+      ],
     );
   }
 
@@ -123,21 +165,17 @@ class SignUpPage extends StatelessWidget {
     required String description,
     required GlobalKey<FormState> formKey,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40.0),
-            Text(headline, style: AppStyle.heading1(height: 1.0)),
-            const SizedBox(height: 4.0),
-            Text(description, style: AppStyle.bodyText()),
-            const SizedBox(height: 28.0),
-            Column(children: inputs),
-          ],
-        ),
+    return Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(headline, style: AppStyle.heading4()),
+          const SizedBox(height: 8.0),
+          Text(description, style: AppStyle.caption1()),
+          const SizedBox(height: 32.0),
+          Column(children: inputs),
+        ],
       ),
     );
   }
@@ -145,49 +183,161 @@ class SignUpPage extends StatelessWidget {
   InputDecoration _getInputDecoration(String labelText) {
     return InputDecoration(
       border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+        borderSide: BorderSide(color: AppStyle.neutralColor400),
+      ),
+      enabledBorder: const OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+        borderSide: BorderSide(color: AppStyle.neutralColor400),
       ),
       labelText: labelText,
-      contentPadding: const EdgeInsets.all(20.0),
+      suffixIcon: const Icon(
+        Icons.arrow_drop_down, 
+        size: 24.0,
+        color: AppStyle.secondaryIconColor,
+      ),
     );
   }
 
-  Widget _buildFitnessForm(BuildContext context) {
+  Widget _buildFitnessForm(BuildContext context, SignUpState state) {
     return _buildPaddedForm(
-      headline: "Fitness Status",
-      description: "Let's get to know more about your current fitness status.",
-      formKey: _fitnessFormKey,
+      headline: "How is your physical condition?",
+      description: "Your fitness information will help the system calculate more accurate indicators.",
+      formKey: state.fitnessFormKey,
       inputs: [
         TextFormField(
-          validator: MyUtils.requiredDoubleField,
+          readOnly: true,
+          style: AppStyle.bodyText(),
+          validator: MyUtils.requiredField,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _heightController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+          onTap: () => showPickerNumber(
+            context: context,
+            title: "Height",
+            description: "How tall are you in centimeters?",
+            begin: 30,
+            end: 272,
+            jump: 1,
+            initial: 150,
+            onSaved: (values) {
+              state.heightController.text = "${values.first} cm";
+            },
+          ),
+          controller: state.heightController,
           decoration: _getInputDecoration("Height"),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 16.0),
         TextFormField(
-          validator: MyUtils.requiredDoubleField,
+          readOnly: true,
+          style: AppStyle.bodyText(),
+          validator: MyUtils.requiredField,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _weightController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: false),
+          onTap: () => showPickerNumber(
+            context: context,
+            title: "Weight",
+            description: "How many kilograms do you weight?",
+            begin: 30,
+            end: 450,
+            jump: 1,
+            initial: 40,
+            isDecimal: true,
+            onSaved: (values) {
+              state.weightController.text = "${values.first}.${values.last} kg";
+            },
+          ),
+          controller: state.weightController,
           decoration: _getInputDecoration("Weight"),
         ),
-        const SizedBox(height: 20.0),
-        _buildNextButton(() {
-          if(!_fitnessFormKey.currentState!.validate()) return;
-          MyUtils.closeKeyboard(context);
-          final user = User.empty()
-          ..username = _usernameController.text
-          ..password = _passwordController.text
-          ..dateOfBirth = _dobController.text
-          ..gender = _gender
-          ..weight = double.parse(_weightController.text)
-          ..height = int.parse(_heightController.text);
-          context.read<SignUpCubit>().signUp(user);
-        }),
-        const SizedBox(height: 32.0),
       ],
+    );
+  }
+
+  showPickerNumber({
+    required BuildContext context,
+    required String title,
+    required String description,
+    required int begin,
+    required int end,
+    required int jump,
+    required int initial,
+    bool isDecimal = false,
+    required void Function(List<int>) onSaved,
+  }) {
+    BuildContext? dialogContext;
+    final data = [NumberPickerColumn(
+      begin: begin, 
+      end: end, 
+      jump: jump, 
+      initValue: initial,
+    )];
+    if(isDecimal) {
+      data.add(const NumberPickerColumn(
+        begin: 0, 
+        end: 9, 
+        jump: 1, 
+        initValue: 0,
+      ));
+    }
+    Picker(
+      adapter: NumberPickerAdapter(data: data),
+      textStyle: AppStyle.bodyText(),
+      itemExtent: 40.0,
+      cancel: const SizedBox(),
+      confirmText: "OK",
+      backgroundColor: AppStyle.surfaceColor,
+      confirmTextStyle: const TextStyle(color: AppStyle.primaryColor),
+      hideHeader: true,
+      delimiter: isDecimal ? [PickerDelimiter(
+        child: Container(
+          width: 4.0,
+          height: 4.0,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppStyle.neutralColor400,
+          ),
+        ),
+      )] : null,
+      title: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(title, style: AppStyle.heading3()),
+              ),
+              const SizedBox(width: 8.0),
+              GestureDetector(
+                onTap: () => Navigator.pop<void>(dialogContext!),
+                child: Container(
+                  padding: const EdgeInsets.all(8.0),
+                  decoration: const BoxDecoration(
+                    color: AppStyle.sBtnBgColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 20.0,
+                    color: AppStyle.primaryIconColor,
+                  ),
+                )
+              ),
+            ],
+          ),
+          const SizedBox(height: 4.0),
+          Text(description, style: AppStyle.caption1()),
+        ],
+      ),
+      onConfirm: (Picker picker, List value) {
+        onSaved(List<int>.from(picker.getSelectedValues()));
+      }
+    ).showDialog(
+      context, 
+      backgroundColor: AppStyle.surfaceColor, 
+      surfaceTintColor: AppStyle.surfaceColor,
+      builder: (context, pickerWidget) {
+        dialogContext = context;
+        return pickerWidget;
+      },
     );
   }
 
@@ -204,9 +354,9 @@ class SignUpPage extends StatelessWidget {
 
   Widget _buildPersonalForm(BuildContext context, SignUpState state) {
     return _buildPaddedForm(
-      headline: "Personal Details",
-      description: "Please answer the following questions",
-      formKey: _personalFormKey,
+      headline: "Introduce yourself",
+      description: "Your personal information is private. You can update it at any time.",
+      formKey: state.personalFormKey,
       inputs: [
         // Row(
         //   mainAxisSize: MainAxisSize.min,
@@ -317,340 +467,187 @@ class SignUpPage extends StatelessWidget {
         // const SizedBox(height: 20.0),
         InputDecorator(
           decoration: const InputDecoration(
-            prefixIconConstraints: BoxConstraints(
-              maxHeight: 1, maxWidth: 1, minHeight: 0, minWidth: 0,
-            ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
             labelText: "Gender",
-            contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 10.0, 20.0),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<UserGender>(
-              value: _gender,
+              style: AppStyle.bodyText(),
+              iconEnabledColor: AppStyle.secondaryIconColor,
+              dropdownColor: AppStyle.surfaceColor,
+              value: state.gender,
               isDense: true,
               items: UserGender.values.map((value) => DropdownMenuItem(
                 value: value, 
                 child: Text(value.stringValue),
               )).toList(growable: false),
               onChanged: (value) {
-                _gender = value!;
-                context.read<SignUpCubit>().refreshPage();
+                if(value == null) return;
+                context.read<SignUpCubit>().selectGender(value);
               },
             ),
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 16.0),
         TextFormField(
-          validator: MyUtils.requiredDateField,
+          validator: MyUtils.requiredField,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _dobController,
+          controller: state.dobController,
           readOnly: true,
+          style: AppStyle.bodyText(),
           onTap: () => showDatePicker(
             context: context,
-            initialDate: DateTime.now(),
-            firstDate: DateTime(1920),
-            lastDate: DateTime(2101),
+            initialDate: DateTime(DateTime.now().year-6),
+            firstDate: DateTime(DateTime.now().year-150),
+            lastDate: DateTime(DateTime.now().year-6, 12, 31),
           ).then((value) {
             if(value == null) return;
-            _dobController.text = MyUtils.getFormattedDate1(value);
-            context.read<SignUpCubit>().refreshPage();
+            state.dobController.text = MyUtils.getFormattedDate1(value);
           }),
           decoration: const InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
-            ),
             labelText: "Date of Birth",
-            suffixIcon: Icon(Icons.event),
-            contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
+            suffixIcon: Icon(
+              Icons.event,
+              size: 24.0,
+              color: AppStyle.secondaryIconColor,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
           ),
         ),
-        const SizedBox(height: 20.0),
-        _buildNextButton(() {
-          if (_personalFormKey.currentState!.validate()) {
-            context.read<SignUpCubit>().nextForm();
-          }
-        }),
-        const SizedBox(height: 32.0),
       ],
     );
   }
 
-  // Widget get validationForm {
-  //   return paddedForm(<Widget>[
-  //     Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 10),
-  //         child: TextFormField(
-  //           obscureText: !_passwordVisible,
-  //           validator: (value) {
-  //             // if (value == "") {
-  //             //   return "Please fill this field";
-  //             // } else if (value != user.password) {
-  //             //   return "Old password does not match!";
-  //             // }
-  //             return null;
-  //           },
-  //           controller: controllerPassword,
-  //           keyboardType: TextInputType.visiblePassword,
-  //           decoration: const InputDecoration(
-  //             border: OutlineInputBorder(
-  //               borderRadius: BorderRadius.all(Radius.circular(10)),
-  //             ),
-  //             labelText: "Password",
-  //             contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
-  //           ),
-  //         )),
-  //     Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 10),
-  //         child: TextFormField(
-  //           obscureText: !_passwordVisible,
-  //           validator: (value) {
-  //             // if (value == "") {
-  //             //   return "Please fill this field";
-  //             // } else if (value == user.password) {
-  //             //   print("Does not match");
-  //             //   return "Please enter a new password!";
-  //             // }
-  //             return null;
-  //           },
-  //           controller: controllerNewPassword,
-  //           keyboardType: TextInputType.visiblePassword,
-  //           decoration: const InputDecoration(
-  //             border: OutlineInputBorder(
-  //               borderRadius: BorderRadius.all(Radius.circular(10)),
-  //             ),
-  //             labelText: "New Password",
-  //             contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
-  //           ),
-  //         )),
-  //     Padding(
-  //         padding: const EdgeInsets.symmetric(vertical: 10),
-  //         child: TextFormField(
-  //           obscureText: !_passwordVisible,
-  //           validator: (value) {
-  //             if (value == "") {
-  //               return "Please fill this field";
-  //             } else if (value != controllerNewPassword.text) {
-  //               print("Does not match");
-  //               return "New password does not match with confirmation!";
-  //             }
-  //             return null;
-  //           },
-  //           controller: controllerConfirmPassword,
-  //           keyboardType: TextInputType.visiblePassword,
-  //           decoration: const InputDecoration(
-  //             border: OutlineInputBorder(
-  //               borderRadius: BorderRadius.all(Radius.circular(10)),
-  //             ),
-  //             labelText: "Confirm Your Password",
-  //             contentPadding: EdgeInsets.fromLTRB(20.0, 20.0, 0.0, 20.0),
-  //           ),
-  //         )),
-  //     Padding(
-  //       padding: const EdgeInsets.symmetric(vertical: 10.0),
-  //       child: SizedBox(
-  //           width: double.infinity,
-  //           height: 55,
-  //           child: ElevatedButton(
-  //               onPressed: () async {
-  //                 handleSubmit();
-  //               },
-  //               style: ButtonStyle(
-  //                   backgroundColor: MaterialStateProperty.all<Color>(
-  //                       Constants.primaryColor),
-  //                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-  //                       RoundedRectangleBorder(
-  //                           borderRadius: BorderRadius.circular(12.0)))),
-  //               child: const Text("Change Password"))),
-  //     ),
-  //   ],
-  //       "Editing Password",
-  //       "Please enter your current password to confirm your identity",
-  //       validationFormKey);
-  // }
-
   Widget _buildCredentialForm(BuildContext context, SignUpState state) {
     return _buildPaddedForm(
-      headline: "Registration Form",
-      description: "Let's start by enter your login credentials",
-      formKey: _credentialFormKey,
+      headline: "Create your account",
+      description: "You can log into the system using your username and password.",
+      formKey: state.credentialFormKey,
       inputs: [
         TextFormField(
-          validator: MyUtils.requiredTextField,
+          validator: MyUtils.usernameValidator,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _usernameController,
+          controller: state.usernameController,
           keyboardType: TextInputType.text,
+          style: AppStyle.bodyText(),
           decoration: InputDecoration(
+            errorMaxLines: 2,
             border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
             labelText: "Username",
             errorText: state.errorMsg,
-            contentPadding: const EdgeInsets.all(20.0),
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 16.0),
         TextFormField(
           obscureText: !state.passwordVisible,
-          validator: MyUtils.requiredTextField,
+          validator: MyUtils.passwordValidator,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _passwordController,
+          controller: state.passwordController,
           keyboardType: TextInputType.visiblePassword,
+          style: AppStyle.bodyText(),
           decoration: InputDecoration(
+            errorMaxLines: 3,
             suffixIcon: GestureDetector(
               onTapUp: (_) => context.read<SignUpCubit>().togglePassword(),
               onTapDown: (_) => context.read<SignUpCubit>().togglePassword(),
               onLongPressEnd: (_) => context.read<SignUpCubit>().togglePassword(),
-              child: state.passwordVisible
-                  ? const Icon(Icons.visibility)
-                  : const Icon(Icons.visibility_off),
+              child: Icon(
+                state.passwordVisible ? Icons.visibility : Icons.visibility_off, 
+                size: 24.0,
+                color: AppStyle.secondaryIconColor,
+              ),
             ),
             border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
             labelText: "Password",
-            contentPadding: const EdgeInsets.all(20.0),
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 16.0),
         TextFormField(
           obscureText: !state.confirmPasswordVisible,
           validator: (value) {
-            if (value == "") {
+            if(value == null || value.isEmpty) {
               return "Please fill this field";
-            } else if (value != _passwordController.text) {
-              print("Does not match");
-              return "New password does not match with confirmation!";
             }
-            return null;
+            return value == state.passwordController.text 
+                ? null 
+                : "Confirm password does not match.";
           },
-          controller: _confirmPasswordController,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          controller: state.confirmPasswordController,
           keyboardType: TextInputType.visiblePassword,
+          style: AppStyle.bodyText(),
           decoration: InputDecoration(
             suffixIcon: GestureDetector(
               onTapUp: (_) => context.read<SignUpCubit>().toggleConfirmPassword(),
               onTapDown: (_) => context.read<SignUpCubit>().toggleConfirmPassword(),
               onLongPressEnd: (_) => context.read<SignUpCubit>().toggleConfirmPassword(),
-              child: state.confirmPasswordVisible
-                  ? const Icon(Icons.visibility)
-                  : const Icon(Icons.visibility_off),
+              child: Icon(
+                state.passwordVisible ? Icons.visibility : Icons.visibility_off, 
+                size: 24.0,
+                color: AppStyle.secondaryIconColor,
+              ),
             ),
             border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
-            labelText: "Confirm Your Password",
-            contentPadding: const EdgeInsets.all(20.0),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            labelText: "Confirm Password",
           ),
         ),
-        const SizedBox(height: 20.0),
-        _buildNextButton(() {
-          if(!_credentialFormKey.currentState!.validate()) return;
-          MyUtils.closeKeyboard(context);
-          context.read<SignUpCubit>().submitCredentialForm(
-            _usernameController.text, _passwordController.text
-          );
-        }),
-        const SizedBox(height: 32.0),
       ],
     );
   }
 
-  Widget _buildNextButton(void Function() onPressed) {
+  Widget _buildNextButton(double width, void Function() onPressed) {
     return SizedBox(
-      width: double.infinity,
-      height: 52.0,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
+          fixedSize: Size.fromWidth(width),
           backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(AppStyle.borderRadius),
           ),
         ),
         child: Text(
           "Next",
-          style: AppStyle.heading2(height: 1.0, color: Colors.white),
+          style: AppStyle.caption1(color: AppStyle.pBtnTextColor),
         ),
       ),
     );
   }
-
-  // void handleSubmit() async {
-  //   if (widget.isEdit == 1) {
-  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //       content: Text("Account edited!"),
-  //     ));
-  //     await GetIt.instance<UserRepo>().updateUserLocal(user);
-  //     await FirebaseFirestore.instance
-  //         .collection(UserFields.container)
-  //         .doc(user.id)
-  //         .set(user.toMap())
-  //         .then((value) {
-  //       FocusManager.instance.primaryFocus?.unfocus();
-  //     }).then((value) {
-  //       Navigator.of(context, rootNavigator: true).pushReplacement(
-  //           MaterialPageRoute(
-  //               builder: (BuildContext context) => const MainContainer()));
-  //     });
-  //   } else if (widget.isEdit == 2) {
-  //     if (validationFormKey.currentState!.validate()) {
-  //       user.password = controllerNewPassword.text;
-  //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //         content: Text("Password edited!"),
-  //       ));
-  //       await GetIt.instance<UserRepo>().updateUserLocal(user);
-  //       await FirebaseFirestore.instance
-  //           .collection(UserFields.container)
-  //           .doc(user.id)
-  //           .set(user.toMap())
-  //           .then((value) {
-  //         FocusManager.instance.primaryFocus?.unfocus();
-  //       }).then((value) {
-  //         Navigator.of(context, rootNavigator: true).pushReplacement(
-  //             MaterialPageRoute(
-  //                 builder: (BuildContext context) => const MainContainer()));
-  //       });
-  //     }
-  //   } else {
-  //     user.id = const Uuid().v4();
-  //     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //       content: Text("Registration successfully, please login!"),
-  //     ));
-  //     try {
-  //       if (user.avatarName.isNotEmpty) {
-  //         final path = StorageService.join(user.username, user.avatarName);
-  //         await StorageService.uploadFile(path: path, file: _avatar!);
-  //         user.avatarUrl = await StorageService.getFileUrl(path);
-  //         final name = MyUtils.getFileName(_avatar!);
-  //         final file = await MyUtils.getAppTempFile(name);
-  //         if(file.existsSync()) {
-  //           _avatar!.deleteSync();
-  //         }
-  //       }
-  //       await FirebaseFirestore.instance
-  //           .collection(UserFields.container)
-  //           .doc(user.id)
-  //           .set(user.toMap())
-  //           .then((value) {
-  //         FocusManager.instance.primaryFocus?.unfocus();
-  //       }).then((value) {
-  //         Navigator.of(context).pushAndRemoveUntil(
-  //             MaterialPageRoute(
-  //                 builder: (BuildContext context) => const Login()),
-  //             (route) => false);
-  //       });
-  //     } catch (e) {
-  //       print(e);
-  //       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //         content: Text(
-  //           "Registration failed, please re-try!",
-  //           style: AppStyle.bodyText(color: AppStyle.dangerColor),
-  //         ),
-  //       ));
-  //     }
-  //   }
-  // }
 
   Widget _avatarSelectionItem({
     required String title,

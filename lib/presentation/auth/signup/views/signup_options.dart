@@ -64,7 +64,7 @@ class SignUpOptions extends StatelessWidget {
   Widget buildLoginButton({required String assetName, required String logoName, void Function()? onTap}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16.0),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
       decoration: BoxDecoration(
         border: Border.all(color: AppStyle.neutralColor400),
         borderRadius: BorderRadius.circular(AppStyle.borderRadius),

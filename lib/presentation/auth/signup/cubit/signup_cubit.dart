@@ -1,15 +1,26 @@
-import 'package:bloc/bloc.dart';
-import 'package:firebase_auth/firebase_auth.dart' as fa;
-import 'package:flutter/material.dart';
+import "package:firebase_auth/firebase_auth.dart" as fa;
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../data/sources/api/user_api.dart';
-import '../../../../domain/entities/user.dart';
-import '../../bloc/auth_bloc.dart';
+import "../../../../core/enum/user_enum.dart";
+import "../../../../data/sources/api/user_api.dart";
+import "../../../../domain/entities/user.dart";
+import "../../bloc/auth_bloc.dart";
 
-part 'signup_state.dart';
+part "signup_state.dart";
 
 class SignUpCubit extends Cubit<SignUpState> {
-  SignUpCubit() : super(const SignUpState());
+  SignUpCubit() : super(SignUpState(
+    dobController: TextEditingController(),
+    heightController: TextEditingController(),
+    weightController: TextEditingController(),
+    usernameController: TextEditingController(),
+    passwordController: TextEditingController(),
+    confirmPasswordController: TextEditingController(),
+    credentialFormKey: GlobalKey(),
+    personalFormKey: GlobalKey(),
+    fitnessFormKey: GlobalKey(),
+  ));
 
   void togglePassword() {
     emit(state.copyWith(passwordVisible: !state.passwordVisible));
@@ -27,11 +38,20 @@ class SignUpCubit extends Cubit<SignUpState> {
     emit(state.copyWith(activeIndex: state.activeIndex-1));
   }
 
-  void refreshPage() {
-    emit(state.copyWith());
+  void selectGender(UserGender gender) {
+    emit(state.copyWith(gender: gender));
   }
 
-  Future<void> signUp(User user) async {
+  Future<void> signUp() async {
+    final user = User.empty()
+    ..username = state.usernameController.text
+    ..password = state.passwordController.text
+    ..dateOfBirth = state.dobController.text
+    ..gender = state.gender
+    ..weight = double.parse(state.weightController.text.split(" ").first)
+    ..height = int.parse(state.heightController.text.split(" ").first);
+    print(user);
+    return;
     emit(state.copyWith(isProcessing: true));
     try {
       user.email = AuthBloc.email!;
@@ -54,7 +74,6 @@ class SignUpCubit extends Cubit<SignUpState> {
         snackMsg: "Registration succeeded, please login!",
       ));
     } catch (e) {
-      print(e);
       emit(state.copyWith(
         success: false,
         snackMsg: "Registration failed, please re-try!",
@@ -62,13 +81,25 @@ class SignUpCubit extends Cubit<SignUpState> {
     }
   }
 
-  Future<void> submitCredentialForm(String username, String password) async {
+  Future<void> submitCredentialForm() async {
     emit(state.copyWith(isProcessing: true));
     final userService = UserService();
-    final user = await userService.getUserByUsername(username);
+    final user = await userService
+        .getUserByUsername(state.usernameController.text);
     if(user == null) return nextForm();
     emit(state.copyWith(
-      errorMsg: "Your username must be unique.",
+      errorMsg: "Username must be unique.",
     ));
+  }
+
+  @override
+  Future<void> close() async {
+    super.close();
+    state.dobController.dispose();
+    state.heightController.dispose();
+    state.weightController.dispose();
+    state.usernameController.dispose();
+    state.passwordController.dispose();
+    state.confirmPasswordController.dispose();
   }
 }

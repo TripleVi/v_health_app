@@ -28,11 +28,11 @@ class User {
   });
 
   factory User.empty() {
-    return User(uid: "", username: "", password: "", firstName: "", lastName: "", dateOfBirth: "", gender: UserGender.other, weight: 0.0, height: 170, avatarUrl: "", email: "");
+    return User(uid: "", username: "", password: "", firstName: "", lastName: "", dateOfBirth: "", gender: UserGender.male, weight: 0.0, height: 170, avatarUrl: "", email: "");
   }
 
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(uid: map["uid"], username: map["username"], password: map["password"] ?? "", email: map["email"], firstName: map["firstName"], lastName: map["lastName"], dateOfBirth: map["dateOfBirth"], gender: UserGender.values[map["gender"]], weight: map["weight"]*1.0, height: map["height"], avatarUrl: map["avatarUrl"]);
+    return User(uid: map["uid"], username: map["username"], password: map["password"] ?? "", email: map["email"], firstName: map["firstName"], lastName: map["lastName"], dateOfBirth: map["dateOfBirth"], gender: UserGender.values[map["gender"]], weight: map["weight"]*1.0, height: map["height"]["low"], avatarUrl: map["avatarUrl"]);
   }
 
   Map<String, dynamic> toMap() {

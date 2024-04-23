@@ -62,7 +62,14 @@ class AuthView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.backgroundColor,
-      body: BlocBuilder<AuthBloc, AuthState>(
+      body: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if(state.isSignedIn) {
+            Navigator
+              .of(context, rootNavigator: true)
+              .pushNamedAndRemoveUntil("/home", (route) => false);
+          }
+        },
         builder: (context, state) {
           final loginPage = state.loginPage;
           return Stack(

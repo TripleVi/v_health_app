@@ -1,19 +1,23 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import "package:firebase_auth/firebase_auth.dart";
+import "package:google_sign_in/google_sign_in.dart";
 
-class UserCredentialResult {
-
-}
+import "shared_pref_service.dart";
 
 class AuthService {
-  AuthService();
-  
-  late final _googleSignIn = GoogleSignIn(
+  static final instance = AuthService._();
+
+  AuthService._();
+
+  final _googleSignIn = GoogleSignIn(
     signInOption: SignInOption.standard,
     scopes: [
       "email",
     ], 
   );
+
+  bool isSignedIn() {
+    return FirebaseAuth.instance.currentUser != null;
+  }
 
   Future<GoogleSignInAccount?> getGoogleSignInAccount() async {
     // GoogleAuthProvider
@@ -101,7 +105,9 @@ class AuthService {
     return FirebaseAuth.instance.currentUser!.linkWithCredential(credential);
   }
 
-  Future<void> signOut() {
-    return FirebaseAuth.instance.signOut();
+  Future<void> signOut() async {
+    await FirebaseAuth.instance.signOut();
+    await SharedPrefService.removeCurrentUser();
+    await _googleSignIn.signOut();
   }
 }

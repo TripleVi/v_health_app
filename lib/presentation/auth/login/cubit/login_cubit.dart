@@ -1,34 +1,33 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:matrix2d/matrix2d.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:v_health/core/enum/user_enum.dart';
-import 'package:v_health/core/services/weather_service.dart';
+import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../core/services/location_service.dart';
-import '../../../../core/services/sensor_service.dart';
-import '../../../../data/sources/api/user_api.dart';
+import "../../../../core/services/shared_pref_service.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../../data/sources/api/user_api.dart";
 
-part 'login_state.dart';
+part "login_state.dart";
 
 class LoginCubit extends Cubit<LoginState> {
-  LoginCubit() : super(const LoginState());
+  LoginCubit() : super(LoginState(
+    accountController: TextEditingController(),
+    passwordController: TextEditingController(),
+    loginFormKey: GlobalKey(),
+  ));
 
   void togglePassword() {
     emit(state.copyWith(passwordVisible: !state.passwordVisible));
   }
 
-  Future<void> submitLoginForm(String account, String password) async {
-    account = "vuongvu2001";
-    password = "0365466031";
-    print("hello world");
-
-    await LocationService().requestPermission();
-    final post = await LocationService().getCurrentPosition();
-    print(post!.toJson());
-
-    return;
+  Future<void> submitLoginForm() async {
+    final account = state.accountController.text;
+    final password = state.passwordController.text;
+    if(MyUtils.passwordValidator(password) != null 
+        || MyUtils.emailValidator(account) != null 
+        && MyUtils.usernameValidator(account) != null) {
+      return emit(state
+          .copyWith(accountErrorMsg: "Your account doesn't exist."));
+    }
     try {
       emit(state.copyWith(isProcessing: true));
       final isEmail = account.contains('@');
@@ -37,7 +36,8 @@ class LoginCubit extends Cubit<LoginState> {
       if(!isEmail) {
         final user = await userService.getUserByUsername(account);
         if(user == null) {
-          return emit(state.copyWith(accountErrorMsg: "Your username doesn't exist."));
+          return emit(state
+              .copyWith(accountErrorMsg: "Your account doesn't exist."));
         }
         email = user.email;
       }
@@ -46,14 +46,7 @@ class LoginCubit extends Cubit<LoginState> {
           .signInWithEmailAndPassword(email: email, password: password);
       final uid = FirebaseAuth.instance.currentUser!.uid;
       final user = await userService.getUserById(uid);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("uid", uid);
-      await prefs.setString("email", user!.email);
-      await prefs.setString("username", user.username);
-      await prefs.setInt("gender", user.gender.index);
-      await prefs.setInt("height", user.height);
-      await prefs.setDouble("weight", user.weight);
-      await prefs.setString("avatarUrl", user.avatarUrl);
+      await SharedPrefService.createCurrentUser(user!);
       emit(state.copyWith(isProcessing: true, success: true));
     } on FirebaseAuthException catch (e) {
       switch (e.code) {
@@ -77,5 +70,12 @@ class LoginCubit extends Cubit<LoginState> {
       emit(state.copyWith(snackMsg: "Login failed, please try again!"));
       rethrow;
     }
-  } 
+  }
+
+  @override
+  Future<void> close() async {
+    super.close();
+    state.accountController.dispose();
+    state.passwordController.dispose();
+  }
 }

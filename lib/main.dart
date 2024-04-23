@@ -11,6 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'core/resources/style.dart';
 import 'core/services/acceleration_service.dart';
 import 'core/services/location_service.dart';
 import 'core/services/sensor_service.dart';
@@ -182,9 +183,13 @@ class VHealth extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "vHealth",
+      theme: ThemeData().copyWith(
+        colorScheme: ThemeData()
+            .colorScheme.copyWith(primary: AppStyle.primaryColor),
+      ),
       routes: {
-        Routes.home: (context) => const SitePage(),
         Routes.auth: (context) => AuthPage(),
+        Routes.home: (context) => const SitePage(),
         // Routes.auth: (context) => const ActivityRecognition(),
         // Routes.auth: (context) => const LocationWidget(),
       },

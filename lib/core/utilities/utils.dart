@@ -205,39 +205,66 @@ class MyUtils {
 //     return null;
 //   }
 
-  static String? requiredDateField(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Please fill this field";
-    }
-    return null;
-  }
-
   static String? requiredField(String? value) {
     if (value == null || value.isEmpty) {
-      return "Please fill this field";
+      return "Please fill this field.";
     }
     return null;
   }
 
   static String? requiredTextField(String? value) {
     if (value == null || value.isEmpty) {
-      return "Please fill this field";
+      return "Please fill this field.";
     } else if (!onlyCharsAndSpace(value)) {
-      return "Only alphabet characters and space are allowed!";
+      return "Only alphabet characters and space are allowed.";
     }
     return null;
   }
 
+  static String? usernameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please fill this field.";
+    }
+    final regex = RegExp(r'^[A-Za-z0-9_.]+$');
+    if(!regex.hasMatch(value)) return "Invalid characters";
+    final regex2 = RegExp(r'^(?=.*?[a-zA-Z])[A-Za-z0-9_.]{3,}$');
+    if(!regex2.hasMatch(value)) return "Username must contain at least 3 characters and one letter."; 
+    return null;
+  }
+
+  static String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please fill this field.";
+    }
+    final regex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if(!regex.hasMatch(value)) return "Email is invalid.";
+    return null;
+  }
+
+  static String? passwordValidator(String? value) {
+    if(value == null || value.isEmpty) {
+      return "Please fill this field.";
+    }
+    final regex = RegExp(r'^[A-Za-z0-9!@#$%^&*()_+}{:;?.]+$');
+    if(!regex.hasMatch(value)) return "Invalid characters"; 
+    final regex2 = RegExp(
+      r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+}{:;?.])[A-Za-z0-9!@#$%^&*()_+}{:;?]{8,}$'
+    );
+    return regex2.hasMatch(value) 
+        ? null 
+        : "Password must contain at least 8 characters, one lowercase, one uppercase, one number, and one special character.";
+  }
+
   static String? requiredIntField(String? value) {
     if (value == null || value == "0" || value == "") {
-      return "Please fill this field";
+      return "Please fill this field.";
     }
     return null;
   }
 
   static String? requiredDoubleField(String? value) {
     if (value == null || value == "0.0" || value == "") {
-      return "Please fill this field";
+      return "Please fill this field.";
     }
     return null;
   }

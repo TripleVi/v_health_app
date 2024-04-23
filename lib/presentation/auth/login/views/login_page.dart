@@ -1,18 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../core/resources/style.dart';
-import '../../../../core/utilities/utils.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../cubit/login_cubit.dart';
+import "../../../../core/resources/style.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../cubit/login_cubit.dart";
 
 class LoginPage extends StatelessWidget {
-  final _accountController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _loginFormKey = GlobalKey<FormState>();
-
-  LoginPage({super.key});
+  const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,16 +34,22 @@ class LoginPage extends StatelessWidget {
           return Stack(
             children: [
               Scaffold(
-                backgroundColor: AppStyle.surfaceColor,
-                appBar: CustomAppBar.get(
-                  title: "Log in",
-                  leading: GestureDetector(
-                    onTap: () => Navigator.pop<void>(context),
-                    child: const Icon(Icons.arrow_back_rounded, size: 32.0),
+                backgroundColor: AppStyle.backgroundColor,
+                appBar: CustomAppBar.get(title: "Log in"),
+                body: Center(
+                  child: Container(
+                    height: double.infinity,
+                    constraints: const BoxConstraints(maxWidth: 320.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 40.0),
+                          _buildLoginForm(context, state),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                body: SingleChildScrollView(
-                  child: _buildLoginForm(context, state),
                 ),
               ),
               state.isProcessing 
@@ -66,36 +68,18 @@ class LoginPage extends StatelessWidget {
     required String description,
     required GlobalKey<FormState> formKey,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40.0),
-            Text(headline, style: AppStyle.heading1(height: 1.0)),
-            const SizedBox(height: 4.0),
-            Text(description, style: AppStyle.bodyText()),
-            const SizedBox(height: 28.0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: inputs,
-            ),
-          ],
-        ),
+    return Form(
+      key: formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(headline, style: AppStyle.heading3()),
+          const SizedBox(height: 8.0),
+          Text(description, style: AppStyle.caption1()),
+          const SizedBox(height: 32.0),
+          Column(children: inputs),
+        ],
       ),
-    );
-  }
-
-  InputDecoration _getInputDecoration(String labelText, String? errorText) {
-    return InputDecoration(
-      border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
-      labelText: labelText,
-      errorText: errorText,
-      contentPadding: const EdgeInsets.all(20.0),
     );
   }
 
@@ -103,62 +87,80 @@ class LoginPage extends StatelessWidget {
     return _buildPaddedForm(
       headline: "Welcome to vHealth!",
       description: "Let's start by enter your login credential",
-      formKey: _loginFormKey,
+      formKey: state.loginFormKey,
       inputs: [
         TextFormField(
           validator: MyUtils.requiredField,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _accountController,
+          controller: state.accountController,
           keyboardType: TextInputType.text,
-          decoration: _getInputDecoration(
-            "Email or username", 
-            state.accountErrorMsg,
+          style: AppStyle.bodyText(),
+          decoration: InputDecoration(
+            errorMaxLines: 2,
+            border: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            labelText: "Email or username",
+            errorText: state.accountErrorMsg,
           ),
         ),
-        const SizedBox(height: 20.0),
+        const SizedBox(height: 16.0),
         TextFormField(
           obscureText: !state.passwordVisible,
-          validator: MyUtils.requiredTextField,
+          validator: MyUtils.requiredField,
           autovalidateMode: AutovalidateMode.onUserInteraction,
-          controller: _passwordController,
+          controller: state.passwordController,
           keyboardType: TextInputType.visiblePassword,
+          style: AppStyle.bodyText(),
           decoration: InputDecoration(
+            errorMaxLines: 2,
             suffixIcon: GestureDetector(
               onTapUp: (_) => context.read<LoginCubit>().togglePassword(),
               onTapDown: (_) => context.read<LoginCubit>().togglePassword(),
-              onLongPressEnd: (_) =>
-                  context.read<LoginCubit>().togglePassword(),
-              child: state.passwordVisible
-                  ? const Icon(Icons.visibility)
-                  : const Icon(Icons.visibility_off),
+              onLongPressEnd: (_) => context.read<LoginCubit>().togglePassword(),
+              child: Icon(
+                state.passwordVisible ? Icons.visibility : Icons.visibility_off, 
+                size: 24.0,
+                color: AppStyle.secondaryIconColor,
+              ),
             ),
             border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
+            ),
+            enabledBorder: const OutlineInputBorder(
+              borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+              borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
             labelText: "Password",
             errorText: state.passwordErrorMsg,
-            contentPadding: const EdgeInsets.all(20.0),
           ),
         ),
-        const SizedBox(height: 24.0),
+        const SizedBox(height: 32.0),
         GestureDetector(
           onTap: () {},
-          child: Text("Forgot password?", style: AppStyle.heading2(height: 1.0)),
+          child: Text(
+            "Forgot password?", 
+            style: AppStyle.heading5(fontWeight: FontWeight.normal),
+          ),
         ),
-        const SizedBox(height: 24.0),
-        _buildNextButton(() {
-          // if (!_loginFormKey.currentState!.validate()) return;
+        const SizedBox(height: 32.0),
+        submitButton(() async {
+          if (!state.loginFormKey.currentState!.validate()) return;
           MyUtils.closeKeyboard(context);
-          context.read<LoginCubit>().submitLoginForm(
-              _accountController.text, _passwordController.text,
-          );
+          context.read<LoginCubit>().submitLoginForm();
         }),
         const SizedBox(height: 32.0),
       ],
     );
   }
 
-  Widget _buildNextButton(void Function() onPressed) {
+  Widget submitButton(void Function() onPressed) {
     return SizedBox(
       width: double.infinity,
       height: 52.0,
@@ -167,12 +169,12 @@ class LoginPage extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           backgroundColor: AppStyle.primaryColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(AppStyle.borderRadius),
           ),
         ),
         child: Text(
           "Log in",
-          style: AppStyle.heading2(height: 1.0, color: Colors.white),
+          style: AppStyle.heading5(color: Colors.white),
         ),
       ),
     );

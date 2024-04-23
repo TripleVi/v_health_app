@@ -42,8 +42,10 @@ class UserService {
       );
       return User.fromMap(response.data!);
     } on DioException catch (e) {
-      print(e);
-      return null;
+      if(e.response!.statusCode == 404) {
+        return null;
+      }
+      rethrow;
     }
   }
 
@@ -60,8 +62,8 @@ class UserService {
         queryParameters: options,
       );
       user = response.data!.map((e) => User.fromMap(e)).toList(growable: false);
-    } on DioException catch (e) {
-      print(e);
+    } on DioException {
+      rethrow;
     }
     return user;
   }

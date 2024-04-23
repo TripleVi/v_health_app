@@ -6,3 +6,5 @@ sealed class AuthEvent {}
 class SignUpWithGoogle extends AuthEvent {}
 
 class PageSwitched extends AuthEvent {}
+
+class RefreshPage extends AuthEvent {}

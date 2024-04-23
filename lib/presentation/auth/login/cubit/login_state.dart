@@ -1,4 +1,4 @@
-part of 'login_cubit.dart';
+part of "login_cubit.dart";
 
 @immutable
 final class LoginState {
@@ -9,6 +9,10 @@ final class LoginState {
   final String? passwordErrorMsg;
   final String? snackMsg;
 
+  final TextEditingController accountController;
+  final TextEditingController passwordController;
+  final GlobalKey<FormState> loginFormKey;
+
   const LoginState({
     this.passwordVisible = false,
     this.isProcessing = false,
@@ -16,6 +20,9 @@ final class LoginState {
     this.accountErrorMsg,
     this.passwordErrorMsg,
     this.snackMsg,
+    required this.accountController,
+    required this.passwordController,
+    required this.loginFormKey,
   });
 
   LoginState copyWith({
@@ -33,6 +40,9 @@ final class LoginState {
       accountErrorMsg: accountErrorMsg,
       passwordErrorMsg: passwordErrorMsg,
       snackMsg: snackMsg,
+      accountController: accountController,
+      passwordController: passwordController,
+      loginFormKey: loginFormKey,
     );
   }
 }
