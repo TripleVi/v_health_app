@@ -360,7 +360,7 @@ class DailyActivitiesView extends StatelessWidget {
               Expanded(
                 child: metricsItemWidget(
                   content: "Calories burnt",
-                  value: report.calories,
+                  value: report.calories.ceil(),
                   subContent: "${report.goal.calories} kcal",
                   item: Metrics.calorie,
                 ),

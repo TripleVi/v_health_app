@@ -63,7 +63,7 @@ class TrackingParams {
   final double? avgSpeed;
   final double? pace;
   final double? avgPace;
-  final int calories;
+  final double calories;
   final TrackingTarget selectedTarget;
   final double? targetValue;
 
@@ -84,7 +84,7 @@ class TrackingParams {
     double? avgSpeed, 
     double? pace, 
     double? avgPace,  
-    required int calories,
+    required double calories,
   }) {
     return TrackingParams(
       distance: distance,

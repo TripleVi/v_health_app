@@ -1,14 +1,14 @@
-import 'package:matrix2d/matrix2d.dart';
-import 'package:v_health/core/utilities/utils.dart';
-import 'package:v_health/domain/entities/daily_report.dart';
+import "package:matrix2d/matrix2d.dart";
 
-import '../../data/repositories/daily_goal_repo.dart';
-import '../../data/repositories/hourly_report_repo.dart';
-import '../../domain/entities/report.dart';
-import '../../data/repositories/daily_report_repo.dart';
-import '../utilities/constants.dart';
-import 'signal_filter_service.dart';
-import 'shared_pref_service.dart';
+import "../../data/repositories/daily_goal_repo.dart";
+import "../../data/repositories/hourly_report_repo.dart";
+import "../../domain/entities/daily_report.dart";
+import "../../domain/entities/report.dart";
+import "../../data/repositories/daily_report_repo.dart";
+import "../utilities/constants.dart";
+import "../utilities/utils.dart";
+import "signal_filter_service.dart";
+import "shared_pref_service.dart";
 
 class AccelerationService {
   AccelerationService();
@@ -19,10 +19,6 @@ class AccelerationService {
 
   double getRunningStrideByHeight(double height, int gender) {
     return gender == 1 ? height * 1.14 : height * 1.17;
-  }
-
-  double calculateCalories(int walk, int run, int climb_up, int climb_down) {
-    return walk * 0.02 + run * 0.03 + climb_up * 0.04 + climb_down * 0.02;
   }
 
   List<List<List<double>>> _parse(List<List<double>> accelData, double samplingRate) {
@@ -57,11 +53,11 @@ class AccelerationService {
   }) async {
     if(rawAccelData.length < 50) return;
     final desiredData = _process(rawAccelData, samplingRate);
-    final steps = _measureSteps(desiredData);
+    final [steps, activeTime] = _measureStepsAndActiveTime(desiredData);
     if(steps == 0) return;
-    final strideLength = await SharedPrefService.getUserStrideLength();
-    final distance = _measureDistance(steps, strideLength);
-    final calories = (steps * 0.025).round();
+    final user = await SharedPrefService.getCurrentUser();
+    final distance = steps * user.strideLength;
+    final calories = calculateCalories(activeTime, user.weight);
     final today = MyUtils.getDateAtMidnight(date);
     final dailyRepo = DailyReportRepo();
     final hourlyRepo = HourlyReportRepo();
@@ -73,6 +69,7 @@ class AccelerationService {
       ..steps = steps
       ..distance = distance
       ..calories = calories
+      ..activeTime = activeTime
       ..goal = goal;
       newReport.id = await dailyRepo.createDailyReport(newReport);
       dReport = newReport;
@@ -80,7 +77,8 @@ class AccelerationService {
       dReport
       ..steps += steps
       ..calories += calories
-      ..distance += distance;
+      ..distance += distance
+      ..activeTime += activeTime;
       await dailyRepo.updateDailyReport(dReport);
     }
     final utcHour = date.toUtc().hour;
@@ -104,42 +102,16 @@ class AccelerationService {
     List<List<double>> rawAccelData, double samplingRate
   ) async {
     final desiredData = _process(rawAccelData, samplingRate);
-    final steps = _measureSteps(desiredData);
-    final strideLength = await SharedPrefService.getUserStrideLength();
-    final distance = _measureDistance(steps, strideLength);
-    final calories = (steps * 0.025).round();
+    final [steps, activeTime] = _measureStepsAndActiveTime(desiredData);
+    final user = await SharedPrefService.getCurrentUser();
+    final distance = steps * user.strideLength;
+    final calories = calculateCalories(activeTime, user.weight);
     return {
       "steps": steps,
       "distance": distance,
       "calories": calories,
+      "activeTime": activeTime,
     };
-  }
-
-  List<Map<String, dynamic>> test(List<List<double>> rawAccelData, List<DateTime> timeFrames, double samplingRate) {
-    final desiredData = _process(rawAccelData, samplingRate);
-    final data = <Map<String, dynamic>>[];
-    const threshold = 0.09;
-    var steps = 0;
-    var countSteps = true;
-    int i = 0;
-    for (var p in desiredData) {
-      final map = <String, dynamic>{};
-      map["accel"] = p;
-      map["timeFrame"] = timeFrames[i];
-      if(p >= threshold && countSteps) {
-        steps++;
-        countSteps = false;
-        map["step"] = true;
-      }else if(p < 0 && !countSteps) {
-        countSteps = true;
-        map["step"] = false;
-      }else {
-        map["step"] = false;
-      }
-      i++;
-      data.add(map);
-    }
-    return data;
   }
 
   List<double> _process(List<List<double>> rawAccelData, double samplingRate) {
@@ -166,23 +138,30 @@ class AccelerationService {
         .toList(growable: false);
   }
 
-  int _measureSteps(List<double> desiredAccelData) {
+  List<int> _measureStepsAndActiveTime(List<double> desiredData) {
     const threshold = 0.09;
     var steps = 0;
     var countSteps = true;
-    
-    for (var p in desiredAccelData) {
-      if(p >= threshold && countSteps) {
+    var time = 0.0;
+    for (var i = 0; i < desiredData.length; i++) {
+      if(desiredData[i] >= threshold && countSteps) {
         steps++;
         countSteps = false;
-      }else if(p < 0 && !countSteps) {
+        int j = i;
+        int k = i;
+        while (desiredData[--j] >= 0) {}
+        while (k < desiredData.length-1 && desiredData[++k] >= 0) {}
+        while (k < desiredData.length-1 && desiredData[++k] <= 0) {}
+        time += (k - j) / (desiredData.length / 15);
+      }else if(desiredData[i] < 0 && !countSteps) {
         countSteps = true;
       }
     }
-    return steps;
+    return [steps, time.ceil()];
   }
 
-  double _measureDistance(int steps, double userStrideLength) {
-    return steps * userStrideLength;
+  double calculateCalories(int activeTime, double weight) {
+    const walkingMET = 3.8;
+    return activeTime * walkingMET * 3.5 * weight / (200 * 60);
   }
 }

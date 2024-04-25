@@ -173,7 +173,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
       totalCaloriesTarget += r.goal.calories;
       dailySteps.add(r.steps);
       dailyActiveTime.add(r.activeTime);
-      dailyCalories.add(r.calories);
+      // dailyCalories.add(r.calories);
     }
     //! Mockup data
     dailySteps = MyUtils.generateIntList(7, 8000);
@@ -220,7 +220,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     for (var r in reports) {
       dailySteps.add(r.steps);
       dailyActiveTime.add(r.activeTime);
-      dailyCalories.add(r.calories);
+      // dailyCalories.add(r.calories);
     }
     //! Mockup data
     dailySteps = MyUtils.generateIntList(reports.length, 8000);
@@ -264,11 +264,11 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
         //! Mockup data
         d.steps = MyUtils.generateInt(8000);
         d.activeTime = MyUtils.generateInt(400);
-        d.calories = MyUtils.generateInt(800);
+        // d.calories = MyUtils.generateInt(800);
         
         steps += d.steps;
         minutes += d.activeTime;
-        calories += d.calories;
+        // calories += d.calories;
         if(d.steps >= d.goal.steps 
           && d.activeTime >= d.goal.activeTime 
           && d.calories >= d.goal.calories) {

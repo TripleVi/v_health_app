@@ -5,7 +5,6 @@ import 'dart:math' as math;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_activity_recognition/flutter_activity_recognition.dart' as far;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -16,9 +15,10 @@ import '../../../core/enum/activity_category.dart';
 import '../../../core/enum/activity_tracking.dart';
 import '../../../core/services/location_service.dart';
 import '../../../domain/entities/activity_record.dart';
+import '../../../domain/entities/position.dart';
 import '../../../main.dart';
 import '../../widgets/marker_painter.dart';
-import 'activity_tracking.dart';
+import 'fitness_activity.dart';
 import 'cycling_activity.dart';
 import 'running_activity.dart';
 import 'walking_activity.dart';
@@ -108,10 +108,8 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   final _geoPoints = <LatLng>[];
   final _markers = <Marker>{};
   final _photosParams = <PhotoParams>[];
-  Position? _curtPos;
-  StreamSubscription<Position>? _positionSubscriber;
-  StreamSubscription<far.Activity>? _activitySubscriber;
-  ActivityTracking? activity;
+  AppPosition? _curtPos;
+  FitnessActivity? activity;
 
   final _locationService = GetIt.instance<LocationService>();
   final _timeStreamController = StreamController<int>.broadcast();
@@ -145,6 +143,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     on<PhotoMarkerTapped>(_onPhotoMarkerTapped);
     on<PhotoDeleted>(_onPhotoDeleted);
     on<PhotoEdited>(_onPhotoEdited);
+    on<MetricsUpdated>(_onMetricsUpdated);
     on<RefreshScreen>(_onRefreshScreen);
     on<LocationUpdated>(_onLocationUpdated);
     on<CategorySelected>(_onCategorySelected);
@@ -333,26 +332,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     _isProcessing = false;
   }
 
-  Future<void> requestPermissions() async {
-    final activityRecognition = far.FlutterActivityRecognition.instance;
-    var reqResult = await activityRecognition.checkPermission();
-    if(reqResult == far.PermissionRequestResult.PERMANENTLY_DENIED) {
-      return;
-    }else if (reqResult == far.PermissionRequestResult.DENIED) {
-      reqResult = await activityRecognition.requestPermission();
-      if (reqResult != far.PermissionRequestResult.GRANTED) {
-        return;
-      }
-    }
-    _activitySubscriber = activityRecognition.activityStream
-        .listen((event) {
-          print(event.toString());
-          if(state.recState.isRecording && state.category.isCycling && event.type != far.ActivityType.ON_BICYCLE && event.confidence == far.ActivityConfidence.HIGH) {
-            // emit(state)
-          }
-        });
-  }
-
   Future<void> _onDesiredLocation() async {
     //? Accuracy status is precise and first time or location update's interrupted (currentPosition == null).
     //? currentPosition will be equal to 'null' only if it hasn't been initialized yet or tracking encounters errors.
@@ -399,26 +378,28 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     if(state.category.isWalking) {
       activity = WalkingActivity(
         onPositionsAcquired: (positions) {
-          // if(_geoPoints.isEmpty) positions.removeAt(0);
-          // _curtPos = positions.length == 1 ? positions.first : positions.last;
-          // _geoPoints.addAll(positions.map((p) {
-          //   _updateLatLngBounds(p);
-          //   return LatLng(p.latitude, p.longitude);
-          // }));
-          // if(_pageVisibility) add(const LocationUpdated());  
+          if(_geoPoints.isEmpty) positions.removeAt(0);
+          _curtPos = positions.length == 1 ? positions.first : positions.last;
+          _geoPoints.addAll(positions.map((p) {
+            _updateLatLngBounds(p);
+            return LatLng(p.latitude, p.longitude);
+          }));
+          if(_pageVisibility) add(const LocationUpdated());  
         },
         onMetricsUpdated: () {
-          // if(_pageVisibility) add(const LocationUpdated());
-          // emit(state.copyWith(
-          //   trackingParams: state.trackingParams.copyWith(
-          //     distance: activity!.totalDistance,
-          //     speed: activity!.instantSpeed,
-          //     avgSpeed: activity!.avgSpeed,
-          //     pace: activity!.instantPace,
-          //     avgPace: activity!.avgPace,
-          //     calories: activity!.totalCalories,
-          //   ),
-          // ));
+          final temp = activity as WalkingActivity;
+          if(_pageVisibility) {
+            add(MetricsUpdated(TrackingParams(
+              distance: temp.totalDistance,
+              speed: temp.instantSpeed,
+              avgSpeed: temp.avgSpeed,
+              pace: temp.instantPace,
+              avgPace: temp.avgPace,
+              calories: temp.totalCalories,
+              selectedTarget: state.trackingParams.selectedTarget,
+              targetValue: state.trackingParams.targetValue,
+            )));
+          }
         },
       );
     }else if(state.category.isRunning) {
@@ -495,11 +476,11 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
-    // ..workoutDuration = 
-    ..distance = activity!.totalDistance
-    ..avgSpeed = activity!.avgSpeed
-    ..maxSpeed = activity!.maxSpeed
-    ..calories = activity!.totalCalories;
+    // ..workoutDuration = (activity as WalkingActivity).
+    ..distance = (activity as WalkingActivity).totalDistance
+    ..avgSpeed = (activity as WalkingActivity).avgSpeed
+    ..maxSpeed = (activity as WalkingActivity).maxSpeed
+    ..calories = (activity as WalkingActivity).totalCalories;
     emit(state.copyWith(
       result: TrackingResult(
         geoPoints: _geoPoints,
@@ -544,7 +525,14 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     RefreshScreen event,
     Emitter<ActivityTrackingState> emit,
   ) {
-    emit(state.copyWith(isLocationAvail: _isLocationAvail));
+    emit(state.copyWith());
+  }
+
+  void _onMetricsUpdated(
+    MetricsUpdated event,
+    Emitter<ActivityTrackingState> emit,
+  ) {
+    emit(state.copyWith(trackingParams: event.params));
   }
 
   void _onPhotoEdited(
@@ -640,7 +628,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     );
   }
 
-  void _updateLatLngBounds(Position position) {
+  void _updateLatLngBounds(AppPosition position) {
     _topMost = math.max(_topMost, position.latitude);
     _rightMost = math.max(_rightMost, position.longitude);
     _bottomMost = math.min(_bottomMost, position.latitude);
@@ -657,8 +645,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   @override
   Future<void> close() async {
     super.close();
-    await _positionSubscriber?.cancel();
-    await _activitySubscriber?.cancel();
     await _timeStreamController.close();
     WidgetsBinding.instance.removeObserver(this);
   }

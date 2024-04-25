@@ -2,7 +2,7 @@ class WorkoutData {
   double speed;
   double distance;
   int steps;
-  double calories;
+  int calories;
   int timeFrame;
 
   WorkoutData({

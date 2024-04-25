@@ -1,7 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import "package:shared_preferences/shared_preferences.dart";
 
-import '../../domain/entities/user.dart';
-import '../enum/user_enum.dart';
+import "../../domain/entities/user.dart";
+import "../enum/user_enum.dart";
 
 class SharedPrefService {
   SharedPrefService();
@@ -13,7 +13,7 @@ class SharedPrefService {
     ..email = prefs.getString("email")!
     ..username = prefs.getString("username")!
     ..gender = UserGender.values[prefs.getInt("gender")!]
-    // ..height = prefs.getInt("height")!
+    ..height = prefs.getInt("height")!
     ..weight = prefs.getDouble("weight")!
     ..avatarUrl = prefs.getString("avatarUrl")!;
     return user;
@@ -28,17 +28,6 @@ class SharedPrefService {
     await prefs.setInt("height", user.height);
     await prefs.setDouble("weight", user.weight);
     await prefs.setString("avatarUrl", user.avatarUrl);
-  }
-
-  static Future<double> getUserStrideLength() async {
-    final user = await getCurrentUser();
-    // m
-    //? 0: male, 1: female
-    const multipliers = [0.415, 0.413];
-    // return user.gender.isOther
-    //     ? multipliers.sum / multipliers.length * user.height
-    //     : multipliers[user.gender.index] * user.height;
-    return multipliers[user.gender.index] * user.height;
   }
 
   static Future<void> removeCurrentUser() async {

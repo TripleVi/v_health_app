@@ -16,7 +16,7 @@ const createDailyReportTable =
     "${DailyReportFields.steps} INTEGER NOT NULL, "
     "${DailyReportFields.distance} REAL NOT NULL, "
     "${DailyReportFields.activeTime} INTEGER NOT NULL, "
-    "${DailyReportFields.calories} INTEGER NOT NULL, "
+    "${DailyReportFields.calories} REAL NOT NULL, "
     "${DailyReportFields.goalId} INTEGER NOT NULL REFERENCES ${DailyGoalFields.container}(${DailyGoalFields.id}) ON UPDATE CASCADE)";
 
 const createHourlyReportTable =
@@ -25,7 +25,7 @@ const createHourlyReportTable =
     "${HourlyReportFields.hour} INTEGER NOT NULL, "
     "${HourlyReportFields.steps} INTEGER NOT NULL, "
     "${HourlyReportFields.distance} REAL NOT NULL, "
-    "${HourlyReportFields.calories} INTEGER NOT NULL, "
+    "${HourlyReportFields.calories} REAL NOT NULL, "
     "${HourlyReportFields.dayId} INTEGER NOT NULL REFERENCES ${DailyReportFields.container}(${DailyReportFields.id}) ON UPDATE CASCADE)";
 
 const createAccelDataTable =

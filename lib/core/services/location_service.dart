@@ -2,59 +2,10 @@ import "dart:async";
 
 import "package:geolocator/geolocator.dart";
 
-class PermissionResponse {
-  final bool isServiceEnabled;
-  final LocationAccuracyStatus accuracyStatus;
-  final LocationPermission permission;
-
-  PermissionResponse({
-    this.isServiceEnabled = false,
-    this.accuracyStatus = LocationAccuracyStatus.reduced,
-    this.permission = LocationPermission.deniedForever,
-  });
-
-  bool get isPrecise => accuracyStatus == LocationAccuracyStatus.precise;
-  bool get isDenied => permission == LocationPermission.denied;
-  bool get isDeniedForever => permission == LocationPermission.deniedForever;
-} 
+import "../../domain/entities/position.dart";
 
 class LocationService {
   LocationService();
-
-  Future<PermissionResponse> requestPermission() async {
-    final isServiceEnabled = await Geolocator.isLocationServiceEnabled();
-    if(!isServiceEnabled) {
-      return PermissionResponse();
-    }
-
-    var permission = await Geolocator.checkPermission();
-    if(permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if(permission == LocationPermission.denied) {
-        return PermissionResponse(
-          isServiceEnabled: isServiceEnabled,
-          permission: permission,
-        );
-      }
-    }
-    if(permission == LocationPermission.deniedForever) {
-      return PermissionResponse(
-        isServiceEnabled: isServiceEnabled,
-        permission: permission,
-      );
-    }
-    
-    var accuracyStatus = await Geolocator.getLocationAccuracy();
-    if(accuracyStatus != LocationAccuracyStatus.precise) {
-      await Geolocator.requestPermission();
-    }
-    accuracyStatus = await Geolocator.getLocationAccuracy();
-    return PermissionResponse(
-      isServiceEnabled: isServiceEnabled,
-      permission: permission,
-      accuracyStatus: accuracyStatus,
-    );
-  }
 
   static Future<void> openLocationSettings() {
     return Geolocator.openLocationSettings();
@@ -64,11 +15,12 @@ class LocationService {
     return Geolocator.openAppSettings();
   }
 
-  Future<Position?> getCurrentPosition() async {
+  Future<AppPosition?> getCurrentPosition() async {
     try {
-      return Geolocator.getCurrentPosition(
+      final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
       );
+      return AppPosition(pos.latitude, pos.longitude, pos.accuracy);
     } on LocationServiceDisabledException {
       return null;
     } catch (e) {

@@ -22,7 +22,7 @@ class StatisticsCubit extends Cubit<StatisticsState> {
     for (var i = 0; i < 7; i++) {
       reports[i].steps = dailySteps[i];
       reports[i].activeTime = dailyActiveTime[i];
-      reports[i].calories = dailyCalories[i];
+      // reports[i].calories = dailyCalories[i];
     }
 
     emit(StatisticsLoaded(

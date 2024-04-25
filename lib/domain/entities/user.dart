@@ -27,6 +27,16 @@ class User {
     required this.avatarUrl,
   });
 
+  double get strideLength {
+    //? 0: male, 1: female
+    const multipliers = [0.415, 0.413];
+    // return user.gender.isOther
+    //     ? multipliers.sum / multipliers.length * user.height
+    //     : multipliers[user.gender.index] * user.height;
+    //? convert cm to m 
+    return multipliers[gender.index] * height / 100;
+  }
+
   factory User.empty() {
     return User(uid: "", username: "", password: "", firstName: "", lastName: "", dateOfBirth: "", gender: UserGender.male, weight: 0.0, height: 170, avatarUrl: "", email: "");
   }

@@ -68,7 +68,7 @@ class CalendarCubit extends Cubit<CalendarState> {
         final monthlyCalories = MyUtils.generateIntList(reports.length, 800);
         reports[i].steps = monthlySteps[i];
         reports[i].activeTime = monthlyActiveTime[i];
-        reports[i].calories = monthlyCalories[i];
+        // reports[i].calories = monthlyCalories[i];
       }
       monthlyReports.add(reports);
     }

@@ -11,7 +11,7 @@ class DailyReport {
   // minute
   int activeTime;
   // cal
-  int calories;
+  double calories;
   DailyGoal goal;
 
   DailyReport({
