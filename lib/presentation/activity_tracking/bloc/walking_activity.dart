@@ -16,6 +16,7 @@ class WalkingActivity extends FitnessActivity {
   double maxPace = 0.0;
   double totalCalories = 0;
   int totalSteps = 0;
+  int activeTime = 0;
   List<WorkoutData> workoutData = [];
   StreamSubscription? accelListener;
   StreamSubscription? locationListener;
@@ -29,6 +30,7 @@ class WalkingActivity extends FitnessActivity {
 
   @override
   void startRecording() {
+    super.startRecording();
     backgroundService.invoke("trackingSessionCreated");
     handleLocationUpdates();
     handleAccelerationUpdate();
@@ -49,14 +51,14 @@ class WalkingActivity extends FitnessActivity {
   void handleAccelerationUpdate() {
     backgroundService.invoke("accelUpdates");
     accelListener = backgroundService.on("accelAcquired").listen((event) async {
-      var totalDistance = 0.0, totalCalories = 0, totalSteps = 0;
+      var totalDistance = 0.0, totalCalories = 0.0, totalSteps = 0, duration = 0;
       var maxSpeed = 0;
       for (var e in event!["data"]) {
         final speed = e["speed"] * 1.0; // m/s
         final steps = e["steps"] as int;
-        final calories = e["calories"] as int; // kcal
+        final calories = e["calories"] * 1.0; // kcal
         final distance = e["distance"] * 1.0; // m
-        final timeFrame = e["timeFrame"]; // s
+        duration += e["activeTime"] as int; // s
         totalDistance += distance;
         totalCalories += calories;
         totalSteps += steps;
@@ -66,14 +68,15 @@ class WalkingActivity extends FitnessActivity {
           distance: distance,
           steps: steps,
           calories: totalCalories,
-          timeFrame: timeFrame,
+          activeTime: activeTime+duration,
         ));
       }
       this.totalDistance += totalDistance;
       this.totalSteps += totalSteps;
       this.totalCalories += totalCalories;
+      activeTime += duration;
       instantSpeed = event["data"].last["speed"];
-      avgSpeed = totalDistance / workoutData.last.timeFrame;
+      avgSpeed = totalDistance / duration;
       avgPace = 1 / avgSpeed;
       maxPace = 1 / maxSpeed;
       onMetricsUpdated();
@@ -82,13 +85,15 @@ class WalkingActivity extends FitnessActivity {
 
   @override
   void pauseRecording() {
+    super.pauseRecording();
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "paused"
     });
-  } 
+  }
 
   @override
   void resumeRecording() {
+    super.resumeRecording();
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "resumed"
     });
@@ -96,10 +101,10 @@ class WalkingActivity extends FitnessActivity {
 
   @override
   void stopRecording() {
+    super.stopRecording();
     backgroundService.invoke("trackingStatesUpdated", {
       "state": "stopped"
     });
-
     accelListener!.cancel();
     locationListener!.cancel();
   }

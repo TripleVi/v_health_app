@@ -2,15 +2,15 @@ class WorkoutData {
   double speed;
   double distance;
   int steps;
-  int calories;
-  int timeFrame;
+  double calories;
+  int activeTime;
 
   WorkoutData({
     required this.speed,
     required this.distance,
     required this.steps,
     required this.calories,
-    required this.timeFrame,
+    required this.activeTime,
   });
 
   // factory WorkoutData.empty() {
@@ -21,12 +21,12 @@ class WorkoutData {
     return {
       "speed": speed,
       "distance": distance,
-      "timeFrame": timeFrame,
+      "activeTime": activeTime,
     };
   }
 
   @override
   String toString() {
-    return "WorkoutData{speed: $speed, distance: $distance, timeFrame: $timeFrame}";
+    return "WorkoutData{speed: $speed, distance: $distance, activeTime: $activeTime}";
   }
 }

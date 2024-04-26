@@ -378,7 +378,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     if(state.category.isWalking) {
       activity = WalkingActivity(
         onPositionsAcquired: (positions) {
-          if(_geoPoints.isEmpty) positions.removeAt(0);
           _curtPos = positions.length == 1 ? positions.first : positions.last;
           _geoPoints.addAll(positions.map((p) {
             _updateLatLngBounds(p);
@@ -405,7 +404,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     }else if(state.category.isRunning) {
       // activity = RunningActivity();
     }else if(state.category.isCycling) {
-      // activity = CyclingActivity();
+      activity = CyclingActivity(
+        onPositionsAcquired: (positions) {
+          _curtPos = positions.length == 1 ? positions.first : positions.last;
+          _geoPoints.addAll(positions.map((p) {
+            _updateLatLngBounds(p);
+            return LatLng(p.latitude, p.longitude);
+          }));
+          if(_pageVisibility) add(const LocationUpdated()); 
+        },
+      );
     }
   }
 
@@ -476,7 +484,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
-    // ..workoutDuration = (activity as WalkingActivity).
+    ..activeTime = (activity as WalkingActivity).activeTime
     ..distance = (activity as WalkingActivity).totalDistance
     ..avgSpeed = (activity as WalkingActivity).avgSpeed
     ..maxSpeed = (activity as WalkingActivity).maxSpeed

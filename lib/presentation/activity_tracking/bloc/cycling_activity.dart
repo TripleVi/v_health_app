@@ -1,76 +1,101 @@
-// import 'package:geolocator/geolocator.dart';
+import "dart:async";
+import "dart:math" as math;
 
-// import 'activity_tracking.dart';
+import "../../../core/services/shared_pref_service.dart";
+import "../../../core/utilities/constants.dart";
+import "../../../domain/entities/position.dart";
+import "../../../domain/entities/workout_data.dart";
+import "../../../main.dart";
+import "fitness_activity.dart";
 
-// class CyclingActivity extends ActivityTracking {
-//   Position? curt;
+class CyclingActivity extends FitnessActivity {
+  double totalDistance = 0.0;
+  double? instantSpeed;
+  double avgSpeed = 0.0;
+  double maxSpeed = 0.0;
+  double totalCalories = 0;
+  int activeTime = 0;
+  List<WorkoutData> workoutData = [];
+  StreamSubscription? locationListener;
+  void Function(List<AppPosition>) onPositionsAcquired;
 
-//   @override
-//   void startRecording({
-//     required void Function() onMetricsUpdated, 
-//     required void Function(List<Position> positions) onPositionsAcquired,
-//   }) {
-//     initSession();
-//     handleLocationUpdates((positions) {
-//       Position? prev;
-//       if(positions.length == 1) {
-//         prev = curt;
-//         curt = positions.first;
-//       }else {
-//         curt = positions.last;
-//         prev = positions[positions.length-1-1];
-//       }
-//       updateMetrics({
-//         "prev": prev,
-//         "curt": curt,
-//       });
-//       onPositionsAcquired(positions);
-//     });
-//     onMetricsUpdated();
-//   }
+  CyclingActivity({
+    required this.onPositionsAcquired,
+  });
 
-//   @override
-//   void updateMetrics(Map<String, dynamic> metrics) {
-//     final prev = metrics["prev"] as Position;
-//     final curt = metrics["curt"] as Position;
-//     // m
-//     final distance = Geolocator.distanceBetween(
-//       prev.latitude, prev.longitude,
-//       curt.latitude, curt.longitude,
-//     );
-//     totalDistance += distance;
-//     // s
-//     final duration = curt.timestamp!.difference(prev.timestamp!).inSeconds;
-//     // m/s
-//     instantSpeed = distance / duration;
-//     final time = curt.timestamp!.difference(startDate).inSeconds;
-//     avgSpeed = totalDistance / time;
-//     if(instantSpeed! > maxSpeed) {
-//       maxSpeed = instantSpeed!;
-//     }
-//     // s/m
-//     instantPace = duration / distance;
-//     avgPace = time / totalDistance;
-//     if(instantPace! > maxPace) {
-//       maxPace = instantPace!;
-//     }
-//     // final user = await userFuture;
-//     var mETs = 0.0;
-//     if(instantSpeed! >= 8.95) {
-//       mETs = 15.8;
-//     }else if(instantSpeed! >= 6.7) {
-//       mETs = 10;
-//     }else if(instantSpeed! >= 5.4) {
-//       mETs = 8.5;
-//     }else if(instantSpeed! >= 4.5) {
-//       mETs = 6.8;
-//     }else if(instantSpeed! >= 3.5) {
-//       mETs = 5.8;
-//     }else if(instantSpeed! >= 2.5) {
-//       mETs = 3.5;
-//     }
-//     // kcal
-//     // final calories = mETs * user.weight * (duration/3600);
-//     // totalCalories += calories.round();
-//   }
-// }
+  @override
+  void startRecording() {
+    super.startRecording();
+    backgroundService.invoke("trackingSessionCreated");
+    handleLocationUpdates();
+  }
+
+  @override
+  void pauseRecording() {
+    super.pauseRecording();
+    backgroundService.invoke("trackingStatesUpdated", {
+      "state": "paused"
+    });
+  } 
+
+  @override
+  void resumeRecording() {
+    super.resumeRecording();
+    backgroundService.invoke("trackingStatesUpdated", {
+      "state": "resumed"
+    });
+  }
+
+  @override
+  void stopRecording() {
+    super.stopRecording();
+    backgroundService.invoke("trackingStatesUpdated", {
+      "state": "stopped"
+    });
+    locationListener!.cancel();
+  }
+
+  void handleLocationUpdates() {
+    backgroundService.invoke("locationUpdates");
+    locationListener = backgroundService.on("positionsAcquired").listen(
+      (event) async {
+        final positions = (event!["data"] as List)
+            .map((e) => AppPosition.fromMap(e)).toList();
+        // remove initial position
+        if(workoutData.isEmpty) {
+          positions.removeAt(0);
+        }
+        final user = await SharedPrefService.getCurrentUser();
+        var time = 0;
+        final distance = Constants.distance * positions.length;
+        for (var i = 1; i < positions.length; i++) {
+          final duration = positions[i].timestamp
+              .difference(positions[i-1].timestamp).inSeconds;
+          final speed = distance / duration;
+          if(i == positions.length-1) {
+            instantSpeed = speed;
+          }
+          math.max(maxSpeed, speed);
+          time += duration;
+          workoutData.add(WorkoutData(
+            speed: speed,
+            distance: distance + totalDistance,
+            steps: 0,
+            calories: totalCalories + calculateCalories(time, user.weight),
+            activeTime: duration + activeTime,
+          ));
+        }
+        avgSpeed = (avgSpeed + distance / time) / 2;
+        totalDistance += distance;
+        activeTime += time;
+        totalCalories += calculateCalories(time, user.weight); 
+        onPositionsAcquired(positions);
+      },
+    );
+  }
+
+  double calculateCalories(int time, double weight) {
+    const cyclingMET = 9.5;
+    return time * cyclingMET * 3.5 * weight / (200 * 60);
+  }
+}

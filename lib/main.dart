@@ -1,43 +1,42 @@
-import 'dart:async';
-import 'dart:ui';
+import "dart:async";
+import "dart:ui";
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:permission_handler/permission_handler.dart';
+import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
+import "package:firebase_core/firebase_core.dart";
+import "package:flutter/services.dart";
+import "package:flutter_background_service/flutter_background_service.dart";
+import "package:flutter_dotenv/flutter_dotenv.dart";
+import "package:geolocator/geolocator.dart";
+import "package:permission_handler/permission_handler.dart";
 
-import 'core/resources/style.dart';
-import 'core/services/acceleration_service.dart';
-import 'core/services/location_service.dart';
-import 'core/services/sensor_service.dart';
-import 'firebase_options.dart';
-import 'injector.dart';
-import 'presentation/auth/auth_page.dart';
-import 'presentation/site/views/site_page.dart';
+import "core/resources/style.dart";
+import "core/services/acceleration_service.dart";
+import "core/services/location_service.dart";
+import "core/services/sensor_service.dart";
+import "core/utilities/constants.dart";
+import "firebase_options.dart";
+import "injector.dart";
+import "presentation/auth/auth_page.dart";
+import "presentation/site/views/site_page.dart";
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-  // var rawAccelData = <List<double>>[];
-  // final stream = await SensorService().accelerometerEvents();
-  // stream.listen((event) {
-  //   rawAccelData.add(event);
-  // });
-  // const inactiveInterval = 15;
-  // Timer.periodic(const Duration(seconds: inactiveInterval), (_) async {
-  //   final temp = rawAccelData.toList(growable: false);
-  //   rawAccelData.clear();
-  //   final service = ClassificationService();
-  //   await service.updateReports(
-  //     rawAccelData: temp, 
-  //     date: DateTime.now(),
-  //     samplingRate: temp.length/inactiveInterval,
-  //   );
-  // });
+  var rawAccelData = <List<double>>[];
+  final stream = await SensorService().accelerometerEvents();
+  stream.listen((event) {
+    rawAccelData.add(event);
+  });
+  Timer.periodic(const Duration(seconds: Constants.inactiveInterval), (_) async {
+    final temp = rawAccelData;
+    rawAccelData = [];
+    final service = AccelerationService();
+    await service.updateReports(
+      rawAccelData: temp, 
+      date: DateTime.now(),
+    );
+  });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;
@@ -58,6 +57,7 @@ void onStart(ServiceInstance service) async {
               "latitude": p.latitude,
               "longitude": p.longitude,
               "accuracy": p.accuracy,
+              "timestamp": p.timestamp,
             });
           }
           if(positions.isEmpty) {
@@ -91,22 +91,19 @@ void onStart(ServiceInstance service) async {
         final stream = await SensorService().accelerometerEvents();
         return stream.listen(signals.add);
       }
-      var secondsElapsed = 0;
       Timer timerHelper() {
-        return Timer.periodic(const Duration(seconds: activeInterval), (_) async {
-          final accelTemp = signals;
-          signals = [];
-          secondsElapsed += 5;
-          final accelService = AccelerationService();
-          final result = await accelService
-              .analyze(signals, accelTemp.length/activeInterval);
-          result["speed"] = result["distance"] / activeInterval;
-          result["timeFrame"] = secondsElapsed;
-          accelAnalyzed.add(result);
-          if(backgroundMode) return;
-          service.invoke("accelAcquired", {"data": accelAnalyzed});
-          accelAnalyzed = [];
-        });
+        return Timer.periodic(
+            const Duration(seconds: Constants.activeInterval), (_) async {
+              final accelTemp = signals;
+              signals = [];
+              final accelService = AccelerationService();
+              final result = await accelService.analyze(accelTemp);
+              if(result["steps"] == 0) return;
+              accelAnalyzed.add(result);
+              if(backgroundMode) return;
+              service.invoke("accelAcquired", {"data": accelAnalyzed});
+              accelAnalyzed = [];
+            });
       }
 
       accelListener = await accelUpdatesHelper();
@@ -149,7 +146,6 @@ void onStart(ServiceInstance service) async {
 }
 
 final backgroundService = FlutterBackgroundService();
-const activeInterval = 5; // seconds
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

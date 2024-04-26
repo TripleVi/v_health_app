@@ -48,12 +48,13 @@ class AccelerationService {
 
   Future<void> updateReports({
     required List<List<double>> rawAccelData, 
-    required double samplingRate,
     required DateTime date,
   }) async {
     if(rawAccelData.length < 50) return;
-    final desiredData = _process(rawAccelData, samplingRate);
-    final [steps, activeTime] = _measureStepsAndActiveTime(desiredData);
+    final desiredData = _process(
+        rawAccelData, rawAccelData.length/Constants.inactiveInterval);
+    final [steps, activeTime] = _measureStepsAndActiveTime(
+        Constants.inactiveInterval, desiredData);
     if(steps == 0) return;
     final user = await SharedPrefService.getCurrentUser();
     final distance = steps * user.strideLength;
@@ -98,11 +99,12 @@ class AccelerationService {
     }
   }
 
-  Future<Map<String, dynamic>> analyze(
-    List<List<double>> rawAccelData, double samplingRate
-  ) async {
-    final desiredData = _process(rawAccelData, samplingRate);
-    final [steps, activeTime] = _measureStepsAndActiveTime(desiredData);
+  Future<Map<String, dynamic>> analyze(List<List<double>> rawAccelData) async {
+    if(rawAccelData.length < 50) throw "Not enough data for analysis";
+    final desiredData = _process(
+        rawAccelData, rawAccelData.length/Constants.activeInterval);
+    final [steps, activeTime] = _measureStepsAndActiveTime(
+        Constants.activeInterval, desiredData);
     final user = await SharedPrefService.getCurrentUser();
     final distance = steps * user.strideLength;
     final calories = calculateCalories(activeTime, user.weight);
@@ -111,6 +113,7 @@ class AccelerationService {
       "distance": distance,
       "calories": calories,
       "activeTime": activeTime,
+      "speed": distance/activeTime,
     };
   }
 
@@ -138,11 +141,11 @@ class AccelerationService {
         .toList(growable: false);
   }
 
-  List<int> _measureStepsAndActiveTime(List<double> desiredData) {
+  List<int> _measureStepsAndActiveTime(int time, List<double> desiredData) {
     const threshold = 0.09;
     var steps = 0;
     var countSteps = true;
-    var time = 0.0;
+    var activeTime = 0.0;
     for (var i = 0; i < desiredData.length; i++) {
       if(desiredData[i] >= threshold && countSteps) {
         steps++;
@@ -152,12 +155,12 @@ class AccelerationService {
         while (desiredData[--j] >= 0) {}
         while (k < desiredData.length-1 && desiredData[++k] >= 0) {}
         while (k < desiredData.length-1 && desiredData[++k] <= 0) {}
-        time += (k - j) / (desiredData.length / 15);
+        activeTime += (k - j) / (desiredData.length / time);
       }else if(desiredData[i] < 0 && !countSteps) {
         countSteps = true;
       }
     }
-    return [steps, time.ceil()];
+    return [steps, activeTime.ceil()];
   }
 
   double calculateCalories(int activeTime, double weight) {

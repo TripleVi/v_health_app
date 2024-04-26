@@ -6,7 +6,6 @@ final class LoginState {
   final bool isProcessing;
   final bool success;
   final String? accountErrorMsg;
-  final String? passwordErrorMsg;
   final String? snackMsg;
 
   final TextEditingController accountController;
@@ -18,7 +17,6 @@ final class LoginState {
     this.isProcessing = false,
     this.success = false,
     this.accountErrorMsg,
-    this.passwordErrorMsg,
     this.snackMsg,
     required this.accountController,
     required this.passwordController,
@@ -30,7 +28,6 @@ final class LoginState {
     bool isProcessing = false,
     bool success = false,
     String? accountErrorMsg,
-    String? passwordErrorMsg,
     String? snackMsg,
   }) {
     return LoginState(
@@ -38,7 +35,6 @@ final class LoginState {
       isProcessing: isProcessing,
       success: success,
       accountErrorMsg: accountErrorMsg,
-      passwordErrorMsg: passwordErrorMsg,
       snackMsg: snackMsg,
       accountController: accountController,
       passwordController: passwordController,

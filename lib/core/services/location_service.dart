@@ -20,7 +20,7 @@ class LocationService {
       final pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
       );
-      return AppPosition(pos.latitude, pos.longitude, pos.accuracy);
+      return AppPosition(pos.latitude, pos.longitude, pos.accuracy, pos.timestamp);
     } on LocationServiceDisabledException {
       return null;
     } catch (e) {

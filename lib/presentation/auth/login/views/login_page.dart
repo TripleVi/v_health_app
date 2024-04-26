@@ -18,6 +18,9 @@ class LoginPage extends StatelessWidget {
         listener: (context, state) {
           if(state.snackMsg != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: AppStyle.surfaceColor,
+              showCloseIcon: true,
+              closeIconColor: AppStyle.secondaryIconColor,
               content: Text(
                 state.snackMsg!,
                 style: AppStyle.bodyText(),
@@ -138,7 +141,6 @@ class LoginPage extends StatelessWidget {
               borderSide: BorderSide(color: AppStyle.neutralColor400),
             ),
             labelText: "Password",
-            errorText: state.passwordErrorMsg,
           ),
         ),
         const SizedBox(height: 32.0),

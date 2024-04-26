@@ -160,7 +160,7 @@ class DetailsView extends StatelessWidget {
                 LineSeries<WorkoutData, String>(
                   color: AppStyle.primaryColor,
                   dataSource:  data,
-                  xValueMapper: (datum, index) => "${(datum.timeFrame/1000/60)}",
+                  xValueMapper: (datum, index) => "${(datum.activeTime/1000/60)}",
                   yValueMapper: (datum, index) => datum.speed,
                   // dataLabelSettings: const DataLabelSettings(isVisible: true)
                 ),
