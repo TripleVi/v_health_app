@@ -60,7 +60,7 @@ class ActivityTrackingState {
 class TrackingParams {
   final double distance;
   final double? speed;
-  final double? avgSpeed;
+  final double avgSpeed;
   final double? pace;
   final double? avgPace;
   final double calories;
@@ -70,7 +70,7 @@ class TrackingParams {
   const TrackingParams({
     this.distance = 0.0, 
     this.speed, 
-    this.avgSpeed, 
+    this.avgSpeed = 0.0, 
     this.pace, 
     this.avgPace, 
     this.calories = 0,
@@ -81,7 +81,7 @@ class TrackingParams {
   TrackingParams copyWith({
     required double distance, 
     double? speed, 
-    double? avgSpeed, 
+    required double avgSpeed, 
     double? pace, 
     double? avgPace,  
     required double calories,

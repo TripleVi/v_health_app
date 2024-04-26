@@ -42,7 +42,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     final maxCalories = hourlyCalories.max().first;
     report.steps = hourlySteps.sum;
     report.activeTime = hourlyActiveTime.sum;
-    report.calories = hourlyCalories.sum;
+    report.calories = hourlyCalories.sum*1.0;
     emit(DailyActivitiesLoaded(
       report: report,
       hourlySteps: hourlySteps,

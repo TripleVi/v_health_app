@@ -1,26 +1,26 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:v_health/core/enum/bottom_navbar.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:flutter_svg/flutter_svg.dart";
+import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:v_health/core/enum/bottom_navbar.dart";
 
-import '../../../core/enum/activity_category.dart';
-import '../../../core/enum/activity_tracking.dart';
-import '../../../core/enum/metrics.dart';
-import '../../../core/resources/style.dart';
-import '../../../core/utilities/utils.dart';
-import '../../camera/views/camera_page.dart';
-import '../../site/bloc/site_bloc.dart';
-import '../../widgets/app_bar.dart';
-import '../../widgets/dialog.dart';
-import '../bloc/activity_tracking_bloc.dart';
-import '../../widgets/image_page.dart';
-import '../saving/view/saving_page.dart';
-import 'time_counter.dart';
-import 'metrics_page.dart';
+import "../../../core/enum/activity_category.dart";
+import "../../../core/enum/activity_tracking.dart";
+import "../../../core/enum/metrics.dart";
+import "../../../core/resources/style.dart";
+import "../../../core/utilities/utils.dart";
+import "../../camera/views/camera_page.dart";
+import "../../site/bloc/site_bloc.dart";
+import "../../widgets/app_bar.dart";
+import "../../widgets/dialog.dart";
+import "../bloc/activity_tracking_bloc.dart";
+import "../../widgets/image_page.dart";
+import "../saving/view/saving_page.dart";
+import "time_counter.dart";
+import "metrics_page.dart";
 
 class TrackingPage extends StatelessWidget {
   const TrackingPage({super.key});
@@ -77,40 +77,33 @@ class TrackingView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceColor,
+      backgroundColor: AppStyle.backgroundColor,
       appBar: CustomAppBar.get(
         title: "Tracking",
         leading: _backBtn(context),
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppStyle.neutralColor400),
-          ),
-        ),
-        child: BlocConsumer<ActivityTrackingBloc, ActivityTrackingState>(
-          listener: (blocContext, state) {
-            if (state.request != null) {
-              MyDialog.showTwoOptionsDialog(
-                context: context, 
-                title: state.request!.title, 
-                message: state.request!.description,
-                yesButtonName: "OPEN"
-              ).then((value) {
-                if (value!) {
-                  state.request!.openSettings();
-                }
-              });
-            } else if (state.result != null) {
-              _navigateToSavingPage(context, state.result!);
-            } else if (state.photo != null) {
-              _openImageView(context, state);
-            }
-          },
-          builder: (blocContext, state) {
-            return _buildMainContent(blocContext, state);
-          },
-        ),
+      body: BlocConsumer<ActivityTrackingBloc, ActivityTrackingState>(
+        listener: (blocContext, state) {
+          if (state.request != null) {
+            MyDialog.showTwoOptionsDialog(
+              context: context, 
+              title: state.request!.title, 
+              message: state.request!.description,
+              yesButtonName: "OPEN"
+            ).then((value) {
+              if (value!) {
+                state.request!.openSettings();
+              }
+            });
+          } else if (state.result != null) {
+            _navigateToSavingPage(context, state.result!);
+          } else if (state.photo != null) {
+            _openImageView(context, state);
+          }
+        },
+        builder: (blocContext, state) {
+          return _buildMainContent(blocContext, state);
+        },
       ),
     );
   }
@@ -118,12 +111,7 @@ class TrackingView extends StatelessWidget {
   Widget _backBtn(BuildContext context) {
     return TextButton(
       onPressed: () => context.read<SiteBloc>().add(PreviousTapShown()),
-      child: Text("Hide", 
-        style: AppStyle.bodyText(
-          color: AppStyle.neutralColor400,
-          height: 1.0,
-        ),
-      ),
+      child: Text("Hide", style: AppStyle.caption1(height: 1.0)),
     );
   }
 

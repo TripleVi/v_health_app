@@ -100,7 +100,7 @@ class AccelerationService {
   }
 
   Future<Map<String, dynamic>> analyze(List<List<double>> rawAccelData) async {
-    if(rawAccelData.length < 50) throw "Not enough data for analysis";
+    if(rawAccelData.length < 50) throw "Not enough data for analysis.";
     final desiredData = _process(
         rawAccelData, rawAccelData.length/Constants.activeInterval);
     final [steps, activeTime] = _measureStepsAndActiveTime(
@@ -113,7 +113,7 @@ class AccelerationService {
       "distance": distance,
       "calories": calories,
       "activeTime": activeTime,
-      "speed": distance/activeTime,
+      "speed": activeTime == 0 ? 0.0 : distance/activeTime,
     };
   }
 

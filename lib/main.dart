@@ -20,23 +20,21 @@ import "injector.dart";
 import "presentation/auth/auth_page.dart";
 import "presentation/site/views/site_page.dart";
 
-@pragma('vm:entry-point')
+@pragma("vm:entry-point")
 void onStart(ServiceInstance service) async {
   DartPluginRegistrant.ensureInitialized();
-  var rawAccelData = <List<double>>[];
-  final stream = await SensorService().accelerometerEvents();
-  stream.listen((event) {
-    rawAccelData.add(event);
-  });
-  Timer.periodic(const Duration(seconds: Constants.inactiveInterval), (_) async {
-    final temp = rawAccelData;
-    rawAccelData = [];
-    final service = AccelerationService();
-    await service.updateReports(
-      rawAccelData: temp, 
-      date: DateTime.now(),
-    );
-  });
+  // var rawAccelData = <List<double>>[];
+  // final stream = await SensorService().accelerometerEvents();
+  // stream.listen(rawAccelData.add);
+  // Timer.periodic(const Duration(seconds: Constants.inactiveInterval), (_) async {
+  //   final tempAccel = rawAccelData.toList();
+  //   rawAccelData.clear();
+  //   final service = AccelerationService();
+  //   await service.updateReports(
+  //     rawAccelData: tempAccel, 
+  //     date: DateTime.now(),
+  //   );
+  // });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;
@@ -51,18 +49,14 @@ void onStart(ServiceInstance service) async {
       StreamSubscription? trStatesListener;
       var positions = <Map<String, dynamic>>[];
       StreamSubscription<Position> locationUpdatesHelper() {
-        return LocationService().locationUpdates(5).listen((p) {
-          if(backgroundMode) {
-            return positions.add({
-              "latitude": p.latitude,
-              "longitude": p.longitude,
-              "accuracy": p.accuracy,
-              "timestamp": p.timestamp,
-            });
-          }
-          if(positions.isEmpty) {
-            return service.invoke("positionsAcquired", {"data": [p]});
-          }
+        return LocationService().locationUpdates(Constants.distance).listen((p) {
+          positions.add({
+            "latitude": p.latitude,
+            "longitude": p.longitude,
+            "accuracy": p.accuracy,
+            "timestamp": p.timestamp.millisecondsSinceEpoch,
+          });
+          if(backgroundMode) return;
           service.invoke("positionsAcquired", {"data": positions});
           positions = [];
         });
@@ -94,10 +88,10 @@ void onStart(ServiceInstance service) async {
       Timer timerHelper() {
         return Timer.periodic(
             const Duration(seconds: Constants.activeInterval), (_) async {
-              final accelTemp = signals;
-              signals = [];
+              final tempAccel = signals.toList();
+              signals.clear();
               final accelService = AccelerationService();
-              final result = await accelService.analyze(accelTemp);
+              final result = await accelService.analyze(tempAccel);
               if(result["steps"] == 0) return;
               accelAnalyzed.add(result);
               if(backgroundMode) return;
@@ -105,7 +99,6 @@ void onStart(ServiceInstance service) async {
               accelAnalyzed = [];
             });
       }
-
       accelListener = await accelUpdatesHelper();
       timer = timerHelper();
       trStatesListener = trackingStateStream.listen((data) async {
@@ -168,7 +161,6 @@ Future<void> main() async {
     ),
   );
   
-  // await backgroundService.startService();
   runApp(const VHealth());
 }
 

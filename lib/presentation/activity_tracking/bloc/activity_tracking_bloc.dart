@@ -14,6 +14,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../../core/enum/activity_category.dart';
 import '../../../core/enum/activity_tracking.dart';
 import '../../../core/services/location_service.dart';
+import '../../../core/services/sensor_service.dart';
 import '../../../domain/entities/activity_record.dart';
 import '../../../domain/entities/position.dart';
 import '../../../main.dart';
@@ -110,8 +111,8 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   final _photosParams = <PhotoParams>[];
   AppPosition? _curtPos;
   FitnessActivity? activity;
+  var trackingParams = const TrackingParams();
 
-  final _locationService = GetIt.instance<LocationService>();
   final _timeStreamController = StreamController<int>.broadcast();
   late Timer _timer;
   int _secondsElapsed = 0;
@@ -335,7 +336,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   Future<void> _onDesiredLocation() async {
     //? Accuracy status is precise and first time or location update's interrupted (currentPosition == null).
     //? currentPosition will be equal to 'null' only if it hasn't been initialized yet or tracking encounters errors.
-    _curtPos = await _locationService.getCurrentPosition();
+    _curtPos = await LocationService().getCurrentPosition();
     final controller = await _mapController.future;
     controller.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -378,27 +379,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     if(state.category.isWalking) {
       activity = WalkingActivity(
         onPositionsAcquired: (positions) {
-          _curtPos = positions.length == 1 ? positions.first : positions.last;
-          _geoPoints.addAll(positions.map((p) {
-            _updateLatLngBounds(p);
-            return LatLng(p.latitude, p.longitude);
-          }));
-          if(_pageVisibility) add(const LocationUpdated());  
+          // _curtPos = positions.length == 1 ? positions.first : positions.last;
+          // _geoPoints.addAll(positions.map((p) {
+          //   _updateLatLngBounds(p);
+          //   return LatLng(p.latitude, p.longitude);
+          // }));
+          // if(_pageVisibility) add(const LocationUpdated());  
         },
         onMetricsUpdated: () {
-          final temp = activity as WalkingActivity;
-          if(_pageVisibility) {
-            add(MetricsUpdated(TrackingParams(
-              distance: temp.totalDistance,
-              speed: temp.instantSpeed,
-              avgSpeed: temp.avgSpeed,
-              pace: temp.instantPace,
-              avgPace: temp.avgPace,
-              calories: temp.totalCalories,
-              selectedTarget: state.trackingParams.selectedTarget,
-              targetValue: state.trackingParams.targetValue,
-            )));
-          }
+          // final temp = activity as WalkingActivity;
+          // trackingParams = trackingParams.copyWith(
+          //   distance: temp.totalDistance,
+          //   speed: temp.instantSpeed,
+          //   avgSpeed: temp.avgSpeed,
+          //   pace: temp.instantPace,
+          //   avgPace: temp.avgPace,
+          //   calories: temp.totalCalories,
+          // );
+          // if(_pageVisibility) {
+          //   add(const MetricsUpdated());
+          // }
         },
       );
     }else if(state.category.isRunning) {
@@ -411,6 +411,13 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
             _updateLatLngBounds(p);
             return LatLng(p.latitude, p.longitude);
           }));
+          final temp = activity as CyclingActivity;
+          trackingParams = trackingParams.copyWith(
+            distance: temp.totalDistance,
+            speed: temp.instantSpeed,
+            avgSpeed: temp.avgSpeed,
+            calories: temp.totalCalories,
+          );
           if(_pageVisibility) add(const LocationUpdated()); 
         },
       );
@@ -465,6 +472,10 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingResumed event,
     Emitter<ActivityTrackingState> emit,
   ) async {
+    print("resume");
+        final stream = await SensorService().accelerometerEvents();
+        stream.listen((e) => print(e));
+    return;
     if(_isProcessing) return;
     _isProcessing = true;
     await handleLocationPermission(emit);
@@ -540,7 +551,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     MetricsUpdated event,
     Emitter<ActivityTrackingState> emit,
   ) {
-    emit(state.copyWith(trackingParams: event.params));
+    emit(state.copyWith(trackingParams: trackingParams));
   }
 
   void _onPhotoEdited(

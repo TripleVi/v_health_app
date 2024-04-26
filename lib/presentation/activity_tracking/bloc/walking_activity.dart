@@ -43,6 +43,7 @@ class WalkingActivity extends FitnessActivity {
       (event) {
         final positions = (event!["data"] as List)
             .map((e) => AppPosition.fromMap(e)).toList();
+        print("Positions: $positions");
         onPositionsAcquired!(positions);
       },
     );
@@ -51,6 +52,8 @@ class WalkingActivity extends FitnessActivity {
   void handleAccelerationUpdate() {
     backgroundService.invoke("accelUpdates");
     accelListener = backgroundService.on("accelAcquired").listen((event) async {
+      print(event!["data"]);
+      return;
       var totalDistance = 0.0, totalCalories = 0.0, totalSteps = 0, duration = 0;
       var maxSpeed = 0;
       for (var e in event!["data"]) {

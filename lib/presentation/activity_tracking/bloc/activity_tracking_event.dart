@@ -59,9 +59,8 @@ class PhotoEdited extends ActivityTrackingEvent {
 }
 
 class MetricsUpdated extends ActivityTrackingEvent {
-  final TrackingParams params;
 
-  const MetricsUpdated(this.params);
+  const MetricsUpdated();
 }
 
 class RefreshScreen extends ActivityTrackingEvent {
