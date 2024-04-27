@@ -96,18 +96,18 @@ class MetricsPage extends StatelessWidget {
       children: [
         name ?? Text(
           txtName!, 
-          style: nameStyle ?? AppStyle.bodyText(height: 1.0),
+          style: nameStyle ?? AppStyle.caption1(),
         ),
         Row(
-          mainAxisSize: MainAxisSize.min, 
+          mainAxisSize: MainAxisSize.min,
           children: [
             value ?? Text(
               "${txtValue!} ", 
-              style: valueStyle ?? AppStyle.heading2(height: 1.0),
+              style: valueStyle ?? AppStyle.heading3(),
             ),
             unit ?? Text(
               txtUnit ?? "",
-              style: unitStyle ?? AppStyle.heading3(height: 1.0),
+              style: unitStyle ?? AppStyle.heading5(),
             ),
           ],
         ),
@@ -121,16 +121,15 @@ class MetricsPage extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       margin: const EdgeInsets.all(12.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       decoration: BoxDecoration(
         color: AppStyle.surfaceColor,
         borderRadius: BorderRadius.circular(AppStyle.borderRadius),
       ),
       child: Column(
         children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 20.0),
-            child: targetWidget,
-          ),
+          targetWidget,
+          const SizedBox(height: 32.0),
           Expanded(
             child: GridView.count(
               shrinkWrap: false,

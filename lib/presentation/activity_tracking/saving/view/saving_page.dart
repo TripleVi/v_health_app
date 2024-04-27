@@ -1,13 +1,13 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../core/enum/social.dart';
-import '../../../../core/resources/style.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/dialog.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../../bloc/activity_tracking_bloc.dart';
-import '../cubit/saving_cubit.dart';
+import "../../../../core/enum/social.dart";
+import "../../../../core/resources/style.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/dialog.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../../bloc/activity_tracking_bloc.dart";
+import "../cubit/saving_cubit.dart";
 
 class SavingPage extends StatelessWidget {
   const SavingPage({super.key});
@@ -17,36 +17,69 @@ class SavingPage extends StatelessWidget {
     final params = ModalRoute.of(context)!.settings.arguments as TrackingResult;
     return BlocProvider(
       create: (context) => SavingCubit(params),
-      child: SavingView(),
+      child: const SavingView(),
     );
   }
 }
 
 class SavingView extends StatelessWidget {
-  final _txtTitle = TextEditingController();
-  final _txtContent = TextEditingController();
+  const SavingView({super.key});
 
-  SavingView({super.key});
-
-  Widget _discardBtn(BuildContext context) {
-    return IconButton(
-      onPressed: () => Navigator.pop(context),
-      icon: const Icon(
-        Icons.close_rounded,
-        size: 24.0,
-        color: AppStyle.neutralColor400,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppStyle.surfaceColor,
+      appBar: CustomAppBar.get(
+        actions: appBarActions(context),
+        title: "Create post",
+      ),
+      body: Center(
+        child: Container(
+          height: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 520.0),
+          padding: const EdgeInsets.all(12.0),
+          child: BlocConsumer<SavingCubit, SavingState>(
+            listener: (blocContext, state) {
+              if (state is SavingLoaded && state.errorMsg != null) {
+                MyDialog.showSingleOptionsDialog(
+                  context: context, 
+                  title: "Post Creation", 
+                  message: state.errorMsg!,
+                );
+              } else if (state is SavingSuccess) {
+                Navigator.pop<bool>(context, true);
+              }
+            },
+            builder: (context, state) {
+              if (state is SavingLoading) {
+                return const AppLoadingIndicator();
+              }
+              if (state is SavingLoaded) {
+                return _mainSection(context, state);
+              }
+              return const SizedBox();
+            },
+          ),
+        ),
       ),
     );
   }
 
-  Widget _resumeBtn(BuildContext context) {
-    return TextButton(
-      onPressed: () => Navigator.pop(context),
-      child: Text(
-        "Resume",
-        style: AppStyle.bodyText(color: AppStyle.primaryColor),
+  List<Widget> appBarActions(BuildContext context) {
+    return [
+      IconButton(
+        onPressed: () {
+          Navigator.pop<void>(context);
+          context
+            .read<ActivityTrackingBloc>().add(const TrackingDestroyed());
+        },
+        icon: const Icon(Icons.delete_outline_rounded),
       ),
-    );
+      TextButton(
+        onPressed: () => context.read<SavingCubit>().savePost(),
+        child: const Text("Post"),
+      ),
+    ];
   }
 
   Future<void> _showModalBottomSheetHelper({
@@ -64,24 +97,20 @@ class SavingView extends StatelessWidget {
       builder: (context) {
         return Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppStyle.horizontalPadding,
-            vertical: 4.0,
+            horizontal: 12.0,
           ),
           child: Column(
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    title,
-                    style: AppStyle.heading1(fontSize: 20.0, height: 1),
-                  ),
+                  Text(title, style: AppStyle.heading4()),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => Navigator.pop<void>(context),
                     icon: const Icon(
                       Icons.close_rounded,
-                      color: AppStyle.surfaceColor,
-                      size: 24.0,
+                      color: AppStyle.secondaryIconColor,
+                      size: 20.0,
                     ),
                   ),
                 ],
@@ -104,32 +133,32 @@ class SavingView extends StatelessWidget {
       children: PostPrivacy.values.map((item) {
         return ListTile(
           onTap: () {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop<void>();
             context.read<SavingCubit>().selectPostPrivacy(item);
           },
           horizontalTitleGap: AppStyle.horizontalPadding,
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: AppStyle.horizontalPadding,
+            horizontal: 0.0,
           ),
-          iconColor: AppStyle.surfaceColor,
+          iconColor: AppStyle.secondaryIconColor,
           selectedColor: AppStyle.primaryColor,
           selected: item == selectedPrivacy,
           leading: Icon(
             item.iconData,
-            size: 24.0,
+            size: 20.0,
             color: item == selectedPrivacy ? AppStyle.primaryColor : null,
           ),
           title: Text(
             item.stringValue,
-            style: AppStyle.heading2(),
+            style: AppStyle.heading5(),
           ),
           subtitle: Text(
             item.description,
-            style: AppStyle.bodyText(),
+            style: AppStyle.caption1(),
           ),
           trailing: item == selectedPrivacy
-              ? const Icon(Icons.check_rounded, size: 32.0)
-              : const SizedBox(width: 32.0),
+              ? const Icon(Icons.check_rounded, size: 20.0)
+              : const SizedBox(width: 20.0),
         );
       }).toList(growable: false),
     );
@@ -146,24 +175,16 @@ class SavingView extends StatelessWidget {
       textAlignVertical: TextAlignVertical.center,
       style: AppStyle.bodyText(),
       controller: controller,
-      cursorColor: AppStyle.primaryTextColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: AppStyle.bodyText(),
-        enabledBorder: OutlineInputBorder(
-          borderRadius:
-              const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.controlNormalColor),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+          borderSide: BorderSide(color: AppStyle.neutralColor400),
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius:
-              BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.inputBorderColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppStyle.horizontalPadding,
-          vertical: 12.0,
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+          borderSide: BorderSide(color: AppStyle.neutralColor400),
         ),
       ),
       minLines: minLines,
@@ -175,17 +196,15 @@ class SavingView extends StatelessWidget {
     required BuildContext context,
     required void Function() onTap,
     required IconData prefixIconData,
-    String? content,
+    required String content,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 52.0,
-        padding:
-            const EdgeInsets.symmetric(horizontal: AppStyle.horizontalPadding),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 12.0),
         decoration: BoxDecoration(
           color: AppStyle.surfaceColor,
-          border: Border.all(color: AppStyle.controlNormalColor),
+          border: Border.all(color: AppStyle.neutralColor400),
           borderRadius:
               const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
         ),
@@ -193,24 +212,20 @@ class SavingView extends StatelessWidget {
           children: [
             Icon(
               prefixIconData,
-              color: AppStyle.primaryTextColor,
+              color: AppStyle.primaryColor,
               size: 20.0,
             ),
             const SizedBox(width: 8.0),
             Expanded(
               child: Text(
-                content ?? "Choose",
-                style: AppStyle.bodyText(
-                  color: content == null
-                      ? AppStyle.primaryColor
-                      : AppStyle.primaryTextColor,
-                ),
+                content,
+                style: AppStyle.bodyText(color: AppStyle.primaryColor),
               ),
             ),
             const SizedBox(width: 8.0),
             const Icon(
               Icons.keyboard_arrow_down,
-              color: AppStyle.primaryTextColor,
+              color: AppStyle.secondaryIconColor,
               size: 24.0,
             ),
           ],
@@ -232,7 +247,7 @@ class SavingView extends StatelessWidget {
             print("$error: $stackTrace");
             return Container(
               decoration: BoxDecoration(
-                border: Border.all(color: AppStyle.controlNormalColor),
+                border: Border.all(color: AppStyle.neutralColor400),
                 borderRadius: const BorderRadius
                     .all(Radius.circular(AppStyle.borderRadius)),
               ),
@@ -254,138 +269,42 @@ class SavingView extends StatelessWidget {
     return Stack(
       children: [
         SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppStyle.horizontalPadding,
-            vertical: 16.0,
-          ),
-          child: Wrap(
-            runSpacing: 16.0,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _textField(
-                controller: _txtTitle,
+                controller: state.titleController,
                 hintText: state.titleHint,
                 maxLines: 3,
               ),
+              const SizedBox(height: 16.0),
               _textField(
-                controller: _txtContent,
+                controller: state.contentController,
                 hintText: "How'd it go? Share more about your activity.",
                 minLines: 5,
                 maxLines: 12,
                 keyboardType: TextInputType.multiline,
               ),
+              const SizedBox(height: 16.0),
               _mapSection(context, state),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Text("Visibility", style: AppStyle.heading1()),
-                  const SizedBox(height: 20.0),
-                  Wrap(
-                    runSpacing: 16,
-                    children: [
-                      Text("Who can see", style: AppStyle.heading2()),
-                      _dropdownButton(
-                        context: context,
-                        onTap: () => _showModalBottomSheetHelper(
-                          context: context,
-                          title: "Who can see this activity?",
-                          child: _postPrivacyListView(
-                              context, state.privacy),
-                        ),
-                        content: state.privacy.stringValue,
-                        prefixIconData: state.privacy.iconData,
-                      ),
-                    ],
-                  )
-                ],
+              const SizedBox(height: 16.0),
+              _dropdownButton(
+                context: context,
+                onTap: () => _showModalBottomSheetHelper(
+                  context: context,
+                  title: "Who can see this activity?",
+                  child: _postPrivacyListView(context, state.privacy),
+                ),
+                content: state.privacy.stringValue,
+                prefixIconData: state.privacy.iconData,
               ),
-              const SizedBox(height: 350.0)
             ],
-          ),
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            padding: const EdgeInsets.all(AppStyle.horizontalPadding),
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: AppStyle.surfaceColor,
-              boxShadow: [
-                BoxShadow(
-                  color: AppStyle.neutralColor400,
-                  blurRadius: 4.0,
-                ),
-              ],
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 40.0),
-              child: TextButton(
-                onPressed: () => context.read<SavingCubit>().savePost(
-                  title: _txtTitle.text,
-                  content: _txtContent.text,
-                ),
-                style: TextButton.styleFrom(
-                  backgroundColor: AppStyle.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppStyle.borderRadius),
-                  ),
-                ),
-                child: Text(
-                  "Save Activity",
-                  style: AppStyle.heading2(
-                      color: AppStyle.surfaceColor),
-                ),
-              ),
-            ),
           ),
         ),
         state.isProcessing 
             ? const AppProcessingIndicator() 
             : const SizedBox(),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppStyle.surfaceColor,
-      appBar: CustomAppBar.get(
-        actions: [_discardBtn(context)],
-        title: "Save Activity",
-        leading: _resumeBtn(context),
-      ),
-      body: Container(
-        height: double.infinity,
-        decoration: const BoxDecoration(
-          border: Border(
-            top: BorderSide(color: AppStyle.neutralColor400),
-          ),
-        ),
-        child: BlocConsumer<SavingCubit, SavingState>(
-          listener: (blocContext, state) {
-            if (state is SavingLoaded && state.errorMsg != null) {
-              MyDialog.showSingleOptionsDialog(
-                context: context, 
-                title: "Post Creation", 
-                message: state.errorMsg!,
-              );
-            } else if (state is SavingSuccess) {
-              Navigator.pop<bool>(context, true);
-            }
-          },
-          builder: (context, state) {
-            if (state is SavingLoading) {
-              return const AppLoadingIndicator();
-            }
-            if (state is SavingLoaded) {
-              return _mainSection(context, state);
-            }
-            return const SizedBox();
-          },
-        ),
-      ),
     );
   }
 }

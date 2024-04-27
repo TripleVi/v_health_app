@@ -25,13 +25,13 @@ class SqlService {
     await db.execute(createDailyGoalTable);
     await db.execute(createDailyReportTable);
     await db.execute(createHourlyReportTable);
+    await db.execute(createWorkoutSessionTable);
     // await db.execute(createUserTable);
     // await db.execute(createActivityRecordTable);
     // await db.execute(createCoordinateTable);
     // await db.execute(createPhotoTable);
     // await db.execute(createAccelDataTable);
     // await db.execute(createPostTable);
-    // await db.execute(createWorkoutSessionTable);
   }
 
   Future<void> close() async {

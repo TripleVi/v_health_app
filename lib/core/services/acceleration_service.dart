@@ -71,7 +71,7 @@ class AccelerationService {
       ..distance = distance
       ..calories = calories
       ..activeTime = activeTime
-      ..goal = goal;
+      ..goal = goal!;
       newReport.id = await dailyRepo.createDailyReport(newReport);
       dReport = newReport;
     }else {

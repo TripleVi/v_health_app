@@ -1,16 +1,17 @@
-import '../../core/enum/social.dart';
-import 'activity_record.dart';
-import 'base_entity.dart';
-import 'reaction.dart';
-import 'user.dart';
+import "../../core/enum/social.dart";
+import "activity_record.dart";
+import "base_entity.dart";
+import "reaction.dart";
+import "user.dart";
 
 class Post extends BaseEntity {
   String title;
   String content;
   DateTime createdDate;
   PostPrivacy privacy;
-  double? latitude;
-  double? longitude;
+  double latitude;
+  double longitude;
+  String address;
   String mapUrl;
   ActivityRecord record;
   List<Reaction> reactions;
@@ -22,8 +23,9 @@ class Post extends BaseEntity {
     required this.content,
     required this.createdDate,
     required this.privacy,
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
+    required this.address,
     required this.mapUrl,
     this.reactions = const [],
     User? author,
@@ -33,7 +35,7 @@ class Post extends BaseEntity {
     record = record ?? ActivityRecord.empty();
 
   factory Post.empty() {
-    return Post(title: "", content: "", createdDate: DateTime.now(), privacy: PostPrivacy.public, mapUrl: "");
+    return Post(title: "", content: "", createdDate: DateTime.now(), privacy: PostPrivacy.public, latitude: 0.0, longitude: 0.0, address: "", mapUrl: "");
   }
 
   Map<String, dynamic> toMap() {
@@ -45,32 +47,10 @@ class Post extends BaseEntity {
       "privacy": privacy.numericValue,
       "latitude": latitude,
       "longitude": longitude,
+      "address": address,
       "mapUrl": mapUrl,
     };
   }
-
-  // factory Post.fromSqlite(Map<String, dynamic> map) {
-  //   final post = Post(
-  //     id: map[PostFields.id],
-  //     title: map[PostFields.title],
-  //     content: map[PostFields.content],
-  //     privacy: PostPrivacy.values[map[PostFields.privacy]],
-  //     recordId: map[PostFields.recordId],
-  //   )
-  //   .._createdDate = MyUtils.getLocalDateTime(map[PostFields.createdDate]);
-  //   return post;
-  // }
-
-  // Map<String, dynamic> toSqlite() {
-  //   return {
-  //     PostFields.id: id,
-  //     PostFields.title: title,
-  //     PostFields.content: content,
-  //     PostFields.privacy: privacy.index,
-  //     PostFields.createdDate: createdDate!.millisecondsSinceEpoch,
-  //     PostFields.recordId: recordId,
-  //   };
-  // }
 
   factory Post.fromMap(Map<String, dynamic> map) {
     return Post(
@@ -81,12 +61,13 @@ class Post extends BaseEntity {
       privacy: PostPrivacy.values.firstWhere((e) => e.numericValue == map["privacy"]),
       latitude: map["latitude"] * 1.0,
       longitude: map["longitude"] * 1.0,
+      address: map["address"],
       mapUrl: map["mapUrl"],
     );
   }
 
   @override
   String toString() {
-    return "Post{id: $id, title: $title, content: $content, createdDate: $createdDate, privacy: $privacy, latitude: $latitude, longitude: $longitude, author: $author}";
+    return "Post{id: $id, title: $title, content: $content, createdDate: $createdDate, privacy: $privacy, latitude: $latitude, longitude: $longitude, address: $address, author: $author}";
   }
 }

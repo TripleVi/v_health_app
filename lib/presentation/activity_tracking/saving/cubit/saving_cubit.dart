@@ -1,25 +1,27 @@
-import 'dart:io' as io;
-import 'dart:math' as math;
-import 'dart:ui';
+import "dart:io" as io;
+import "dart:math" as math;
+import "dart:ui";
 
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:nominatim_flutter/model/request/request.dart";
+import "package:nominatim_flutter/nominatim_flutter.dart";
 
-import '../../../../core/enum/social.dart';
-import '../../../../core/services/location_service.dart';
-import '../../../../core/utilities/image.dart';
-import '../../../../core/utilities/utils.dart';
-import '../../../../data/sources/api/post_service.dart';
-import '../../../../domain/entities/coordinate.dart';
-import '../../../../domain/entities/post.dart';
-import '../../bloc/activity_tracking_bloc.dart';
+import "../../../../core/enum/social.dart";
+import "../../../../core/services/location_service.dart";
+import "../../../../core/utilities/image.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../../data/sources/api/post_service.dart";
+import "../../../../domain/entities/coordinate.dart";
+import "../../../../domain/entities/post.dart";
+import "../../bloc/activity_tracking_bloc.dart";
 
-part 'saving_state.dart';
+part "saving_state.dart";
 
 class SavingCubit extends Cubit<SavingState> {
   final TrackingResult _result;
+  var _isProcessing = false;
 
   SavingCubit(this._result) : super(const SavingLoading()) {
     _processMapHelper();
@@ -65,13 +67,14 @@ class SavingCubit extends Cubit<SavingState> {
     emit(SavingLoaded(
       map: file,
       titleHint: "${MyUtils.getPartOfDay(dateTime)} run",
+      titleController: TextEditingController(),
+      contentController: TextEditingController(),
     ));
   }
 
-  Future<void> savePost({
-    required String title, 
-    required String content,
-  }) async {
+  Future<void> savePost() async {
+    if(_isProcessing) return;
+    _isProcessing = true;
     final curtState = (state as SavingLoaded).copyWith(isProcessing: true);
     emit(curtState);
     try {
@@ -79,17 +82,28 @@ class SavingCubit extends Cubit<SavingState> {
       ..coordinates = _result.geoPoints
           .map((e) => Coordinate(latitude: e.latitude, longitude: e.longitude))
           .toList(growable: false);
-
-      final location = GetIt.instance<LocationService>();
-      final position = await location.getCurrentPosition();
-      
+      final position = await LocationService().getCurrentPosition();
+      final reverseRequest = ReverseRequest(
+        lat: position!.latitude,
+        lon: position.longitude,
+        extraTags: false,
+        nameDetails: false,
+      );
+      final reverseResult = await NominatimFlutter.instance.reverse(
+        reverseRequest: reverseRequest,
+        language: "en-US, en",
+      );
+      final addressDetails = reverseResult.address!;
       final newPost = Post.empty()
-      ..title = title.isEmpty ? curtState.titleHint : title
-      ..content = content
+      ..title = curtState.titleController.text.isEmpty 
+          ? curtState.titleHint 
+          : curtState.titleController.text
+      ..content = curtState.contentController.text
       ..privacy = curtState.privacy
       ..record = record
-      ..latitude = position?.latitude
-      ..longitude = position?.longitude;
+      ..latitude = position.latitude
+      ..longitude = position.longitude
+      ..address = "${addressDetails["city"]}, ${addressDetails["country"]}";
 
       final service = PostService();
       final createdPost = await service.createPost(newPost);
@@ -105,6 +119,7 @@ class SavingCubit extends Cubit<SavingState> {
         );
       }
       emit(const SavingSuccess());
+      _isProcessing = false;
     } catch (e) {
       print(e);
       emit(curtState.copyWith(errorMsg: "Adding record failed. Please try again!"));

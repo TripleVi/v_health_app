@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 class AppStyle {
   static final dropShadowColor = Colors.grey.shade400;
-  static final controlNormalColor = Colors.grey.shade300;
-  static const controlActivatedColor = Color(0xff434242);
   
   static const surfaceColor = Colors.white;
   static const primaryColor50 = Color(0xfff8ebea);

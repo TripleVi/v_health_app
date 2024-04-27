@@ -7,8 +7,10 @@ import "package:matrix2d/matrix2d.dart";
 import "../../../../core/utilities/utils.dart";
 import "../../../../data/repositories/daily_report_repo.dart";
 import "../../../../data/repositories/hourly_report_repo.dart";
+import "../../../../data/sources/sqlite/dao/workout_dao.dart";
 import "../../../../domain/entities/daily_report.dart";
 import "../../../../domain/entities/report.dart";
+import "../../../../domain/entities/workout_data.dart";
 
 part "daily_activities_state.dart";
 
@@ -43,6 +45,11 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     report.steps = hourlySteps.sum;
     report.activeTime = hourlyActiveTime.sum;
     report.calories = hourlyCalories.sum*1.0;
+
+    final repo = WorkoutDao();
+    final data = await repo.getManyAccelData();
+    print(data.last);
+
     emit(DailyActivitiesLoaded(
       report: report,
       hourlySteps: hourlySteps,
@@ -51,6 +58,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
       maxStepsAxis: MyUtils.roundToNearestHundred(maxSteps),
       maxActiveTimeAxis: MyUtils.roundToNearestHundred(maxDuration),
       maxCaloriesAxis: MyUtils.roundToNearestHundred(maxCalories),
+      data: data,
     ));
   }
 

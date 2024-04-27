@@ -13,6 +13,7 @@ class ActivityTrackingState {
   final TrackingResult? result;
   final io.File? photo;
   final bool isMetricsVisible;
+  final bool isQualified;
 
   const ActivityTrackingState({
     this.category = ActivityCategory.walking,
@@ -26,6 +27,7 @@ class ActivityTrackingState {
     this.result,
     this.photo,
     this.isMetricsVisible = false,
+    this.isQualified = true,
   });
 
   ActivityTrackingState copyWith({
@@ -40,6 +42,7 @@ class ActivityTrackingState {
     TrackingResult? result,
     io.File? photo,
     bool? isMetricsVisible,
+    bool isQualified = true,
   }) {
     return ActivityTrackingState(
       category: category ?? this.category,
@@ -53,6 +56,7 @@ class ActivityTrackingState {
       result: result,
       photo: photo,
       isMetricsVisible: isMetricsVisible ?? this.isMetricsVisible,
+      isQualified: isQualified,
     );
   }
 }

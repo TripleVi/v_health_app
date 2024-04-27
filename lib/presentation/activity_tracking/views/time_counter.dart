@@ -21,7 +21,7 @@ class _TimeCounterState extends State<TimeCounter> {
     super.initState();
     _secondSubscription = widget.timeStream.listen((event) {
       setState(() {
-        _secondsElapsed++;
+        _secondsElapsed = event;
       });
     });
   }

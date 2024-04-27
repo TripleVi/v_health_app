@@ -2,7 +2,6 @@ import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:flutter_dotenv/flutter_dotenv.dart";
-import "package:google_geocoding_api/google_geocoding_api.dart";
 
 import "../../../../core/resources/style.dart";
 import "../../../../core/utilities/utils.dart";
@@ -293,12 +292,7 @@ class PostView extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () async {
-            final bool isDebugMode = true;  
-            final api = GoogleGeocodingApi(dotenv.env["GOOGLE_API_KEY"]!, isLogged: isDebugMode);  
-            final reversedSearchResults = await api.reverse(
-              "21.0344114,105.7644853",
-              language: 'en',
-            );
+            
           },
           child: CircleAvatar(
             radius: avatarSize/2,

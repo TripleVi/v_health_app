@@ -216,7 +216,7 @@ class CommentsView extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
           borderRadius:
               const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.controlNormalColor),
+          // borderSide: BorderSide(color: AppStyle.controlNormalColor),
         ),
         focusedBorder: const OutlineInputBorder(
           borderRadius:

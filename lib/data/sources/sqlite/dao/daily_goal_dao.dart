@@ -16,14 +16,14 @@ class DailyGoalDao {
         : DailyGoal.empty();
   }
 
-  Future<DailyGoal> fetchLatestGoal() async {
+  Future<DailyGoal?> fetchLatestGoal() async {
     final db = await SqlService.instance.database;
     final result = await db.query(
       DailyGoalFields.container,
       orderBy: "${DailyGoalFields.id} DESC",
       limit: 1,
     );
-    return DailyGoal.fromSqlite(result.first);
+    return result.isEmpty ? null : DailyGoal.fromSqlite(result.first);
   }
 
   Future<int> createGoal(DailyGoal goal) async {
@@ -42,7 +42,7 @@ class DailyGoalDao {
 
   Future<int> updateGoal(DailyGoal goal) async {
     final latestGoal = await fetchLatestGoal();
-    await deleteGoal(latestGoal.id);
+    await deleteGoal(latestGoal!.id);
     return createGoal(goal);
   }
   

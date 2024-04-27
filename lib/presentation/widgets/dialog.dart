@@ -41,28 +41,18 @@ class MyDialog {
       builder: (BuildContext context) {
         MyUtils.closeKeyboard(context);
         return AlertDialog(
-          title: Text(title, style: AppStyle.heading2(height: 1.0)),
+          title: Text(title, style: AppStyle.heading3()),
           content: Text(message, style: AppStyle.bodyText()),
           actions: [
             TextButton(
+              style: TextButton
+                  .styleFrom(foregroundColor: AppStyle.secondaryTextColor),
               onPressed: () => Navigator.pop<bool>(context, false),
-              child: Text(
-                noButtonName,
-                style: AppStyle.caption2(
-                  color: Colors.grey,
-                  height: 1.0,
-                ),
-              ),
+              child: Text(noButtonName),
             ),
             TextButton(
               onPressed: () => Navigator.pop<bool>(context, true),
-              child: Text(
-                yesButtonName,
-                style: AppStyle.caption2(
-                  color: Colors.blue,
-                  height: 1.0,
-                ),
-              ),
+              child: Text(yesButtonName),
             ),
           ],
         );

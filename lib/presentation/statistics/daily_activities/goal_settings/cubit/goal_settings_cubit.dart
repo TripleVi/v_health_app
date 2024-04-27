@@ -14,7 +14,7 @@ class GoalSettingsCubit extends Cubit<GoalSettingsState> {
   Future<void> fetchData() async {
     final repo = DailyGoalRepo();
     final goal = await repo.fetchLatestGoal();
-    emit(GoalSettingsLoaded(goal));
+    emit(GoalSettingsLoaded(goal ?? DailyGoal.empty()));
   }
 
   Future<void> setDailyGoalDetails({int? steps, int? minutes, int? calories}) async {

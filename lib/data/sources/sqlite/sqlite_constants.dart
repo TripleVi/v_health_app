@@ -2,6 +2,15 @@ import '../table_attributes.dart';
 
 const sqlitePath = "fitness_tracker.db";
 
+const createWorkoutSessionTable =
+    "CREATE TABLE IF NOT EXISTS workout_session("
+    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "steps INTEGER NOT NULL, "
+    "distance REAL NOT NULL, "
+    "time INTEGER NOT NULL, "
+    "calories REAL NOT NULL, "
+    "speed REAL NOT NULL)";
+
 const createDailyGoalTable =
     "CREATE TABLE IF NOT EXISTS ${DailyGoalFields.container}("
     "${DailyGoalFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -39,19 +48,6 @@ const createAccelDataTable =
     "${AccelDataFields.Quarter} INTEGER,"
     "${AccelDataFields.Date} TEXT,"
     "${AccelDataFields.Activity} TEXT)";
-
-const createUserTable = "CREATE TABLE IF NOT EXISTS ${UserFields.container}("
-    "${UserFields.id} TEXT PRIMARY KEY, "
-    "${UserFields.username} TEXT NOT NULL, "
-    "${UserFields.password} TEXT NOT NULL, "
-    "${UserFields.firstName} TEXT NOT NULL, "
-    "${UserFields.lastName} TEXT NOT NULL, "
-    "${UserFields.dob} TEXT NOT NULL, "
-    "${UserFields.gender} INTEGER NOT NULL, "
-    "${UserFields.height} REAL, "
-    "${UserFields.weight} REAL, "
-    "${UserFields.avatarName} TEXT NOT NULL, "
-    "${UserFields.avatarUrl} TEXT NOT NULL)";
 
 const createActivityRecordTable =
     "CREATE TABLE IF NOT EXISTS ${ActivityRecordFields.container}("
@@ -94,10 +90,3 @@ const createPostTable = "CREATE TABLE IF NOT EXISTS ${PostFields.container}("
     "${PostFields.privacy} INTEGER NOT NULL, "
     "${PostFields.createdDate} INTEGER NOT NULL, "
     "${PhotoFields.recordId} TEXT NOT NULL REFERENCES ${ActivityRecordFields.container}(${ActivityRecordFields.id}) ON UPDATE CASCADE)";
-
-const createWorkoutSessionTable = "CREATE TABLE IF NOT EXISTS ${WorkoutSessionFields.container}("
-    "${WorkoutSessionFields.id} TEXT PRIMARY KEY, "
-    "${WorkoutSessionFields.distance} REAL NOT NULL, "
-    "${WorkoutSessionFields.speed} REAL NOT NULL, "
-    "${WorkoutSessionFields.pace} REAL NOT NULL, "
-    "${WorkoutSessionFields.timeFrame} INTEGER NOT NULL)";

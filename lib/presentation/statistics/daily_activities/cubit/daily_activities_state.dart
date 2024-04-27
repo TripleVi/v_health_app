@@ -14,6 +14,7 @@ final class DailyActivitiesLoaded extends DailyActivitiesState {
   final int maxStepsAxis;
   final int maxActiveTimeAxis;
   final int maxCaloriesAxis;
+  final List<WorkoutData> data;
 
   DailyActivitiesLoaded({
     required this.report,
@@ -24,6 +25,7 @@ final class DailyActivitiesLoaded extends DailyActivitiesState {
     required this.maxStepsAxis,
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,
+    required this.data,
   });
 }
 

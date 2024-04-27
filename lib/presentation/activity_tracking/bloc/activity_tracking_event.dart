@@ -27,6 +27,10 @@ class TrackingSaved extends ActivityTrackingEvent {
   const TrackingSaved(this.isSuccess);
 }
 
+class TrackingDestroyed extends ActivityTrackingEvent {
+  const TrackingDestroyed();
+}
+
 class LocationUpdated extends ActivityTrackingEvent {
   const LocationUpdated();
 }

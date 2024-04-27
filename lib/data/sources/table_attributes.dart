@@ -43,24 +43,6 @@ class AccelDataFields {
   AccelDataFields._();
 }
 
-class UserFields {
-  static const container = "users";
-  static const id = "id";
-  static const username = "username";
-  static const password = "password";
-  static const firstName = "firstName";
-  static const lastName = "lastName";
-  static const gender = "gender";
-  static const height = "height";
-  static const weight = "weight";
-  static const dob = "dob";
-  static const avatarName = "avatarName";
-  static const avatarUrl = "avatarUrl";
-  static const goal = 'goal';
-
-  UserFields._();
-}
-
 class NotificationFields {
   static const container = 'notifications';
 

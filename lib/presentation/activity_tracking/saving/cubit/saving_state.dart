@@ -15,6 +15,8 @@ final class SavingLoaded extends SavingState {
   final String titleHint;
   final bool isProcessing;
   final String? errorMsg;
+  final TextEditingController titleController;
+  final TextEditingController contentController;
 
   const SavingLoaded({
     required this.map,
@@ -22,6 +24,8 @@ final class SavingLoaded extends SavingState {
     required this.titleHint,
     this.isProcessing = false,
     this.errorMsg,
+    required this.titleController,
+    required this.contentController,
   });
 
   SavingLoaded copyWith({
@@ -36,6 +40,8 @@ final class SavingLoaded extends SavingState {
       titleHint: titleHint,
       isProcessing: isProcessing,
       errorMsg: errorMsg,
+      titleController: titleController,
+      contentController: contentController,
     );
   }
 }

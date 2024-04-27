@@ -57,7 +57,6 @@ dependencies:
   iirjdart: ^0.1.0
   syncfusion_flutter_charts: ^25.1.35
   sqflite: ^2.3.0
-  workmanager: ^0.5.2
   flutter_background_service: ^5.0.4
   permission_handler: ^11.0.1
   mime: ^1.0.4
@@ -65,14 +64,13 @@ dependencies:
   bottom_sheet: ^4.0.0
   flutter_activity_recognition: ^3.0.0
   dio: ^5.4.1
-  environment_sensors: ^0.3.0
   percent_indicator: ^4.2.3
   syncfusion_flutter_datepicker: ^25.1.38
   flutter_picker: ^2.1.0
-  google_geocoding_api: ^1.5.2
   flutter_dotenv: ^5.1.0
   loading_animation_widget: ^1.2.1
   card_loading: ^0.3.2
+  nominatim_flutter: ^0.0.3
 
 dev_dependencies:
   flutter_test:

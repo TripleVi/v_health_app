@@ -82,7 +82,7 @@ class CyclingActivity extends FitnessActivity {
             distance: distance + totalDistance,
             steps: 0,
             calories: totalCalories + calculateCalories(time, user.weight),
-            activeTime: duration + activeTime,
+            time: duration + activeTime,
           ));
         }
         avgSpeed = (avgSpeed + distance / time) / 2;

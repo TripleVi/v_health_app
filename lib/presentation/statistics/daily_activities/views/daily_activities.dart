@@ -6,6 +6,7 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:matrix2d/matrix2d.dart";
 import "package:syncfusion_flutter_charts/charts.dart";
 import "package:syncfusion_flutter_datepicker/datepicker.dart";
+import "package:v_health/domain/entities/workout_data.dart";
 
 import "../../../../core/enum/metrics.dart";
 import "../../../../core/resources/style.dart";
@@ -516,6 +517,8 @@ class DailyActivitiesView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          workoutDataChart(state),
+          const SizedBox(height: 40.0),
           metricsChart(
             title: "Steps", 
             dataSource: state.hourlySteps, 
@@ -1074,6 +1077,72 @@ class DailyActivitiesView extends StatelessWidget {
                   textStyle: AppStyle.caption2(color: seriesColor),
                 ),
               ),
+        ],
+      ),
+    );
+  }
+
+  Widget workoutDataChart(DailyActivitiesLoaded state) {
+    return SizedBox(
+      height: 200.0,
+      child: SfCartesianChart(
+        backgroundColor: AppStyle.surfaceColor,
+        title: ChartTitle(
+          text: "WorkoutData", 
+          textStyle: AppStyle.heading5(),
+          alignment: ChartAlignment.near,
+        ),
+        margin: const EdgeInsets.all(0.0),
+        plotAreaBorderWidth: 0.0,
+        primaryXAxis: CategoryAxis(
+          // interval: interval,
+          majorTickLines: const MajorTickLines(
+            color: AppStyle.secondaryTextColor,
+          ),
+          axisLine: const AxisLine(color: AppStyle.secondaryTextColor),
+          majorGridLines: const MajorGridLines(width: 0.0),
+          labelStyle: AppStyle.caption2(),
+          // axisLabelFormatter: xAxisLabelText == null 
+          //     ? null 
+          //     : (labelArgs) {
+          //       final txt = xAxisLabelText(labelArgs.value.toInt());
+          //       return ChartAxisLabel(txt, labelArgs.textStyle);
+          //     },
+        ),
+        primaryYAxis: NumericAxis(
+          opposedPosition: true,
+          decimalPlaces: 0,
+          minimum: 0.0,
+          // maximum: maxYAxis*1.0,
+          // desiredIntervals: 2,
+          majorTickLines: const MajorTickLines(width: 0.0, size: 0.0),
+          axisLine: const AxisLine(width: 0.0),
+          labelStyle: AppStyle.caption2(),
+          axisLabelFormatter: (labelArgs) {
+            return ChartAxisLabel(
+              MyUtils.getCompactNumberFormat(labelArgs.value), 
+              labelArgs.textStyle,
+            );
+          },
+        ),
+        series: <CartesianSeries<WorkoutData, int>>[
+          SplineSeries(
+            dataSource: state.data,
+            xValueMapper: (data, index) => data.time,
+            yValueMapper: (data, _) => data.speed,
+            color: AppStyle.stepColor,
+
+            // markerSettings: MarkerSettings(
+            // isVisible: true,
+            // height: 4,
+            // width: 4,
+            // shape: DataMarkerType.circle,
+            // borderWidth: 3,
+            // borderColor: Colors.black),
+        // dataLabelSettings: DataLabelSettings(
+        //     isVisible: true,
+        //     labelAlignment: ChartDataLabelAlignment.auto)
+          ),
         ],
       ),
     );

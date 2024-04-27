@@ -43,7 +43,7 @@ class TrackingPage extends StatelessWidget {
                 settings: settings,
               );
             }
-            if(settings.name == "/saveForm") {
+            if(settings.name == "/postForm") {
               return MaterialPageRoute<bool>(
                 builder: (context) => const SavingPage(),
                 settings: settings,
@@ -99,6 +99,19 @@ class TrackingView extends StatelessWidget {
             _navigateToSavingPage(context, state.result!);
           } else if (state.photo != null) {
             _openImageView(context, state);
+          } else if (state.recState.isPaused && !state.isQualified) {
+            MyDialog.showTwoOptionsDialog(
+              context: context, 
+              title: "Warning", 
+              message: "Your workout session is too short to save.",
+              yesButtonName: "Continue",
+              noButtonName: "Stop",
+            ).then((value) {
+              if(value == false) {
+                context
+                    .read<ActivityTrackingBloc>().add(const TrackingDestroyed());
+              }
+            });
           }
         },
         builder: (blocContext, state) {
@@ -133,20 +146,18 @@ class TrackingView extends StatelessWidget {
       children: [
         name ?? Text(
           txtName!, 
-          style: nameStyle ?? AppStyle.bodyText(),
+          style: nameStyle ?? AppStyle.caption1(),
         ),
-        const SizedBox(height: 8.0),
         Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             value ?? Text(
-              txtValue!, 
-              style: valueStyle ?? AppStyle.heading2(fontSize: 40.0, height: 1.0),
+              "$txtValue ", 
+              style: valueStyle ?? AppStyle.heading2(),
             ),
             unit ?? Text(
               txtUnit ?? "", 
-              style: unitStyle ?? AppStyle.heading2(fontSize: 40.0, height: 1.0),
+              style: unitStyle ?? AppStyle.heading5(),
             ),
           ],
         ),
@@ -159,9 +170,9 @@ class TrackingView extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progressValue,
                 semanticsLabel: 'Linear progress indicator',
-                backgroundColor: AppStyle.neutralColor400,
+                backgroundColor: AppStyle.neutralColor300,
                 minHeight: 8.0,
-                valueColor: const AlwaysStoppedAnimation(Colors.blueAccent),
+                valueColor: const AlwaysStoppedAnimation(AppStyle.primaryColor),
               ),
             ),
           ),
@@ -178,7 +189,7 @@ class TrackingView extends StatelessWidget {
         txtName: "Distance",
         txtValue: map["value"],
         txtUnit: map["unit"],
-        progressValue: param.distance / 1000 / param.targetValue!,
+        // progressValue: param.distance / 1000 / param.targetValue!,
       );
     }
     if (param.selectedTarget.isCalories) {
@@ -571,7 +582,7 @@ class TrackingView extends StatelessWidget {
   }
 
   void _navigateToSavingPage(BuildContext context, TrackingResult result) async {
-    await Navigator.pushNamed<bool>(context, "/saveForm", arguments: result).then((value) {
+    await Navigator.pushNamed<bool>(context, "/postForm", arguments: result).then((value) {
       if(value != null) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: const Text("Post added successfully"),

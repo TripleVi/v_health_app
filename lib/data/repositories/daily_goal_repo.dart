@@ -8,7 +8,7 @@ class DailyGoalRepo {
     return goalDao.fetchGoal(goalId);
   }
 
-  Future<DailyGoal> fetchLatestGoal() {
+  Future<DailyGoal?> fetchLatestGoal() {
     return goalDao.fetchLatestGoal();
   }
 

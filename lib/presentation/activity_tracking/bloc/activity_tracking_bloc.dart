@@ -1,31 +1,30 @@
-import 'dart:async';
-import 'dart:io' as io;
-import 'dart:math' as math;
+import "dart:async";
+import "dart:io" as io;
+import "dart:math" as math;
 
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:get_it/get_it.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+import "package:camera/camera.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:geolocator/geolocator.dart";
+import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:permission_handler/permission_handler.dart";
+import "package:v_health/data/sources/sqlite/dao/workout_dao.dart";
 
-import '../../../core/enum/activity_category.dart';
-import '../../../core/enum/activity_tracking.dart';
-import '../../../core/services/location_service.dart';
-import '../../../core/services/sensor_service.dart';
-import '../../../domain/entities/activity_record.dart';
-import '../../../domain/entities/position.dart';
-import '../../../main.dart';
-import '../../widgets/marker_painter.dart';
-import 'fitness_activity.dart';
-import 'cycling_activity.dart';
-import 'running_activity.dart';
-import 'walking_activity.dart';
+import "../../../core/enum/activity_category.dart";
+import "../../../core/enum/activity_tracking.dart";
+import "../../../core/services/location_service.dart";
+import "../../../domain/entities/activity_record.dart";
+import "../../../domain/entities/position.dart";
+import "../../../main.dart";
+import "../../widgets/marker_painter.dart";
+import "fitness_activity.dart";
+import "cycling_activity.dart";
+import "running_activity.dart";
+import "walking_activity.dart";
 
-part 'activity_tracking_event.dart';
-part 'activity_tracking_state.dart';
+part "activity_tracking_event.dart";
+part "activity_tracking_state.dart";
 
 class LocationSettingsRequest {
   final String title;
@@ -131,13 +130,13 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   
 
   var rawActiveData = <List<double>>[];
-  Timer? activeTimer;
 
   ActivityTrackingBloc() : super(const ActivityTrackingState()) {
     on<TrackingStarted>(_onTrackingStarted);
     on<TrackingPaused>(_onTrackingPaused);
     on<TrackingResumed>(_onTrackingResumed);
     on<TrackingFinished>(_onTrackingFinished);
+    on<TrackingDestroyed>(_onTrackingDestroyed);
     on<TrackingSaved>(_onTrackingSaved);
     on<DropDownItemSelected>(_onDropDownItemSelected);
     on<PictureTaken>(_onPictureTaken);
@@ -379,26 +378,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     if(state.category.isWalking) {
       activity = WalkingActivity(
         onPositionsAcquired: (positions) {
-          // _curtPos = positions.length == 1 ? positions.first : positions.last;
-          // _geoPoints.addAll(positions.map((p) {
-          //   _updateLatLngBounds(p);
-          //   return LatLng(p.latitude, p.longitude);
-          // }));
-          // if(_pageVisibility) add(const LocationUpdated());  
+          _curtPos = positions.length == 1 ? positions.first : positions.last;
+          _geoPoints.addAll(positions.map((p) {
+            _updateLatLngBounds(p);
+            return LatLng(p.latitude, p.longitude);
+          }));
+          if(_pageVisibility) add(const LocationUpdated());  
         },
         onMetricsUpdated: () {
-          // final temp = activity as WalkingActivity;
-          // trackingParams = trackingParams.copyWith(
-          //   distance: temp.totalDistance,
-          //   speed: temp.instantSpeed,
-          //   avgSpeed: temp.avgSpeed,
-          //   pace: temp.instantPace,
-          //   avgPace: temp.avgPace,
-          //   calories: temp.totalCalories,
-          // );
-          // if(_pageVisibility) {
-          //   add(const MetricsUpdated());
-          // }
+          final temp = activity as WalkingActivity;
+          trackingParams = trackingParams.copyWith(
+            distance: temp.totalDistance,
+            speed: temp.instantSpeed,
+            avgSpeed: temp.avgSpeed,
+            pace: temp.instantPace,
+            avgPace: temp.avgPace,
+            calories: temp.totalCalories,
+          );
+          if(_pageVisibility) {
+            add(const MetricsUpdated());
+          }
         },
       );
     }else if(state.category.isRunning) {
@@ -459,7 +458,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     _isProcessing = false;
   }
 
-  void _onTrackingPaused(           
+  void _onTrackingPaused(
     TrackingPaused event, 
     Emitter<ActivityTrackingState> emit,
   ) {
@@ -472,10 +471,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingResumed event,
     Emitter<ActivityTrackingState> emit,
   ) async {
-    print("resume");
-        final stream = await SensorService().accelerometerEvents();
-        stream.listen((e) => print(e));
-    return;
     if(_isProcessing) return;
     _isProcessing = true;
     await handleLocationPermission(emit);
@@ -492,14 +487,26 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingFinished event, 
     Emitter<ActivityTrackingState> emit,
   ) async {
+    if(_isProcessing) return;
+    _isProcessing = true;
+    final temp = activity as WalkingActivity;
+    // if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
+    //   emit(state.copyWith(isQualified: false));
+    //   return;
+    // }
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
-    ..activeTime = (activity as WalkingActivity).activeTime
-    ..distance = (activity as WalkingActivity).totalDistance
-    ..avgSpeed = (activity as WalkingActivity).avgSpeed
-    ..maxSpeed = (activity as WalkingActivity).maxSpeed
-    ..calories = (activity as WalkingActivity).totalCalories;
+    ..activeTime = temp.activeTime
+    ..distance = temp.totalDistance
+    ..avgSpeed = temp.avgSpeed
+    ..maxSpeed = temp.maxSpeed
+    ..calories = temp.totalCalories
+    ..data = temp.workoutData;
+
+    final repo = WorkoutDao();
+    record.data = await repo.getManyAccelData();
+
     emit(state.copyWith(
       result: TrackingResult(
         geoPoints: _geoPoints,
@@ -512,6 +519,15 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         ),
       ),
     ));
+    _isProcessing = false;
+  }
+
+  Future<void> _onTrackingDestroyed(
+    TrackingDestroyed event, 
+    Emitter<ActivityTrackingState> emit,
+  ) async {
+    clearSession();
+    emit(const ActivityTrackingState());
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -597,18 +613,23 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     Emitter<ActivityTrackingState> emit,
   ) async {
     if(!event.isSuccess) return;
+    clearSession();
+    emit(const ActivityTrackingState());
+  }
+
+  void clearSession() {
     _geoPoints.clear();
     _markers.clear();
     _photosParams.clear();
     _timer.cancel();
-    activity!.stopRecording();
+    activity?.stopRecording();
+    activity = null;
     _secondsElapsed = 0;
     _topMost = -double.maxFinite;
     _rightMost = -double.maxFinite;
     _leftMost = double.maxFinite;
     _bottomMost = double.maxFinite;
-    activeTimer?.cancel();
-    emit(const ActivityTrackingState());
+    trackingParams = const TrackingParams();
   }
 
   void _onDropDownItemSelected(
@@ -665,6 +686,8 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   Future<void> close() async {
     super.close();
     await _timeStreamController.close();
+    (await _mapController.future).dispose();
+    clearSession();
     WidgetsBinding.instance.removeObserver(this);
   }
 }

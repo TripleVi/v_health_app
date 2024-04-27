@@ -19,10 +19,16 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     // registerNotification();
     add(UserFetched());
 
+    doSomething();
+  }
+
+  Future<void> doSomething() async {
     final repo = DailyGoalRepo();
-    repo.createDefaultGoal().then((value) {
-      backgroundService.startService();
-    });
+    final goal = await repo.fetchLatestGoal();
+    if(goal == null) {
+      await repo.createDefaultGoal();
+    }
+    backgroundService.startService();
   }
 
   Future<void> _onUserFetched(UserFetched event, Emitter<SiteState> emit) async {
