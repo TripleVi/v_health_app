@@ -6,9 +6,9 @@ class WorkoutData {
   int time;
 
   WorkoutData({
+    required this.steps,
     required this.speed,
     required this.distance,
-    required this.steps,
     required this.calories,
     required this.time,
   });
@@ -35,6 +35,6 @@ class WorkoutData {
 
   @override
   String toString() {
-    return "WorkoutData{steps: $steps, distance: $distance, time: $time, calories: $calories, speed: $speed}";
+    return "WorkoutData{steps: $steps, speed: $speed, distance: $distance, calories: $calories, time: $time}";
   }
 }

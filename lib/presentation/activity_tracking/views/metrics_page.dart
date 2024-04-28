@@ -20,7 +20,7 @@ class MetricsPage extends StatelessWidget {
     required this.targetWidget,
   });
 
-  List<Widget> _processMetrics(TrackingParams param) {
+  List<Widget> _processMetrics(TrackingParams params) {
     final metricsWidgets = <Widget>[];
     metricsWidgets.add(TimeCounter(
       timeStream: timeStream,
@@ -31,45 +31,46 @@ class MetricsPage extends StatelessWidget {
         );
       },
     ));
-    final distanceMap = MyUtils.getFormattedDistance(param.distance);
+    final distanceMap = MyUtils.getFormattedDistance(params.distance);
     metricsWidgets.add(_metricsWidget(
       txtName: "Distance",
       txtValue: distanceMap["value"],
       txtUnit: distanceMap["unit"],
     ));
-    final speedMap = MyUtils.getFormattedSpeed(param.speed);
+    final speedMap = MyUtils.getFormattedSpeed(params.speed);
     metricsWidgets.add(_metricsWidget(
       txtName: "Speed",
       txtValue: speedMap["value"],
       txtUnit: speedMap["unit"],
     ));
-    final avgSpeedMap = MyUtils.getFormattedSpeed(param.avgSpeed);
+    final avgSpeedMap = MyUtils.getFormattedSpeed(params.avgSpeed);
     metricsWidgets.add(_metricsWidget(
-      txtName: "Avg. Speed",
+      txtName: "Avg. speed",
       txtValue: avgSpeedMap["value"],
       txtUnit: avgSpeedMap["unit"],
     ));
-    final paceMap = MyUtils.getFormattedPace(param.pace);
+    final paceMap = MyUtils.getFormattedPace(params.speed);
     metricsWidgets.add(_metricsWidget(
       txtName: "Pace",
       txtValue: paceMap["value"],
       txtUnit: paceMap["unit"],
     ));
-    final avgPaceMap = MyUtils.getFormattedPace(param.avgPace);
+    final avgPaceMap = MyUtils.getFormattedPace(params.avgSpeed);
     metricsWidgets.add(_metricsWidget(
-      txtName: "Avg. Pace",
+      txtName: "Avg. pace",
       txtValue: avgPaceMap["value"],
       txtUnit: avgPaceMap["unit"],
     ));
+    final avgCaloriesMap = MyUtils.getFormattedCalories(params.calories);
     metricsWidgets.add(_metricsWidget(
-      txtName: "Calories Burnt",
-      txtValue: "${param.calories}",
-      txtUnit: "kcal",
+      txtName: "Calories burnt",
+      txtValue: avgCaloriesMap["value"],
+      txtUnit: avgCaloriesMap["unit"],
     ));
 
-    if(param.selectedTarget.isCalories) {
+    if(params.selectedTarget.isCalories) {
       metricsWidgets.removeLast();
-    }else if(param.selectedTarget.isDistance) {
+    }else if(params.selectedTarget.isDistance) {
       metricsWidgets.removeAt(1);
     }else {
       metricsWidgets.removeAt(0);

@@ -1,9 +1,9 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../data/sources/api/post_service.dart';
-import '../../../../domain/entities/post.dart';
+import "../../../../data/sources/api/post_service.dart";
+import "../../../../domain/entities/post.dart";
 
-part 'details_state.dart';
+part "details_state.dart";
 
 class DetailsCubit extends Cubit<DetailsState> {
   final Post post;
@@ -14,6 +14,13 @@ class DetailsCubit extends Cubit<DetailsState> {
 
   Future<void> _fetchData() async {
     final service = PostService();
+    final details = await service.fetchPostDetails(post.id);
+    if(details == null) {
+      return emit(const DetailsError());
+    }
+    post.record.data = details.record.data;
+    post.record.coordinates = details.record.coordinates;
+    post.record.photos = details.record.photos;
     emit(DetailsLoaded(post));
   }
 }

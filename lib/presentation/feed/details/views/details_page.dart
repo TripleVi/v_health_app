@@ -1,15 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:syncfusion_flutter_charts/charts.dart";
 
-import '../../../../core/resources/style.dart';
-import '../../../../core/utilities/utils.dart';
-import '../../../../domain/entities/post.dart';
-import '../../../../domain/entities/workout_data.dart';
-import '../../../site/bloc/site_bloc.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../cubit/details_cubit.dart';
+import "../../../../core/resources/style.dart";
+import "../../../../core/utilities/utils.dart";
+import "../../../../domain/entities/post.dart";
+import "../../../../domain/entities/workout_data.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../cubit/details_cubit.dart";
 
 class DetailsPage extends StatelessWidget {
   const DetailsPage({super.key});
@@ -19,310 +18,283 @@ class DetailsPage extends StatelessWidget {
     final post = ModalRoute.of(context)!.settings.arguments as Post;
     return BlocProvider(
       create: (context) => DetailsCubit(post),
-      child: DetailsView(),
+      child: const DetailsView(),
     );
   }
 }
 
 class DetailsView extends StatelessWidget {
-  final _tooltipBehavior = TooltipBehavior(enable: true);
-  DetailsView({super.key});
+  const DetailsView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.surfaceColor,
-      appBar: CustomAppBar.get(
-        title: "Details",
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 24.0,
-            color: AppStyle.neutralColor400,
+      backgroundColor: AppStyle.backgroundColor,
+      appBar: CustomAppBar.get(title: "Details"),
+      body: Center(
+        child: Container(
+          height: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 520.0),
+          padding: const EdgeInsets.all(12.0),
+          child: BlocBuilder<DetailsCubit, DetailsState>(
+            builder: (context, state) {
+              if(state is DetailsLoading) {
+                return const AppLoadingIndicator();
+              }
+              if(state is DetailsLoaded) {
+                return _mainContent(context, state);
+              }
+              if(state is DetailsError) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.warning_rounded, 
+                        size: 68.0, 
+                        color: AppStyle.primaryColor,
+                      ),
+                      Text("Oops, something went wrong!", style: AppStyle.caption1()),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox();
+            },
           ),
         ),
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
-        ),
-        child: BlocBuilder<DetailsCubit, DetailsState>(
-          builder: (context, state) {
-            if(state is DetailsLoading) {
-              return const AppLoadingIndicator();
-            }
-            if(state is DetailsLoaded) {
-              return _mainContent(context, state);
-            }
-            return const SizedBox();
-          },
-        ),
-      ),
     );
   }
 
-  Widget _buildCell(String title, String content) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(title, style: AppStyle.bodyText(height: 1)),
-        const SizedBox(height: 8.0),
-        Text(content, style: AppStyle.heading2(height: 1)),
-      ],
-    );
-  }
-
-  Widget _mapSection(BuildContext context, DetailsLoaded state) {
-    return GestureDetector(
-      onTap: () async {
-        context.read<SiteBloc>().add(NavbarHidden());
-        await Navigator.pushNamed<void>(
-          context, "/mapPage", 
-          arguments: state.post,
-        );
-        await Future.delayed(const Duration(milliseconds: 500))
-            .then((_) => context.read<SiteBloc>().add(NavbarShown()));
-      },
-      child: AspectRatio(
-        aspectRatio: 2 / 1,
-        child: Image.network(
-          state.post.mapUrl,
-          // loadingBuilder: (context, child, loadingProgress) {
-          //   return const AppLoadingIndicator();
-          // },
-          filterQuality: FilterQuality.high,
-          fit: BoxFit.contain,
-          isAntiAlias: true,
-        ),
-      ),
-    );
-  }
+  // Widget _mapSection(BuildContext context, DetailsLoaded state) {
+  //   return GestureDetector(
+  //     onTap: () async {
+  //       context.read<SiteBloc>().add(NavbarHidden());
+  //       await Navigator.pushNamed<void>(
+  //         context, "/mapPage", 
+  //         arguments: state.post,
+  //       );
+  //       await Future.delayed(const Duration(milliseconds: 500))
+  //           .then((_) => context.read<SiteBloc>().add(NavbarShown()));
+  //     },
+  //     child: AspectRatio(
+  //       aspectRatio: 2 / 1,
+  //       child: Image.network(
+  //         // state.post.mapUrl,
+  //         "https://static.vecteezy.com/system/resources/thumbnails/026/829/465/small/beautiful-girl-with-autumn-leaves-photo.jpg",
+  //         // loadingBuilder: (context, child, loadingProgress) {
+  //         //   return const AppLoadingIndicator();
+  //         // },
+  //         filterQuality: FilterQuality.high,
+  //         fit: BoxFit.contain,
+  //         isAntiAlias: true,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _mainContent(BuildContext context, DetailsLoaded state) {
-    final record = state.post.record;
-    final data = record.data;
-    final distanceMap = MyUtils.getFormattedDistance(record.distance);
-    final avgSMap = MyUtils.getFormattedDistance(record.avgSpeed);
-    // final avgPMap = MyUtils.getFormattedDistance(1/record.avgSpeed);
-    final avgPMap = MyUtils.getFormattedDistance(0);
-    final maxSMap = MyUtils.getFormattedDistance(record.maxSpeed);
-    final maxPMap = MyUtils.getFormattedDistance(0);
-    // final maxPMap = MyUtils.getFormattedDistance(1/record.maxSpeed);
     return SingleChildScrollView(
       child: Column(
         children: [
-          // FutureBuilder(
-          //   future: ImageUtils.getImageFile(record.mapName!),
-          //   builder: (context, snapshot) {
-          //     if(snapshot.hasData) {
-          //       return GestureDetector(
-          //         onTap: () {
-                    
-          //         },
-          //         child: Image.file(
-          //           snapshot.data!,
-          //           width: double.infinity,
-          //           height: 200.0,
-          //           fit: BoxFit.cover,
-          //         ),
-          //       );
-          //     }
-          //     return Center(child: CircularProgressIndicator(
-          //       color: AppStyle.neutralColor400,
-          //     ));
-          //   }
-          // ),
-          const SizedBox(height: 40.0),
-          _mapSection(context, state),
-          const Divider(
-            height: 8.0,
-            thickness: 8.0,
-            color: AppStyle.neutralColor400,
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: SfCartesianChart(
-              primaryXAxis: const CategoryAxis(
-                isVisible: true,
-                title: AxisTitle(text: "Time (mins)"),
-              ),
-              primaryYAxis: const NumericAxis(
-                isVisible: true,
-                title: AxisTitle(text: "Speed (m/s)"),
-              ),
-              title: const ChartTitle(text: "Speed - Time"),
-              // legend: Legend(isVisible: true),
-              tooltipBehavior: _tooltipBehavior,
-              series: <LineSeries<WorkoutData, String>>[
-                LineSeries<WorkoutData, String>(
-                  color: AppStyle.primaryColor,
-                  dataSource:  data,
-                  xValueMapper: (datum, index) => "${(datum.time/1000/60)}",
-                  yValueMapper: (datum, index) => datum.speed,
-                  // dataLabelSettings: const DataLabelSettings(isVisible: true)
-                ),
-              ],
-            ),
-          ),
-          const Divider(
-            height: 8.0,
-            thickness: 8.0,
-            color: AppStyle.neutralColor400,
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
+          summaryWidget(context, state),
+          // _mapSection(context, state),
+          const SizedBox(height: 12.0),
+          chartWidget(context, state),
+          const SizedBox(height: 12.0),
+        ],
+      ),
+    );
+  }
+
+  Widget summaryWidget(BuildContext context, DetailsLoaded state) {
+    final record = state.post.record;
+    final time = MyUtils.getFormattedDuration(record.activeTime);
+    final distanceMap = MyUtils.getFormattedDistance(record.distance);
+    final avgSMap = MyUtils.getFormattedSpeed(record.avgSpeed);
+    final maxSMap = MyUtils.getFormattedSpeed(record.maxSpeed);
+    final avgPMap = MyUtils.getFormattedPace(record.avgSpeed);
+    final maxPMap = MyUtils.getFormattedPace(record.maxSpeed);
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceColor,
+        borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Workout details", style: AppStyle.heading5()),
+          const SizedBox(height: 16.0),
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text("Workout details", style: AppStyle.heading2(height: 1)),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: IntrinsicHeight(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _buildCell(
-                          "Workout duration",
-                          MyUtils.getFormattedDuration(record.activeTime),
-                        ),
-                      ),
-                      const VerticalDivider(
-                        width: 2.0,
-                        thickness: 2.0,
-                        endIndent: 4.0,
-                        color: AppStyle.neutralColor400,
-                      ),
-                      Expanded(
-                        child: _buildCell(
-                          "Total duration",
-                          MyUtils.getFormattedDuration(
-                            record.endDate.difference(record.startDate).inSeconds
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildCell(
-                        "Distance", 
-                        "${distanceMap["value"]!} ${distanceMap["unit"]!}",
-                      ),
+                    _metricsWidget(
+                      name: "Workout duration",
+                      value: time,
                     ),
-                    const SizedBox(
-                      height: 36.0,
-                      child: VerticalDivider(
-                        width: 2.0,
-                        thickness: 2.0,
-                        endIndent: 4.0,
-                        color: AppStyle.surfaceColor,
-                      ),
+                    const SizedBox(height: 8.0),
+                    _metricsWidget(
+                      name: "Distance",
+                      value: distanceMap["value"]!,
+                      unit: distanceMap["unit"],
                     ),
-                    Expanded(
-                      child: _buildCell(
-                        "Elevation", 
-                        "--",
-                      ),
+                    const SizedBox(height: 8.0),
+                    _metricsWidget(
+                      name: "Steps",
+                      value: "${record.steps}",
+                    ),
+                    const SizedBox(height: 8.0),
+                    _metricsWidget(
+                      name: "Avg speed",
+                      value: avgSMap["value"]!,
+                      unit: avgSMap["unit"],
                     ),
                   ],
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
+              const SizedBox(width: 4.0),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: _buildCell(
-                        "Workout calories", 
-                        "${record.calories} cal",
-                      ),
+                    _metricsWidget(
+                      name: "Max speed",
+                      value: maxSMap["value"]!,
+                      unit: maxSMap["unit"],
                     ),
-                    const SizedBox(
-                      height: 36.0,
-                      child: VerticalDivider(
-                        width: 2.0,
-                        thickness: 2.0,
-                        endIndent: 4.0,
-                        color: AppStyle.surfaceColor,
-                      ),
+                    const SizedBox(height: 8.0),
+                    _metricsWidget(
+                      name: "Avg pace",
+                      value: avgPMap["value"]!,
+                      unit: avgPMap["unit"],
                     ),
-                    Expanded(
-                      child: _buildCell(
-                        "Total calories", 
-                        "${record.calories} cal",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildCell(
-                        "Avg. speed", 
-                        "${avgSMap["value"]!} ${avgPMap["unit"]!}",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 36.0,
-                      child: VerticalDivider(
-                        width: 2.0,
-                        thickness: 2.0,
-                        endIndent: 4.0,
-                        color: AppStyle.surfaceColor,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildCell(
-                        "Max. speed", 
-                        "${maxSMap["value"]!} ${maxSMap["unit"]!}",
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildCell(
-                        "Avg. pace", 
-                        "${avgPMap["value"]!} ${avgPMap["unit"]!}",
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 36.0,
-                      child: VerticalDivider(
-                        width: 2.0,
-                        thickness: 2.0,
-                        endIndent: 4.0,
-                        color: AppStyle.neutralColor400,
-                      ),
-                    ),
-                    Expanded(
-                      child: _buildCell(
-                        "Max. pace", 
-                        "${maxPMap["value"]!} ${maxPMap["unit"]!}",
-                      ),
+                    const SizedBox(height: 8.0),
+                    _metricsWidget(
+                      name: "Max pace",
+                      value: maxPMap["value"]!,
+                      unit: maxPMap["unit"],
                     ),
                   ],
                 ),
               ),
             ],
-          )
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metricsWidget({
+    required String name,
+    required String value,
+    String? unit,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(name, style: AppStyle.caption1()),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("$value ", style: AppStyle.heading4()),
+            Text(unit ?? "", style: AppStyle.heading5()),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget chartWidget(BuildContext context, DetailsLoaded state) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceColor,
+        borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Text("Workout details", style: AppStyle.heading5()),
+          // const SizedBox(height: 16.0),
+          workoutDataChart(state)
+        ],
+      ),
+    );
+  }
+
+  Widget workoutDataChart(DetailsLoaded state) {
+    print(state.post.record.data);
+    return SizedBox(
+      height: 200.0,
+      child: SfCartesianChart(
+        backgroundColor: AppStyle.surfaceColor,
+        title: ChartTitle(
+          text: "Workout data", 
+          textStyle: AppStyle.heading5(),
+          alignment: ChartAlignment.near,
+        ),
+        margin: const EdgeInsets.all(0.0),
+        plotAreaBorderWidth: 0.0,
+        primaryXAxis: CategoryAxis(
+          // interval: interval,
+          majorTickLines: const MajorTickLines(
+            color: AppStyle.secondaryTextColor,
+          ),
+          axisLine: const AxisLine(color: AppStyle.secondaryTextColor),
+          majorGridLines: const MajorGridLines(width: 0.0),
+          labelStyle: AppStyle.caption2(),
+          // axisLabelFormatter: xAxisLabelText == null 
+          //     ? null 
+          //     : (labelArgs) {
+          //       final txt = xAxisLabelText(labelArgs.value.toInt());
+          //       return ChartAxisLabel(txt, labelArgs.textStyle);
+          //     },
+        ),
+        primaryYAxis: NumericAxis(
+          opposedPosition: true,
+          decimalPlaces: 0,
+          minimum: 0.0,
+          // maximum: maxYAxis*1.0,
+          // desiredIntervals: 2,
+          majorTickLines: const MajorTickLines(width: 0.0, size: 0.0),
+          axisLine: const AxisLine(width: 0.0),
+          labelStyle: AppStyle.caption2(),
+          axisLabelFormatter: (labelArgs) {
+            return ChartAxisLabel(
+              MyUtils.getCompactNumberFormat(labelArgs.value), 
+              labelArgs.textStyle,
+            );
+          },
+        ),
+        series: <CartesianSeries<WorkoutData, int>>[
+          SplineSeries(
+            dataSource: state.post.record.data,
+            xValueMapper: (data, index) => data.time,
+            yValueMapper: (data, _) => data.steps,
+            color: AppStyle.stepColor,
+
+            // markerSettings: MarkerSettings(
+            // isVisible: true,
+            // height: 4,
+            // width: 4,
+            // shape: DataMarkerType.circle,
+            // borderWidth: 3,
+            // borderColor: Colors.black),
+        // dataLabelSettings: DataLabelSettings(
+        //     isVisible: true,
+        //     labelAlignment: ChartDataLabelAlignment.auto)
+          ),
         ],
       ),
     );

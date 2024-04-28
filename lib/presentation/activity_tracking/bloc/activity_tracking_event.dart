@@ -23,8 +23,8 @@ class TrackingFinished extends ActivityTrackingEvent {
 }
 
 class TrackingSaved extends ActivityTrackingEvent {
-  final bool isSuccess;
-  const TrackingSaved(this.isSuccess);
+  final bool? success;
+  const TrackingSaved(this.success);
 }
 
 class TrackingDestroyed extends ActivityTrackingEvent {

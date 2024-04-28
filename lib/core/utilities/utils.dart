@@ -292,20 +292,23 @@ class MyUtils {
   }
 
   static Map<String, String> getFormattedDistance(double? distance) {
-    const unit = "km";
+    // unit of distance is meter 
     if(distance == null) {
       return {
         "value": "--",
-        "unit": unit,
+        "unit": "m",
+      };
+    }
+    if(distance < 1000) {
+      return {
+        "value": distance.toStringAsFixed(0),
+        "unit": "m",
       };
     }
     // m -> km
-    distance /= 1000;
-    final regex = RegExp(r'^\d+\.0*[1-9]?');
-    final match = regex.firstMatch("$distance");
     return {
-      "value": match![0]!,
-      "unit": unit,
+      "value": (distance/1000).toStringAsFixed(1),
+      "unit": "km",
     };
   }
 
@@ -319,7 +322,7 @@ class MyUtils {
     }
     // speed (m/s)
     return {
-      "value": (inSeconds ? speed : speed*3.6).toStringAsFixed(2),
+      "value": (inSeconds ? speed : speed*3.6).toStringAsFixed(1),
       "unit": unit,
     };
   }
@@ -345,6 +348,19 @@ class MyUtils {
     // Duration format: 00:00:00
     final timeElapsed = Duration(seconds: secondsElapsed);
     return timeElapsed.toString().substring(0, 7);
+  }
+
+  static Map<String, String> getFormattedCalories(double calories) {
+    var value = "0";
+    if(calories > 0 && calories < 1) {
+      value = calories.toStringAsFixed(1);
+    }else if(calories >= 1) {
+      value = calories.toStringAsFixed(0);
+    }
+    return {
+      "value": value,
+      "unit": "kcal",
+    };
   }
 
   static Future<io.Directory> getAppTempDirectory() {

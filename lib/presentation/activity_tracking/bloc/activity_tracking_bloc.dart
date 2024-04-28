@@ -154,9 +154,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       requestLocationPermission().then((_) async {
         if(isPrecise) {
-          await _onDesiredLocation();
-        }else {
-          _isLocationAvail = false;
+          _isLocationAvail = true;
           add(const LocationUpdated());
         }
         _isProcessing = false;
@@ -391,8 +389,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
             distance: temp.totalDistance,
             speed: temp.instantSpeed,
             avgSpeed: temp.avgSpeed,
-            pace: temp.instantPace,
-            avgPace: temp.avgPace,
             calories: temp.totalCalories,
           );
           if(_pageVisibility) {
@@ -431,16 +427,20 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     _isProcessing = true;
     await handleLocationPermission(emit);
     if(isPrecise) {
+      trackingParams = TrackingParams(
+        selectedTarget: state.trackingParams.selectedTarget,
+        targetValue: event.targetValue,
+      );
       await _onDesiredLocation();
       _geoPoints.add(LatLng(_curtPos!.latitude, _curtPos!.longitude));
       _updateLatLngBounds(_curtPos!);
       final pos = _curtPos!;
-      final startingMarker = await _setCustomMarkers();
+      final startMarker = await _setStartMarkers();
       _timer = _initializeTimer();
       _markers.add(Marker(
-        markerId: const MarkerId("starting_position"),
+        markerId: const MarkerId("start_point"),
         position: LatLng(pos.latitude, pos.longitude),
-        icon: startingMarker,
+        icon: startMarker,
       ));
       initTrackingSession();
       activity!.startRecording();
@@ -487,8 +487,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingFinished event, 
     Emitter<ActivityTrackingState> emit,
   ) async {
-    if(_isProcessing) return;
-    _isProcessing = true;
+    // if(_isProcessing) return;
+    // _isProcessing = true;
+    final endMarker = await _setEndMarkers();
+    _markers.add(Marker(
+      markerId: const MarkerId("end_point"),
+      position: LatLng(_curtPos!.latitude, _curtPos!.longitude),
+      icon: endMarker,
+    ));
+    emit(state.copyWith());
+    return;
     final temp = activity as WalkingActivity;
     // if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
     //   emit(state.copyWith(isQualified: false));
@@ -612,9 +620,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingSaved event,
     Emitter<ActivityTrackingState> emit,
   ) async {
-    if(!event.isSuccess) return;
-    clearSession();
-    emit(const ActivityTrackingState());
+    if(event.success == null) {
+      _markers.remove(_markers.last);
+      emit(state.copyWith());
+    }else if(event.success == true) {
+      clearSession();
+      emit(const ActivityTrackingState(snackMsg: "Adding post succeed"));
+    }else {
+      _markers.remove(_markers.last);
+      emit(state.copyWith(snackMsg: "Adding post failed"));
+    }
   }
 
   void clearSession() {
@@ -661,10 +676,17 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     emit(state.copyWith());
   }
 
-  Future<BitmapDescriptor> _setCustomMarkers() async {
+  Future<BitmapDescriptor> _setStartMarkers() async {
     return BitmapDescriptor.fromAssetImage(
       ImageConfiguration.empty, 
       "assets/images/start_marker.png",
+    );
+  }
+
+  Future<BitmapDescriptor> _setEndMarkers() async {
+    return BitmapDescriptor.fromAssetImage(
+      ImageConfiguration.empty, 
+      "assets/images/flag.png",
     );
   }
 

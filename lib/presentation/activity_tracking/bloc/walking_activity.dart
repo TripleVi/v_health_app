@@ -11,9 +11,6 @@ class WalkingActivity extends FitnessActivity {
   double? instantSpeed;
   double avgSpeed = 0.0;
   double maxSpeed = 0.0;
-  double? instantPace;
-  double avgPace = 0.0;
-  double maxPace = 0.0;
   double totalCalories = 0;
   int totalSteps = 0;
   int activeTime = 0;
@@ -53,6 +50,7 @@ class WalkingActivity extends FitnessActivity {
     accelListener = backgroundService.on("accelAcquired").listen((event) async {
       var duration = 0;
       for (var e in event!["data"]) {
+        if(e["steps"] as int == 0) continue;
         totalSteps += e["steps"] as int;
         totalCalories += e["calories"] * 1.0; // kcal
         totalDistance += e["distance"] * 1.0; // m
@@ -66,11 +64,14 @@ class WalkingActivity extends FitnessActivity {
           time: activeTime+duration,
         ));
       }
-      activeTime += duration;
-      instantSpeed = workoutData.last.speed;
-      avgSpeed = totalDistance / duration;
-      avgPace = 1 / avgSpeed;
-      maxPace = 1 / maxSpeed;
+      if(duration == 0) {
+        if(instantSpeed == null || instantSpeed == 0.0) return;
+        instantSpeed = 0.0;
+      }else {
+        activeTime += duration;
+        instantSpeed = workoutData.last.speed;
+        avgSpeed = totalDistance / activeTime;
+      }
       onMetricsUpdated();
     });
   }

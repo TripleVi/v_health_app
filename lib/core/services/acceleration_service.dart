@@ -150,8 +150,7 @@ class AccelerationService {
       if(desiredData[i] >= threshold && countSteps) {
         steps++;
         countSteps = false;
-        int j = i;
-        int k = i;
+        int j = i, k = i;
         while (desiredData[--j] >= 0) {}
         while (k < desiredData.length-1 && desiredData[++k] >= 0) {}
         while (k < desiredData.length-1 && desiredData[++k] <= 0) {}

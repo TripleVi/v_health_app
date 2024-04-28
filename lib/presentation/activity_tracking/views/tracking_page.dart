@@ -112,6 +112,16 @@ class TrackingView extends StatelessWidget {
                     .read<ActivityTrackingBloc>().add(const TrackingDestroyed());
               }
             });
+          } else if (state.snackMsg != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: AppStyle.surfaceColor,
+              showCloseIcon: true,
+              closeIconColor: AppStyle.secondaryIconColor,
+              content: Text(
+                state.snackMsg!,
+                style: AppStyle.bodyText(),
+              ),
+            ));
           }
         },
         builder: (blocContext, state) {
@@ -148,6 +158,7 @@ class TrackingView extends StatelessWidget {
           txtName!, 
           style: nameStyle ?? AppStyle.caption1(),
         ),
+        const SizedBox(height: 8.0),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -164,12 +175,12 @@ class TrackingView extends StatelessWidget {
         progressValue != null ? Container(
           margin: const EdgeInsets.only(top: 12.0),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AppStyle.borderRadius),
             child: SizedBox(
               width: 250.0,
               child: LinearProgressIndicator(
                 value: progressValue,
-                semanticsLabel: 'Linear progress indicator',
+                semanticsLabel: "Linear progress indicator",
                 backgroundColor: AppStyle.neutralColor300,
                 minHeight: 8.0,
                 valueColor: const AlwaysStoppedAnimation(AppStyle.primaryColor),
@@ -182,23 +193,23 @@ class TrackingView extends StatelessWidget {
   }
 
   Widget _buildTargetWidget(ActivityTrackingState state) {
-    final param = state.trackingParams;
-    if (param.selectedTarget.isDistance) {
-      final map = MyUtils.getFormattedDistance(param.distance);
+    final params = state.trackingParams;
+    if (params.selectedTarget.isDistance) {
+      final map = MyUtils.getFormattedDistance(params.distance);
       return _targetWidget(
         txtName: "Distance",
         txtValue: map["value"],
         txtUnit: map["unit"],
-        // progressValue: param.distance / 1000 / param.targetValue!,
+        progressValue: params.distance / params.targetValue!,
       );
     }
-    if (param.selectedTarget.isCalories) {
-      final map = MyUtils.getFormattedDistance(param.distance);
+    if (params.selectedTarget.isCalories) {
+      final map = MyUtils.getFormattedDistance(params.distance);
       return _targetWidget(
         txtName: "Calories",
-        txtValue: "${param.calories}",
+        txtValue: "${params.calories}",
         txtUnit: map["cal"],
-        progressValue: param.calories / param.targetValue!,
+        progressValue: params.calories / params.targetValue!,
       );
     }
     return TimeCounter(
@@ -207,9 +218,9 @@ class TrackingView extends StatelessWidget {
         return _targetWidget(
           txtName: "Duration",
           txtValue: MyUtils.getFormattedDuration(secondsElapsed),
-          progressValue: param.targetValue == null 
+          progressValue: params.targetValue == null 
               ? null
-              : secondsElapsed / param.targetValue!
+              : secondsElapsed / params.targetValue!
         );
       },
     );
@@ -226,10 +237,12 @@ class TrackingView extends StatelessWidget {
             child: Stack(
               alignment: AlignmentDirectional.bottomCenter,
               children: <Widget>[
-                _googleMapWidget(
-                  context: context,
-                  state: state,
-                ),
+                state.isLocationAvail 
+                    ? _googleMapWidget(
+                      context: context,
+                      state: state,
+                    ) 
+                    : const SizedBox(),
                 state.recState.isInitial
                     ? _targetSelectionWidget(
                         context,
@@ -241,16 +254,13 @@ class TrackingView extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 20.0,
-                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 20.0),
                             width: double.infinity,
                             margin: const EdgeInsets.all(12.0),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100.withOpacity(0.65),
-                              borderRadius: const BorderRadius.all(
-                                Radius.circular(AppStyle.borderRadius),
-                              ),
+                              color: AppStyle.surfaceColor.withOpacity(0.6),
+                              borderRadius: const BorderRadius
+                                  .all(Radius.circular(AppStyle.borderRadius)),
                             ),
                             child: _buildTargetWidget(state),
                           ),
@@ -344,8 +354,7 @@ class TrackingView extends StatelessWidget {
       alignment: AlignmentDirectional.center,
       underline: const SizedBox(),
       onChanged: (value) => context
-          .read<ActivityTrackingBloc>()
-          .add(DropDownItemSelected(value!)),
+          .read<ActivityTrackingBloc>().add(DropDownItemSelected(value!)),
       selectedItemBuilder: (context) {
         return TrackingTarget.values
             .map(
@@ -492,8 +501,9 @@ class TrackingView extends StatelessWidget {
 
   double? _getTargetValue(TrackingTarget targetType) {
     if (targetType.isDistance) {
-      return double.parse(_txtDistanceWhole.text) +
+      final distance = double.parse(_txtDistanceWhole.text) +
           double.parse(_txtDistanceFractional.text);
+      return distance * 1000; // km to m
     }
     if (targetType.isCalories) {
       return double.parse(_txtCalories.text);
@@ -517,11 +527,12 @@ class TrackingView extends StatelessWidget {
           polylineId: const PolylineId("route"),
           visible: true,
           points: state.geoPoints,
-          color: AppStyle.primaryColor,
+          color: Colors.blue,
           width: 4,
         ),
       },
       mapType: MapType.normal,
+      zoomControlsEnabled: false,
       myLocationButtonEnabled: true,
       myLocationEnabled: state.result == null,
       markers: state.markers,
@@ -582,21 +593,10 @@ class TrackingView extends StatelessWidget {
   }
 
   void _navigateToSavingPage(BuildContext context, TrackingResult result) async {
-    await Navigator.pushNamed<bool>(context, "/postForm", arguments: result).then((value) {
-      if(value != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: const Text("Post added successfully"),
-          action: SnackBarAction(
-            label: "Undo",
-            onPressed: () {
-              
-            },
-          ),
-        ));
-        return context.read<ActivityTrackingBloc>().add(TrackingSaved(value));
-      }
-      context.read<ActivityTrackingBloc>().add(const RefreshScreen());
-    });
+    Navigator.pushNamed<bool>(context, "/postForm", arguments: result)
+        .then((value) {
+          context.read<ActivityTrackingBloc>().add(TrackingSaved(value));
+        });
   }
 
   void _openImageView(BuildContext context, ActivityTrackingState state) {

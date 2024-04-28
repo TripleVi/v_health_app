@@ -92,7 +92,6 @@ void onStart(ServiceInstance service) async {
               signals.clear();
               final accelService = AccelerationService();
               final result = await accelService.analyze(tempAccel);
-              if(result["steps"] == 0) return;
               accelAnalyzed.add(result);
               if(backgroundMode) return;
               service.invoke("accelAcquired", {"data": accelAnalyzed});

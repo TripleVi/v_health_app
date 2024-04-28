@@ -21,7 +21,7 @@ class Constants {
   static const newId = -1;
   static const inactiveInterval = 15; // seconds
   static const activeInterval = 5; // seconds
-  static const distance = 10; // meters
+  static const distance = 15; // meters
 
   static const backIcon = Icons.arrow_back_ios_outlined;
 }

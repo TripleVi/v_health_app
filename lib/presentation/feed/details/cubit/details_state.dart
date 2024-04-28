@@ -10,5 +10,10 @@ final class DetailsLoading extends DetailsState {
 
 final class DetailsLoaded extends DetailsState {
   final Post post;
+
   const DetailsLoaded(this.post);
+}
+
+final class DetailsError extends DetailsState {
+  const DetailsError();
 }

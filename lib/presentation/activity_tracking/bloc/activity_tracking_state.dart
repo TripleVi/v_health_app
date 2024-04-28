@@ -14,13 +14,14 @@ class ActivityTrackingState {
   final io.File? photo;
   final bool isMetricsVisible;
   final bool isQualified;
+  final String? snackMsg;
 
   const ActivityTrackingState({
     this.category = ActivityCategory.walking,
     this.geoPoints = const [],
     this.markers = const {},
     this.recState = RecordingState.initial,
-    this.isLocationAvail = true,
+    this.isLocationAvail = false,
     this.request,
     this.timeStream,
     this.trackingParams = const TrackingParams(),
@@ -28,6 +29,7 @@ class ActivityTrackingState {
     this.photo,
     this.isMetricsVisible = false,
     this.isQualified = true,
+    this.snackMsg,
   });
 
   ActivityTrackingState copyWith({
@@ -43,6 +45,7 @@ class ActivityTrackingState {
     io.File? photo,
     bool? isMetricsVisible,
     bool isQualified = true,
+    String? snackMsg,
   }) {
     return ActivityTrackingState(
       category: category ?? this.category,
@@ -57,6 +60,7 @@ class ActivityTrackingState {
       photo: photo,
       isMetricsVisible: isMetricsVisible ?? this.isMetricsVisible,
       isQualified: isQualified,
+      snackMsg: snackMsg,
     );
   }
 }
@@ -65,8 +69,6 @@ class TrackingParams {
   final double distance;
   final double? speed;
   final double avgSpeed;
-  final double? pace;
-  final double? avgPace;
   final double calories;
   final TrackingTarget selectedTarget;
   final double? targetValue;
@@ -75,8 +77,6 @@ class TrackingParams {
     this.distance = 0.0, 
     this.speed, 
     this.avgSpeed = 0.0, 
-    this.pace, 
-    this.avgPace, 
     this.calories = 0,
     this.selectedTarget = TrackingTarget.distance,
     this.targetValue,
@@ -94,8 +94,6 @@ class TrackingParams {
       distance: distance,
       speed: speed,
       avgSpeed: avgSpeed,
-      pace: pace,
-      avgPace: avgPace,
       calories: calories,
       selectedTarget: selectedTarget,
       targetValue: targetValue,

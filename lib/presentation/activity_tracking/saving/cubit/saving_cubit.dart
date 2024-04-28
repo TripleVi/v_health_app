@@ -35,14 +35,15 @@ class SavingCubit extends Cubit<SavingState> {
 
   Future<void> _processMap() async {
     final mapController = await _result.controller.future;
-    await mapController.moveCamera(
-      CameraUpdate.newLatLngBounds(_result.latLngBounds, 0.0),
-    );
+    await mapController
+        .moveCamera(CameraUpdate.newLatLngBounds(_result.latLngBounds, 0.0));
     final screenSize = window.physicalSize;
     final deviceRatio = window.devicePixelRatio;
     final expectedHeight = screenSize.width / 2;
-    final topRight = await mapController.getScreenCoordinate(_result.latLngBounds.northeast);
-    final bottomLeft = await mapController.getScreenCoordinate(_result.latLngBounds.southwest);
+    final topRight = await mapController
+        .getScreenCoordinate(_result.latLngBounds.northeast);
+    final bottomLeft = await mapController
+        .getScreenCoordinate(_result.latLngBounds.southwest);
     final distance = bottomLeft.y - topRight.y;
     var zoomLevel = await mapController.getZoomLevel();
     if(distance > expectedHeight) {
@@ -50,9 +51,9 @@ class SavingCubit extends Cubit<SavingState> {
       final newWorldWidth = expectedHeight * worldWidth / distance;
       zoomLevel = math.log(newWorldWidth / 256) / math.log(2);
     }
-    await mapController.moveCamera(
-      CameraUpdate.zoomTo(zoomLevel-1),
-    );
+    await mapController
+        .moveCamera(CameraUpdate.zoomTo(math.min(zoomLevel-2, 15)));
+    await Future.delayed(const Duration(seconds: 3));
   }
 
   Future<void> _processMapHelper() async {
@@ -111,13 +112,11 @@ class SavingCubit extends Cubit<SavingState> {
         emit(curtState.copyWith(errorMsg: "Something went wrong. Please try again!"));
         return;
       }
-      if(_result.photosParams.isNotEmpty) {
-        await service.uploadPostFiles(
-          postId: createdPost.id, 
-          params: _result.photosParams, 
-          mapPath: curtState.map.path,
-        );
-      }
+      await service.uploadPostFiles(
+        postId: createdPost.id, 
+        params: _result.photosParams, 
+        mapPath: curtState.map.path,
+      );
       emit(const SavingSuccess());
       _isProcessing = false;
     } catch (e) {
@@ -127,11 +126,11 @@ class SavingCubit extends Cubit<SavingState> {
   }
 
   @override
-  Future<void> close() {
+  Future<void> close() async {
+    super.close();
     final curtState = state;
     if(curtState is SavingLoaded) {
       curtState.map.deleteSync();
     }
-    return super.close();
   }
 }

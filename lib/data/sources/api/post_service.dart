@@ -1,18 +1,19 @@
-import 'dart:convert';
+import "dart:convert";
 
-import 'package:dio/dio.dart';
-import 'package:http_parser/http_parser.dart';
-import 'package:mime/mime.dart' as mime;
+import "package:dio/dio.dart";
+import "package:http_parser/http_parser.dart";
+import "package:mime/mime.dart" as mime;
 
-import '../../../core/services/shared_pref_service.dart';
-import '../../../domain/entities/comment.dart';
-import '../../../domain/entities/coordinate.dart';
-import '../../../domain/entities/photo.dart';
-import '../../../domain/entities/post.dart';
-import '../../../domain/entities/reaction.dart';
-import '../../../domain/entities/user.dart';
-import '../../../presentation/activity_tracking/bloc/activity_tracking_bloc.dart';
-import 'dio_service.dart';
+import "../../../core/services/shared_pref_service.dart";
+import "../../../domain/entities/comment.dart";
+import "../../../domain/entities/coordinate.dart";
+import "../../../domain/entities/photo.dart";
+import "../../../domain/entities/post.dart";
+import "../../../domain/entities/reaction.dart";
+import "../../../domain/entities/user.dart";
+import "../../../domain/entities/workout_data.dart";
+import "../../../presentation/activity_tracking/bloc/activity_tracking_bloc.dart";
+import "dio_service.dart";
 
 class MapData {
   List<Coordinate> coordinates;
@@ -73,20 +74,44 @@ class PostService {
         .toList(growable: false);
     return MapData(coordinates: coordinates, photos: photos);
   }
+
+  Future<Post?> fetchPostDetails(String postId) async {
+    try {
+      final currentUser = await SharedPrefService.getCurrentUser();
+      final response = await DioService.instance.dio.get<Map<String, dynamic>>(
+        "/posts/$postId",
+        options: Options(
+          headers: {
+            "uid": currentUser.uid,
+            "username": currentUser.username,
+          },
+        ),
+      );
+      final post = Post.empty();
+      if(response.data!["coordinates"] != null) {
+        post.record.coordinates = (response.data!["coordinates"] as List)
+            .map((e) => Coordinate.fromMap(e)).toList(growable: false);
+      }
+      if(response.data!["photos"] != null) {
+        post.record.photos = (response.data!["photos"] as List)
+            .map((e) => Photo.fromMap(e)).toList(growable: false);
+      }
+      post.record.data = (response.data!["data"] as List)
+          .map((e) => WorkoutData.fromMap(e)).toList(growable: false);
+      return post;
+    } on DioException {
+      return null;
+    }
+  }
   
   Future<Post?> createPost(Post post) async {
     try {
       final postMap = post.toMap();
-      final recordMap = post.record.toMap();
-      final coordinatesMaps = post.record.coordinates
-        .map((e) => e.toMap())
-        .toList(growable: false);
-      final dataMaps = post.record.data
-        .map((e) => e.toMap())
-        .toList(growable: false);
-      postMap["record"] = recordMap;
-      postMap["record"]["coordinates"] = coordinatesMaps;
-      postMap["record"]["data"] = dataMaps;
+      postMap["record"] = post.record.toMap();
+      postMap["record"]["coordinates"] = post
+          .record.coordinates.map((e) => e.toMap()).toList(growable: false);
+      postMap["record"]["data"] = post
+          .record.data.map((e) => e.toMap()).toList(growable: false);
       final currentUser = await SharedPrefService.getCurrentUser();
       final response = await DioService.instance.dio.post<Map<String, dynamic>>(
         "/posts",
