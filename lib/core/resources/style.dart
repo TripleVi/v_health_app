@@ -39,6 +39,8 @@ class AppStyle {
   static const stepColor = Color(0xff59d5e0);
   static const timeColor = Color(0xfff4538a);
   static const calorieColor = Color(0xfff67f5d);
+  static const speedColor = Colors.green;
+  static const paceColor = Colors.amber;
 
   static const fontFace = 'NeueHass';
   static const letterSpacing = 0.5;
@@ -235,6 +237,24 @@ class AppStyle {
     double fontSize = 12.0,
     Color color = secondaryTextColor,
     FontWeight fontWeight = FontWeight.w500,
+    double letterSpacing = letterSpacing,
+    double height = headingLineHeight,
+  }) {
+    return TextStyle(
+      fontFamily: fontFamily,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      letterSpacing: letterSpacing,
+      height: height,
+      color: color,
+    );
+  }
+
+  static TextStyle caption3({
+    String fontFamily = fontFace,
+    double fontSize = 10.0,
+    Color color = secondaryTextColor,
+    FontWeight fontWeight = FontWeight.normal,
     double letterSpacing = letterSpacing,
     double height = headingLineHeight,
   }) {

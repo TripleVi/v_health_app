@@ -10,8 +10,20 @@ final class DetailsLoading extends DetailsState {
 
 final class DetailsLoaded extends DetailsState {
   final Post post;
+  final List<int> times;
+  final List<double> speeds;
+  final double avgSpeed;
+  final List<double> paces;
+  final double avgPace;
 
-  const DetailsLoaded(this.post);
+  const DetailsLoaded({
+    required this.post,
+    required this.times,
+    required this.speeds,
+    required this.avgSpeed,
+    required this.paces,
+    required this.avgPace,
+  });
 }
 
 final class DetailsError extends DetailsState {

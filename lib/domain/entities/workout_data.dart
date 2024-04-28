@@ -13,6 +13,10 @@ class WorkoutData {
     required this.time,
   });
 
+  factory WorkoutData.empty() {
+    return WorkoutData(steps: 0, speed: 0, distance: 0, calories: 0, time: 0);
+  }
+
   factory WorkoutData.fromMap(Map<String, dynamic> map) {
     return WorkoutData(
       steps: map["steps"], 

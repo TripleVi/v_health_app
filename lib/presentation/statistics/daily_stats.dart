@@ -30,6 +30,7 @@ class _DailyStatsState extends State<DailyStats> {
 
   @override
   initState() {
+    print("init state");
     super.initState();
     fetchWeeklyRecords();
     // _timer = Timer.periodic(const Duration(seconds: 15), (_) async {

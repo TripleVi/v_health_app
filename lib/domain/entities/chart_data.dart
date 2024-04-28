@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:v_health/core/utilities/utils.dart';
 
 import 'daily_report.dart';
 import 'report.dart';
@@ -31,7 +32,8 @@ class ChartData {
 
   ChartData.dailyReport(int index, DailyReport data) {
     x = index;
-    y = data.steps;
+    // y = data.steps;
+    y = MyUtils.generateInt(2000);
   }
 
   @override

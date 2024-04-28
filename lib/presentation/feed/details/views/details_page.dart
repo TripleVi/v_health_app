@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:syncfusion_flutter_charts/charts.dart";
@@ -5,7 +6,7 @@ import "package:syncfusion_flutter_charts/charts.dart";
 import "../../../../core/resources/style.dart";
 import "../../../../core/utilities/utils.dart";
 import "../../../../domain/entities/post.dart";
-import "../../../../domain/entities/workout_data.dart";
+import "../../../site/bloc/site_bloc.dart";
 import "../../../widgets/app_bar.dart";
 import "../../../widgets/loading_indicator.dart";
 import "../cubit/details_cubit.dart";
@@ -67,44 +68,61 @@ class DetailsView extends StatelessWidget {
     );
   }
 
-  // Widget _mapSection(BuildContext context, DetailsLoaded state) {
-  //   return GestureDetector(
-  //     onTap: () async {
-  //       context.read<SiteBloc>().add(NavbarHidden());
-  //       await Navigator.pushNamed<void>(
-  //         context, "/mapPage", 
-  //         arguments: state.post,
-  //       );
-  //       await Future.delayed(const Duration(milliseconds: 500))
-  //           .then((_) => context.read<SiteBloc>().add(NavbarShown()));
-  //     },
-  //     child: AspectRatio(
-  //       aspectRatio: 2 / 1,
-  //       child: Image.network(
-  //         // state.post.mapUrl,
-  //         "https://static.vecteezy.com/system/resources/thumbnails/026/829/465/small/beautiful-girl-with-autumn-leaves-photo.jpg",
-  //         // loadingBuilder: (context, child, loadingProgress) {
-  //         //   return const AppLoadingIndicator();
-  //         // },
-  //         filterQuality: FilterQuality.high,
-  //         fit: BoxFit.contain,
-  //         isAntiAlias: true,
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _mainContent(BuildContext context, DetailsLoaded state) {
     return SingleChildScrollView(
       child: Column(
         children: [
           summaryWidget(context, state),
-          // _mapSection(context, state),
           const SizedBox(height: 12.0),
-          chartWidget(context, state),
+          _mapSection(context, state),
           const SizedBox(height: 12.0),
+          chartsWidget(context, state),
         ],
       ),
+    );
+  }
+
+  Widget _mapSection(BuildContext context, DetailsLoaded state) {
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: AppStyle.surfaceColor,
+        borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+      ),
+      constraints: const BoxConstraints(minHeight: 200.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Route taken", style: AppStyle.heading4()),
+          const SizedBox(height: 12.0),
+          GestureDetector(
+            onTap: () async {
+              context.read<SiteBloc>().add(NavbarHidden());
+              await Navigator.pushNamed<void>(
+                context, "/mapPage", 
+                arguments: state.post,
+              );
+              await Future.delayed(const Duration(milliseconds: 500))
+                  .then((_) => context.read<SiteBloc>().add(NavbarShown()));
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+              child: CachedNetworkImage(
+                imageUrl: state.post.mapUrl,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.high,
+                progressIndicatorBuilder: (context, url, download) => Container(
+                  color: AppStyle.backgroundColor,
+                  child: Center(child: CircularProgressIndicator(
+                      value: download.progress)),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
+            ),
+          ),
+        ],
+      )
     );
   }
 
@@ -126,8 +144,8 @@ class DetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Workout details", style: AppStyle.heading5()),
-          const SizedBox(height: 16.0),
+          Text("Workout details", style: AppStyle.heading4()),
+          const SizedBox(height: 12.0),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -137,7 +155,7 @@ class DetailsView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _metricsWidget(
-                      name: "Workout duration",
+                      name: "Active time",
                       value: time,
                     ),
                     const SizedBox(height: 8.0),
@@ -153,7 +171,7 @@ class DetailsView extends StatelessWidget {
                     ),
                     const SizedBox(height: 8.0),
                     _metricsWidget(
-                      name: "Avg speed",
+                      name: "Avg. speed",
                       value: avgSMap["value"]!,
                       unit: avgSMap["unit"],
                     ),
@@ -167,19 +185,19 @@ class DetailsView extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _metricsWidget(
-                      name: "Max speed",
+                      name: "Max. speed",
                       value: maxSMap["value"]!,
                       unit: maxSMap["unit"],
                     ),
                     const SizedBox(height: 8.0),
                     _metricsWidget(
-                      name: "Avg pace",
+                      name: "Avg. pace",
                       value: avgPMap["value"]!,
                       unit: avgPMap["unit"],
                     ),
                     const SizedBox(height: 8.0),
                     _metricsWidget(
-                      name: "Max pace",
+                      name: "Max. pace",
                       value: maxPMap["value"]!,
                       unit: maxPMap["unit"],
                     ),
@@ -214,7 +232,7 @@ class DetailsView extends StatelessWidget {
     );
   }
 
-  Widget chartWidget(BuildContext context, DetailsLoaded state) {
+  Widget chartsWidget(BuildContext context, DetailsLoaded state) {
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -225,48 +243,105 @@ class DetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text("Workout details", style: AppStyle.heading5()),
-          // const SizedBox(height: 16.0),
-          workoutDataChart(state)
+          workoutDataChart(
+            title: "Speed",
+            xDataSource: state.times,
+            yDataSource: state.speeds,
+            avgValue: state.avgSpeed,
+            seriesColor: AppStyle.speedColor,
+            unit: "m/s",
+            toolTipValue: (data) => data.toStringAsFixed(1),
+          ),
+          const SizedBox(height: 16.0),
+          workoutDataChart(
+            title: "Pace",
+            xDataSource: state.times,
+            yDataSource: state.paces,
+            avgValue: state.avgPace,
+            seriesColor: AppStyle.paceColor,
+            unit: "/m",
+            toolTipValue: (data) => "${data.toStringAsFixed(1)}''",
+          ),
         ],
       ),
     );
   }
 
-  Widget workoutDataChart(DetailsLoaded state) {
-    print(state.post.record.data);
+  Widget workoutDataChart({
+    required String title,
+    required List<int> xDataSource,
+    required List<double> yDataSource,
+    required double avgValue,
+    required Color seriesColor,
+    required String unit,
+    required String Function(double data) toolTipValue,
+  }) {
     return SizedBox(
       height: 200.0,
       child: SfCartesianChart(
         backgroundColor: AppStyle.surfaceColor,
         title: ChartTitle(
-          text: "Workout data", 
+          text: title,
           textStyle: AppStyle.heading5(),
           alignment: ChartAlignment.near,
         ),
+        tooltipBehavior: TooltipBehavior(
+          enable: true,
+          color: AppStyle.backgroundColor,
+          borderWidth: 0.0,
+          opacity: 0.9,
+          builder: (data, point, series, pointIndex, seriesIndex) {
+            final value = toolTipValue(point.y! * 1.0);
+            return Container(
+              padding: const EdgeInsets.all(4.0),
+              color: AppStyle.backgroundColor,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    MyUtils.getFormattedMinutes(data),
+                    style: AppStyle.caption2(color: AppStyle.primaryTextColor),
+                  ),
+                  const SizedBox(width: 4.0),
+                  Container(
+                    width: 4.0,
+                    height: 4.0,
+                    decoration: const BoxDecoration(
+                      color: AppStyle.secondaryTextColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 4.0),
+                  Text(
+                    "$value $unit", 
+                    style: AppStyle.caption1(color: series.color!),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
         margin: const EdgeInsets.all(0.0),
         plotAreaBorderWidth: 0.0,
-        primaryXAxis: CategoryAxis(
-          // interval: interval,
+        primaryXAxis: NumericAxis(
+          desiredIntervals: 4,
           majorTickLines: const MajorTickLines(
-            color: AppStyle.secondaryTextColor,
-          ),
+              color: AppStyle.secondaryTextColor),
           axisLine: const AxisLine(color: AppStyle.secondaryTextColor),
           majorGridLines: const MajorGridLines(width: 0.0),
           labelStyle: AppStyle.caption2(),
-          // axisLabelFormatter: xAxisLabelText == null 
-          //     ? null 
-          //     : (labelArgs) {
-          //       final txt = xAxisLabelText(labelArgs.value.toInt());
-          //       return ChartAxisLabel(txt, labelArgs.textStyle);
-          //     },
+          axisLabelFormatter: (labelArgs) {
+            if(labelArgs.value == 0) {
+              return ChartAxisLabel("0", labelArgs.textStyle);
+            }
+            final txt = MyUtils.getFormattedMinutes(int.parse(labelArgs.text));
+            return ChartAxisLabel(txt, labelArgs.textStyle);
+          },
         ),
         primaryYAxis: NumericAxis(
           opposedPosition: true,
           decimalPlaces: 0,
           minimum: 0.0,
-          // maximum: maxYAxis*1.0,
-          // desiredIntervals: 2,
           majorTickLines: const MajorTickLines(width: 0.0, size: 0.0),
           axisLine: const AxisLine(width: 0.0),
           labelStyle: AppStyle.caption2(),
@@ -277,23 +352,28 @@ class DetailsView extends StatelessWidget {
             );
           },
         ),
-        series: <CartesianSeries<WorkoutData, int>>[
+        series: <CartesianSeries<int, int>>[
           SplineSeries(
-            dataSource: state.post.record.data,
-            xValueMapper: (data, index) => data.time,
-            yValueMapper: (data, _) => data.steps,
-            color: AppStyle.stepColor,
-
-            // markerSettings: MarkerSettings(
-            // isVisible: true,
-            // height: 4,
-            // width: 4,
-            // shape: DataMarkerType.circle,
-            // borderWidth: 3,
-            // borderColor: Colors.black),
-        // dataLabelSettings: DataLabelSettings(
-        //     isVisible: true,
-        //     labelAlignment: ChartDataLabelAlignment.auto)
+            dataSource: xDataSource,
+            xValueMapper: (data, _) => data,
+            yValueMapper: (data, index) => yDataSource[index],
+            color: seriesColor,
+          ),
+          LineSeries(
+            enableTooltip: false,
+            color: AppStyle.primaryColor,
+            dataSource: [0, xDataSource.last],
+            xValueMapper: (data, _) => data,
+            yValueMapper: (data, _) => avgValue,
+            dashArray: const [3.0],
+            dataLabelMapper: (datum, index) {
+              return index == 0 ? null : avgValue.toStringAsFixed(1);
+            },
+            dataLabelSettings: DataLabelSettings(
+              isVisible: true,
+              margin: const EdgeInsets.all(0.0),
+              textStyle: AppStyle.caption2(color: AppStyle.primaryColor),
+            ),
           ),
         ],
       ),

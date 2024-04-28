@@ -90,14 +90,14 @@ class PostService {
       final post = Post.empty();
       if(response.data!["coordinates"] != null) {
         post.record.coordinates = (response.data!["coordinates"] as List)
-            .map((e) => Coordinate.fromMap(e)).toList(growable: false);
+            .map((e) => Coordinate.fromMap(e)).toList();
       }
       if(response.data!["photos"] != null) {
         post.record.photos = (response.data!["photos"] as List)
-            .map((e) => Photo.fromMap(e)).toList(growable: false);
+            .map((e) => Photo.fromMap(e)).toList();
       }
       post.record.data = (response.data!["data"] as List)
-          .map((e) => WorkoutData.fromMap(e)).toList(growable: false);
+          .map((e) => WorkoutData.fromMap(e)).toList();
       return post;
     } on DioException {
       return null;

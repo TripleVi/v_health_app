@@ -487,21 +487,19 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     TrackingFinished event, 
     Emitter<ActivityTrackingState> emit,
   ) async {
-    // if(_isProcessing) return;
-    // _isProcessing = true;
+    if(_isProcessing) return;
+    _isProcessing = true;
     final endMarker = await _setEndMarkers();
     _markers.add(Marker(
       markerId: const MarkerId("end_point"),
       position: LatLng(_curtPos!.latitude, _curtPos!.longitude),
       icon: endMarker,
     ));
-    emit(state.copyWith());
-    return;
     final temp = activity as WalkingActivity;
-    // if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
-    //   emit(state.copyWith(isQualified: false));
-    //   return;
-    // }
+    if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
+      emit(state.copyWith(isQualified: false));
+      return;
+    }
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate

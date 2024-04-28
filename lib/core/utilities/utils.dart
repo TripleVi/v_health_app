@@ -327,17 +327,17 @@ class MyUtils {
     };
   }
 
-  static Map<String, String> getFormattedPace(double? speed, [bool inMeters = true]) {
+  static Map<String, String> getFormattedPace(double? pace, [bool inMeters = true]) {
     final unit = inMeters ? "/m" : "/km";
-    if(speed == null || speed == 0.0) {
+    if(pace == null || pace == 0.0) {
       return {
         "value": "--",
         "unit": unit
       };
     }
-    final pace = (1 / speed * (inMeters ? 1 : 1000)).ceil();
-    final mins = pace ~/ 60;
-    final seconds = pace - mins * 60;
+    final temp = (1 / pace * (inMeters ? 1 : 1000)).ceil();
+    final mins = temp ~/ 60;
+    final seconds = temp - mins * 60;
     return {
       "value": "$mins'$seconds''",
       "unit": unit,
@@ -348,6 +348,21 @@ class MyUtils {
     // Duration format: 00:00:00
     final timeElapsed = Duration(seconds: secondsElapsed);
     return timeElapsed.toString().substring(0, 7);
+  }
+
+  static String getFormattedMinutes(int seconds) {
+    // Minutes format: 00:00
+    if(seconds < 10) {
+      return "00:0$seconds";
+    }
+    if(seconds >= 60) {
+      final minutes = seconds ~/ 60;
+      final rest = seconds % 60;
+      final txtMinutes = minutes < 10 ? "0$minutes" : "$minutes";
+      final txtSeconds = rest < 10 ? "0$rest" : "$rest";
+      return "$txtMinutes:$txtSeconds";
+    }
+    return "00:$seconds"; 
   }
 
   static Map<String, String> getFormattedCalories(double calories) {
