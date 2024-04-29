@@ -3,6 +3,8 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../core/resources/style.dart";
 import "../../../domain/entities/post.dart";
+import "../../friend/views/friend_page.dart";
+import "../../site/bloc/site_bloc.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
 import "../comments/views/comments_page.dart";
@@ -51,6 +53,12 @@ class FeedPage extends StatelessWidget {
               settings: settings,
             );
           }
+          if(settings.name == "/searchPage") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const FriendPage(),
+              settings: settings,
+            );
+          }
           return null;
         },
         initialRoute: "/feed",
@@ -68,9 +76,7 @@ class FeedView extends StatelessWidget {
       backgroundColor: AppStyle.backgroundColor,
       appBar: CustomAppBar.get(
         title: "vHealth",
-        actions: <Widget>[
-          _notificationButton(context),
-        ]
+        actions: appBarActions(context),
       ),
       body: RefreshIndicator(
         color: AppStyle.primaryColor,
@@ -93,36 +99,18 @@ class FeedView extends StatelessWidget {
     );
   }
 
-  _notificationButton(BuildContext context) {
-    return Stack(
-      alignment: AlignmentDirectional.center,
-      children: [
-        GestureDetector(
-          onTap: () {
-            
-          },
-          child: const Icon(Icons.notifications_rounded, size: 28.0),
-        ),
-        Positioned(
-          left: 24.0,
-          top: 24.0,
-          child: CircleAvatar(
-            backgroundColor: Colors.red,
-            minRadius: 8.0,
-            child: Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text("12", 
-                style: AppStyle.caption2(
-                  fontSize: 12.0,
-                  color: Colors.white,
-                  height: 1.0,
-                )
-              ),
-            ),
-          ),
-        )
-      ],
-    );
+  List<Widget> appBarActions(BuildContext context) {
+    return [
+      IconButton(
+        onPressed: () async {
+          context.read<SiteBloc>().add(NavbarHidden());
+          await Navigator.pushNamed<void>(context, "/searchPage");
+          await Future.delayed(const Duration(milliseconds: 500))
+              .then((_) => context.read<SiteBloc>().add(NavbarShown()));
+        },
+        icon: const Icon(Icons.search_rounded),
+      ),
+    ];
   }
 
   Widget mainContent(List<Post> posts) {

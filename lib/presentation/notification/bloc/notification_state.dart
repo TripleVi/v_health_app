@@ -1,20 +1,20 @@
-// part of 'notification_bloc.dart';
+part of 'notification_bloc.dart';
 
-// @immutable
-// abstract class NotificationState {
-//   const NotificationState();
-// }
+@immutable
+abstract class NotificationState {
+  const NotificationState();
+}
 
-// class NotificationLoading extends NotificationState {
-//   const NotificationLoading();
-// }
+class NotificationLoading extends NotificationState {
+  const NotificationLoading();
+}
 
-// class NotificationLoaded extends NotificationState {
-//   final List<UserNotification> notifications;
-//   const NotificationLoaded(this.notifications);
-// }
+class NotificationLoaded extends NotificationState {
+  final List<UserNotification> notifications;
+  const NotificationLoaded(this.notifications);
+}
 
-// class NotificationError extends NotificationState {
-//   final String message;
-//   const NotificationError([this.message = "Something went wrong. Please try again!"]);
-// }
+class NotificationError extends NotificationState {
+  final String message;
+  const NotificationError([this.message = "Something went wrong. Please try again!"]);
+}

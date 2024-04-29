@@ -18,6 +18,57 @@ class Trends extends StatefulWidget {
   State<StatefulWidget> createState() => _TrendsState();
 }
 
+// Widget get weeklyComparisonChart {
+//     return Padding(
+//       padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+//       child: Row(
+//         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//         children: [
+//           SizedBox(
+//             width: 200,
+//             child: Padding(
+//               padding: const EdgeInsets.all(5.0),
+//               child: Column(
+//                   mainAxisAlignment: MainAxisAlignment.start,
+//                   crossAxisAlignment: CrossAxisAlignment.start,
+//                   children: [
+//                     TextTypes.heading_2(content: 'Trends'),
+//                     Padding(
+//                       padding: const EdgeInsets.symmetric(vertical: 8.0),
+//                       child: TextTypes.paragraph(
+//                           content:
+//                               'Want to know more about your runs and metrics, explore here!'),
+//                     ),
+//                     ElevatedButton(
+//                         style: ElevatedButton.styleFrom(
+//                           elevation: 0,
+//                           shape: RoundedRectangleBorder(
+//                               borderRadius: BorderRadius.circular(10)),
+//                           backgroundColor: Constants.primaryColor,
+//                           padding: const EdgeInsets.symmetric(horizontal: 20),
+//                         ),
+//                         onPressed: () {
+//                           Navigator.push(
+//                               context,
+//                               MaterialPageRoute(
+//                                   builder: (context) => const Trends()));
+//                         },
+//                         child: const Text('See More')),
+//                   ]),
+//             ),
+//           ),
+//           const Padding(
+//             padding: EdgeInsets.only(right: 20.0),
+//             child: Icon(
+//               Icons.insights,
+//               size: 55,
+//             ),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+
 class _TrendsState extends State<Trends> {
   int currentSort = 1;
   List<DailyReport> records = [DailyReport.empty()];

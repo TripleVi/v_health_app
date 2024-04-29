@@ -30,8 +30,8 @@ class DetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppStyle.backgroundColor,
       appBar: CustomAppBar.get(title: "Details"),
+      backgroundColor: AppStyle.backgroundColor,
       body: Center(
         child: Container(
           height: double.infinity,

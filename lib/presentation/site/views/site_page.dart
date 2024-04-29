@@ -1,18 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cached_network_image/cached_network_image.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../core/enum/bottom_navbar.dart';
-import '../../../core/resources/style.dart';
-import '../../../core/utilities/constants.dart';
-import '../../activity_tracking/views/tracking_page.dart';
-import '../../feed/views/feed_page.dart';
-import '../../friend/views/friend_page.dart';
-import '../../group/view/group_page.dart';
-import '../../profile/view/profile_page.dart';
-import '../../statistics/daily_stats.dart';
-import '../../statistics/views/statistics_page.dart';
-import '../bloc/site_bloc.dart';
+import "../../../core/enum/bottom_navbar.dart";
+import "../../../core/resources/style.dart";
+import "../../../core/utilities/constants.dart";
+import "../../activity_tracking/views/tracking_page.dart";
+import "../../feed/views/feed_page.dart";
+import "../../notification/view/notification_page.dart";
+import "../../profile/view/profile_page.dart";
+import "../../statistics/views/statistics_page.dart";
+import "../bloc/site_bloc.dart";
 
 class SitePage extends StatelessWidget {
   const SitePage({super.key});
@@ -26,14 +24,46 @@ class SitePage extends StatelessWidget {
   }
 }
 
+// _searchButton(BuildContext context) {
+//     return Stack(
+//       alignment: AlignmentDirectional.center,
+//       children: [
+//         GestureDetector(
+//           onTap: () {
+            
+//           },
+//           child: const Icon(Icons.search_rounded, size: 28.0),
+//         ),
+//         Positioned(
+//           left: 24.0,
+//           top: 24.0,
+//           child: CircleAvatar(
+//             backgroundColor: Colors.red,
+//             minRadius: 8.0,
+//             child: Padding(
+//               padding: const EdgeInsets.all(4.0),
+//               child: Text("12", 
+//                 style: AppStyle.caption2(
+//                   fontSize: 12.0,
+//                   color: Colors.white,
+//                   height: 1.0,
+//                 )
+//               ),
+//             ),
+//           ),
+//         )
+//       ],
+//     );
+//   }
+
 class SiteView extends StatelessWidget {
   static const Map<TabType, Widget> _pages = {
-    TabType.home: DailyStats(),
-    TabType.feed: FeedPage(),
-    TabType.tracking: TrackingPage(),
-    // TabType.group: GroupPage(),
+    TabType.home: FeedPage(),
     TabType.statistics: StatisticsPage(),
+    TabType.tracking: TrackingPage(),
+    TabType.notification: NotificationPage(),
     TabType.profile: ProfilePage(),
+    // TabType.group: GroupPage(),
   };
 
   const SiteView({super.key});
@@ -65,16 +95,16 @@ class SiteView extends StatelessWidget {
                   label: TabType.home.stringValue,
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.feed_rounded),
-                  label: TabType.feed.stringValue,
+                  icon: const Icon(Icons.auto_graph_sharp),
+                  label: TabType.statistics.stringValue,
                 ),
                 BottomNavigationBarItem(
                   icon: const Icon(Icons.radio_button_checked_rounded),
                   label: TabType.tracking.stringValue,
                 ),
                 BottomNavigationBarItem(
-                  icon: const Icon(Icons.groups_rounded),
-                  label: TabType.statistics.stringValue,
+                  icon: const Icon(Icons.notifications_rounded),
+                  label: TabType.notification.stringValue,
                 ),
                 BottomNavigationBarItem(
                   icon: CircleAvatar(

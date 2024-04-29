@@ -1,11 +1,11 @@
-// part of 'notification_bloc.dart';
+part of 'notification_bloc.dart';
 
-// @immutable
-// abstract class NotificationEvent {
-//   const NotificationEvent();
-// }
+@immutable
+abstract class NotificationEvent {
+  const NotificationEvent();
+}
 
-// class NotificationsFetched extends NotificationEvent {
-//   final List<UserNotification> notifications;
-//   const NotificationsFetched(this.notifications);
-// }
+class NotificationsFetched extends NotificationEvent {
+  final List<UserNotification> notifications;
+  const NotificationsFetched(this.notifications);
+}

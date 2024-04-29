@@ -39,11 +39,13 @@ class Post extends BaseEntity {
   }
 
   Map<String, dynamic> toMap() {
+    final txtDate = createdDate.toIso8601String();
+    final timezone = createdDate.timeZoneName;
     return {
       "pid": id,
       "title": title,
       "content": content,
-      "createdDate": createdDate.millisecondsSinceEpoch,
+      "createdDate": "$txtDate$timezone",
       "privacy": privacy.numericValue,
       "latitude": latitude,
       "longitude": longitude,
@@ -53,12 +55,15 @@ class Post extends BaseEntity {
   }
 
   factory Post.fromMap(Map<String, dynamic> map) {
+    final date = DateTime.parse(map["createdDate"]).toLocal();
+    final privacy = PostPrivacy.values
+        .firstWhere((e) => e.numericValue == map["privacy"]);
     return Post(
       id: map["pid"],
       title: map["title"], 
       content: map["content"], 
-      createdDate: DateTime.fromMillisecondsSinceEpoch(map["createdDate"]), 
-      privacy: PostPrivacy.values.firstWhere((e) => e.numericValue == map["privacy"]),
+      createdDate: date, 
+      privacy: privacy,
       latitude: map["latitude"] * 1.0,
       longitude: map["longitude"] * 1.0,
       address: map["address"],
