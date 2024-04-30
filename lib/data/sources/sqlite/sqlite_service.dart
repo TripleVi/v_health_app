@@ -22,6 +22,7 @@ class SqlService {
   }
 
   static Future createDatabase(Database db, int version) async {
+    // await db.execute(createFeedTable);
     await db.execute(createDailyGoalTable);
     await db.execute(createDailyReportTable);
     await db.execute(createHourlyReportTable);

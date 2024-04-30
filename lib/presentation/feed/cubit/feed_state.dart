@@ -7,6 +7,10 @@ final class FeedLoading extends FeedState {
   FeedLoading();
 }
 
+final class FeedRefreshed extends FeedState {
+  FeedRefreshed();
+}
+
 final class FeedLoaded extends FeedState {
   final List<Post> posts;
   FeedLoaded(this.posts);

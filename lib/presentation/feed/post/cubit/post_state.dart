@@ -10,37 +10,41 @@ final class PostLoading extends PostState {
 }
 
 final class PostLoaded extends PostState {
+  final int index;
   final Post post;
   final bool isLiked;
   final int likes;
   final int comments;
   final String txtDate;
   final String recordTime;
-  final String address;
+  final bool readMore;
 
   const PostLoaded({
+    required this.index,
     required this.post,
     required this.isLiked,
     required this.likes,
     required this.comments,
     required this.txtDate,
     required this.recordTime,
-    required this.address,
+    this.readMore = false,
   });
 
   PostLoaded copyWith({
     bool? isLiked,
     int? likes,
     int? comments,
+    bool? readMore,
   }) {
     return PostLoaded(
+      index: index,
       post: post,
       isLiked: isLiked ?? this.isLiked,
       likes: likes ?? this.likes,
       comments: comments ?? this.comments,
       txtDate: txtDate, 
       recordTime: recordTime, 
-      address: address,
+      readMore: readMore ?? this.readMore,
     );
   }
 }

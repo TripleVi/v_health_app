@@ -74,13 +74,16 @@ class CommentsCubit extends Cubit<CommentsState> {
         totalComments: _totalComments++,
         posting: currentState.posting+1, 
       ));
-      final offset = CommentsCubit.scrollController.position.pixels;
-      final time = math.max((offset/8).round(), 100);
-      scrollController.animateTo(
-        0.0, 
-        duration: Duration(milliseconds: time), 
-        curve: Curves.linear,
-      );
+      var time = 100;
+      if(scrollController.hasClients) {
+        final offset = scrollController.position.pixels;
+        time = math.max((offset/8).round(), 100);
+        scrollController.animateTo(
+          0.0, 
+          duration: Duration(milliseconds: time),
+          curve: Curves.linear,
+        );
+      }
       final service = PostService();
       final createdComment = await service.createComment(newComment, _postId);
       final dur = math.max(time+400, 450);

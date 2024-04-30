@@ -11,6 +11,12 @@ const createWorkoutSessionTable =
     "calories REAL NOT NULL, "
     "speed REAL NOT NULL)";
 
+const createFeedTable =
+    "CREATE TABLE IF NOT EXISTS feed("
+    "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+    "pid TEXT NOT NULL, "
+    "viewed INTEGER NOT NULL)";
+
 const createDailyGoalTable =
     "CREATE TABLE IF NOT EXISTS ${DailyGoalFields.container}("
     "${DailyGoalFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, "

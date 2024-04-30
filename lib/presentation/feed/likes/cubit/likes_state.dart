@@ -1,4 +1,4 @@
-part of 'likes_cubit.dart';
+part of "likes_cubit.dart";
 
 @immutable
 sealed class LikesState {
@@ -10,6 +10,23 @@ class LikesLoading extends LikesState {
 }
 
 class LikesLoaded extends LikesState {
+  final User user;
   final List<Reaction> reactions;
-  const LikesLoaded(this.reactions);
+  final String? snackMsg;
+
+  const LikesLoaded({
+    required this.user, 
+    required this.reactions,
+    this.snackMsg,
+  });
+
+  LikesLoaded copyWith({
+    String? snackMsg,
+  }) {
+    return LikesLoaded(
+      user: user,
+      reactions: reactions,
+      snackMsg: snackMsg,
+    );
+  }
 }

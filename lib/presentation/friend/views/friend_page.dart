@@ -4,7 +4,7 @@ import "package:cached_network_image/cached_network_image.dart";
 
 import "../../../core/resources/style.dart";
 import "../../../core/utilities/utils.dart";
-import "../../../domain/entities/friend.dart";
+import "../../../domain/entities/people.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
 import "../cubit/friend_cubit.dart";
@@ -60,7 +60,7 @@ class FriendView extends StatelessWidget {
             : Expanded(
                 child: _friendsList(
                   context: context,
-                  friends: state.friends,
+                  people: state.people,
                 ),
               ),
       ],
@@ -133,30 +133,30 @@ class FriendView extends StatelessWidget {
 
   Widget _friendsList({
     required BuildContext context,
-    required List<Friend> friends,
+    required List<People> people,
   }) {
     return ListView.builder(
-      itemCount: friends.length,
-      itemBuilder: (context, index) => FriendCard(friends[index]),
+      itemCount: people.length,
+      itemBuilder: (context, index) => PeopleCard(people[index]),
     );
   }
 }
 
-class FriendCard extends StatefulWidget {
-  final Friend friend;
-  const FriendCard(this.friend, {super.key});
+class PeopleCard extends StatefulWidget {
+  final People people;
+  const PeopleCard(this.people, {super.key});
 
   @override
-  State<FriendCard> createState() => _FriendCardState();
+  State<PeopleCard> createState() => _PeopleCardState();
 }
 
-class _FriendCardState extends State<FriendCard> {
+class _PeopleCardState extends State<PeopleCard> {
   bool _isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
     const avatarSize = 40;
-    final friend = widget.friend;
+    final friend = widget.people;
     return ListTile(
       onTap: () {
         
@@ -188,7 +188,7 @@ class _FriendCardState extends State<FriendCard> {
         "${friend.lastName} ${friend.firstName}",
         style: AppStyle.caption1(),
       ),
-      trailing: friend.isFollowing ? _followBtn() : _unfollowBtn(),
+      trailing: friend.isFollowing ? _unfollowBtn() : _followBtn(),
     );
   }
 
@@ -200,10 +200,10 @@ class _FriendCardState extends State<FriendCard> {
           _isProcessing = true;
         });
         final success = await context
-            .read<FriendCubit>().followFriend(widget.friend);
+            .read<FriendCubit>().followFriend(widget.people.uid);
         await Future.delayed(const Duration(milliseconds: 300));
         if(success) {
-          widget.friend.isFollowing = true;
+          widget.people.isFollowing = true;
         }else {
           showErrorMsg();
         }
@@ -232,10 +232,10 @@ class _FriendCardState extends State<FriendCard> {
           _isProcessing = true;
         });
         final success = await context
-            .read<FriendCubit>().unfollowFriend(widget.friend);
+            .read<FriendCubit>().unfollowFriend(widget.people.uid);
         await Future.delayed(const Duration(milliseconds: 300));
         if(success) {
-          widget.friend.isFollowing = false;
+          widget.people.isFollowing = false;
         }else {
           showErrorMsg();
         }

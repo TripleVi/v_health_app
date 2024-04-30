@@ -1,12 +1,11 @@
-import 'package:dio/dio.dart';
+import "package:dio/dio.dart";
 
-import '../../../core/services/shared_pref_service.dart';
-import '../../../domain/entities/friend.dart';
-import 'dio_service.dart';
+import "../../../core/services/shared_pref_service.dart";
+import "../../../domain/entities/people.dart";
+import "dio_service.dart";
 
-class FriendService {
-
-  Future<List<Friend>> fetchUsersByUsername(String username) async {
+class PeopleService {
+  Future<List<People>> fetchUsersByUsername(String username) async {
     final currentUser = await SharedPrefService.getCurrentUser();
     final queryParameters = {"username": username};
     final response = await DioService.instance.dio.get<List<dynamic>>(
@@ -20,11 +19,11 @@ class FriendService {
       ),
     );
     return response.statusCode! == 200
-        ? response.data!.map((e) => Friend.fromMap(e)).toList(growable: false)
+        ? response.data!.map((e) => People.fromMap(e)).toList(growable: false)
         : const [];
   }
 
-  Future<List<Friend>> fetchFollowings(String uid) async {
+  Future<List<People>> fetchFollowings(String uid) async {
     final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/friends/followings/$uid",
@@ -36,11 +35,11 @@ class FriendService {
       ),
     );
     return response.statusCode! == 200
-        ? response.data!.map((e) => Friend.fromMap(e)).toList(growable: false)
+        ? response.data!.map((e) => People.fromMap(e)).toList(growable: false)
         : const [];
   }
 
-  Future<List<Friend>> fetchFollowers(String uid) async {
+  Future<List<People>> fetchFollowers(String uid) async {
     final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.get<List<dynamic>>(
       "/friends/followers/$uid",
@@ -52,7 +51,7 @@ class FriendService {
       ),
     );
     return response.statusCode! == 200
-        ? response.data!.map((e) => Friend.fromMap(e)).toList(growable: false)
+        ? response.data!.map((e) => People.fromMap(e)).toList(growable: false)
         : const [];
   }
 
@@ -86,7 +85,7 @@ class FriendService {
     return response.statusCode! == 200 ? response.data!["followers"] : 0;
   }
 
-  Future<bool> followFriend(String uid) async {
+  Future<bool> followPeople(String uid) async {
     final currentUser = await SharedPrefService.getCurrentUser();
     final data = {"uid": uid};
     final response = await DioService.instance.dio.post(
@@ -103,7 +102,7 @@ class FriendService {
     return response.statusCode! == 201;
   }
 
-  Future<bool> unfollowFriend(String uid) async {
+  Future<bool> unfollowPeople(String uid) async {
     final currentUser = await SharedPrefService.getCurrentUser();
     final response = await DioService.instance.dio.delete(
       "/friends/$uid",

@@ -43,7 +43,7 @@ class AppStyle {
   static const paceColor = Colors.amber;
 
   static const fontFace = 'NeueHass';
-  static const letterSpacing = 0.5;
+  static const letterSpacing = 0.4;
   static const headingLineHeight = 1.15;
   static const bodyLineHeight = 1.4;
 

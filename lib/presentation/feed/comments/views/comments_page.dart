@@ -1,14 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:cached_network_image/cached_network_image.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../../core/resources/style.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/loading_indicator.dart';
-import '../block/view/block_page.dart';
-import '../cubit/comments_cubit.dart';
-import 'posting_comment.dart';
+import "../../../../core/resources/style.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../block/view/block_page.dart";
+import "../cubit/comments_cubit.dart";
+import "posting_comment.dart";
 
 class CommentsPage extends StatelessWidget {
   const CommentsPage({super.key});
@@ -35,30 +35,21 @@ class CommentsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppStyle.surfaceColor,
-      appBar: CustomAppBar.get(
-        title: "Comments",
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            size: 24.0,
-            color: AppStyle.neutralColor400,
-          ),
-        ),
-      ),
+      appBar: CustomAppBar.get(title: "Comments"),
       body: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppStyle.neutralColor400)),
-        ),
+        height: double.infinity,
+        constraints: const BoxConstraints(maxWidth: 520.0),
+        // padding: const EdgeInsets.symmetric(horizontal: 12.0),
         child: BlocConsumer<CommentsCubit, CommentsState>(
           listener: (context, state) {
             if(state is CommentsLoaded && state.snackMsg != null) {
               ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: AppStyle.surfaceColor,
+                showCloseIcon: true,
+                closeIconColor: AppStyle.secondaryIconColor,
                 content: Text(
                   state.snackMsg!,
-                  style: AppStyle.bodyText(color: Colors.white),
+                  style: AppStyle.bodyText(),
                 ),
               ));
             }
@@ -79,17 +70,12 @@ class CommentsView extends StatelessWidget {
 
   Widget _sendBtn(BuildContext context) {
     return IconButton(
+      color: AppStyle.primaryColor,
       onPressed: () {
-        context
-          .read<CommentsCubit>()
-          .writeComment(_txtContent.text);
+        context.read<CommentsCubit>().writeComment(_txtContent.text);
         _txtContent.text = "";
       },
-      icon: const Icon(
-        Icons.send_rounded,
-        size: 32.0,
-        color: AppStyle.primaryColor,
-      ),
+      icon: const Icon(Icons.send_rounded),
     );
   }
 
@@ -150,14 +136,23 @@ class CommentsView extends StatelessWidget {
                             Text("Replying to ", style: AppStyle.caption2()),
                             Text(
                               replyToUsername, 
-                              style: AppStyle.bodyText(height: 1, fontSize: 14.0)
+                              style: AppStyle.caption2(color: AppStyle.primaryTextColor)
                             ),
-                            Text(" . ", style: AppStyle.caption2()),
+                            const SizedBox(width: 4.0),
+                            Container(
+                              width: 4.0,
+                              height: 4.0,
+                              decoration: const BoxDecoration(
+                                color: AppStyle.secondaryTextColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4.0),
                             GestureDetector(
                               onTap: context.read<CommentsCubit>().cancelReplyTo,
-                              behavior: HitTestBehavior.opaque,
+                              behavior: HitTestBehavior.translucent,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                padding: const EdgeInsets.fromLTRB(0, 4, 12, 4),
                                 child: Text("Cancel", style: AppStyle.caption2()),
                               ),
                             ),
@@ -174,7 +169,6 @@ class CommentsView extends StatelessWidget {
                           keyboardType: TextInputType.multiline,
                         ),
                       ),
-                      const SizedBox(width: 12.0),
                       ValueListenableBuilder(
                         builder: (context, value, child) {
                           return value
@@ -208,24 +202,16 @@ class CommentsView extends StatelessWidget {
       textAlignVertical: TextAlignVertical.center,
       style: AppStyle.bodyText(),
       controller: controller,
-      cursorColor: AppStyle.primaryTextColor,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
-        hintStyle: AppStyle.bodyText(),
-        enabledBorder: OutlineInputBorder(
-          borderRadius:
-              const BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          // borderSide: BorderSide(color: AppStyle.controlNormalColor),
+        border: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+          borderSide: BorderSide(color: AppStyle.neutralColor400),
         ),
-        focusedBorder: const OutlineInputBorder(
-          borderRadius:
-              BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
-          borderSide: BorderSide(color: AppStyle.primaryTextColor),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppStyle.horizontalPadding,
-          vertical: 12.0,
+        enabledBorder: const OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(AppStyle.borderRadius)),
+          borderSide: BorderSide(color: AppStyle.neutralColor400),
         ),
       ),
       minLines: minLines,
@@ -293,9 +279,7 @@ class CommentsView extends StatelessWidget {
           AppStyle.horizontalPadding, 28.0,
         ),
         controller: state.scrollController,
-        child: Column(
-          children: widgets,
-        ),
+        child: Column(children: widgets),
       ),
     );
   }
@@ -312,11 +296,11 @@ class CommentsView extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("No comments yet", style: AppStyle.heading2()),
-                  const SizedBox(height: 12.0),
+                  Text("No comments yet", style: AppStyle.heading4()),
+                  const SizedBox(height: 8.0),
                   Text(
                     "Say something to start the conversation.", 
-                    style: AppStyle.bodyText(),
+                    style: AppStyle.caption1(),
                   ),
                   const SizedBox(height: 120.0),
                 ],

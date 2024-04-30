@@ -1,4 +1,4 @@
-class Friend {
+class People {
   String uid;
   String username;
   String firstName;
@@ -7,7 +7,7 @@ class Friend {
   bool isFollowing;
   int mutual;
 
-  Friend({
+  People({
     required this.uid, 
     required this.username,
     required this.firstName, 
@@ -17,8 +17,8 @@ class Friend {
     required this.mutual,
   });
 
-  factory Friend.fromMap(Map<String, dynamic> map) {
-    return Friend(uid: map["uid"], username: map["username"], firstName: map["firstName"], lastName: map["lastName"], avatarUrl: map["avatarUrl"], isFollowing: map["isFollowing"], mutual: map["mutual"]);
+  factory People.fromMap(Map<String, dynamic> map) {
+    return People(uid: map["uid"], username: map["username"], firstName: map["firstName"], lastName: map["lastName"], avatarUrl: map["avatarUrl"], isFollowing: map["isFollowing"], mutual: map["mutual"]);
   }
 
   Map<String, dynamic> toMap() {

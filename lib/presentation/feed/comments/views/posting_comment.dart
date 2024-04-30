@@ -42,16 +42,18 @@ class PostingCommentItem extends StatelessWidget {
               children: [
                 Text(
                   "${comment.author.username} ",
-                  style: AppStyle.bodyText(
+                  style: AppStyle.caption2Bold(
                     color: AppStyle.primaryTextColor,
-                    height: 1.0,
                   ),
                 ),
+                const SizedBox(height: 4.0),
                 Text(
                   comment.content,
-                  style: AppStyle.bodyText(),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 10,
+                  style: AppStyle.bodyText(fontSize: 13.0),
                 ),
-                const SizedBox(height: 8.0,),
+                const SizedBox(height: 8.0),
                 Text(
                   "Posting",
                   style: AppStyle.caption2(),

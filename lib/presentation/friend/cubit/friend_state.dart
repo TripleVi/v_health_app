@@ -11,7 +11,7 @@ final class FriendLoading extends FriendState {
 
 final class FriendLoaded extends FriendState {
   final User user;
-  final List<Friend> friends;
+  final List<People> people;
   final bool isSearching;
   final bool isProcessing;
   final TextEditingController searchController;
@@ -19,7 +19,7 @@ final class FriendLoaded extends FriendState {
 
   const FriendLoaded({
     required this.user,
-    this.friends = const [],
+    this.people = const [],
     this.isSearching = false,
     this.isProcessing = false,
     required this.searchController,
@@ -27,14 +27,14 @@ final class FriendLoaded extends FriendState {
   });
 
   FriendLoaded copyWith({
-    List<Friend>? friends,
+    List<People>? people,
     bool? isSearching,
     bool isProcessing = false,
     String? snackMsg,
   }) {
     return FriendLoaded(
       user: user,
-      friends: friends ?? this.friends,
+      people: people ?? this.people,
       isSearching: isSearching ?? this.isSearching,
       isProcessing: isProcessing,
       searchController: searchController,

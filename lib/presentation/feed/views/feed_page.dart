@@ -80,20 +80,28 @@ class FeedView extends StatelessWidget {
       ),
       body: RefreshIndicator(
         color: AppStyle.primaryColor,
-        onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 5));
-          return context.read<FeedCubit>().pullToRefresh();
-        },
-        child: BlocBuilder<FeedCubit, FeedState>(
-          builder: (context, state) {
-            if(state is FeedLoading) {
-              return const AppLoadingIndicator();
-            }
-            if(state is FeedLoaded) {
-              return mainContent(state.posts);
-            }
-            return Center(child: Text((state as FeedError).message));
-          },
+        onRefresh: context.read<FeedCubit>().pullToRefresh,
+        child: SingleChildScrollView(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: 520.0,
+              minHeight: MediaQuery.of(context).size.height-152,
+            ),
+            child: BlocBuilder<FeedCubit, FeedState>(
+              builder: (context, state) {
+                if(state is FeedLoading) {
+                  return const AppLoadingIndicator();
+                }
+                if(state is FeedLoaded) {
+                  return mainContent(context, state.posts);
+                }
+                if(state is FeedRefreshed) {
+                  return const SizedBox();
+                }
+                return Center(child: Text((state as FeedError).message));
+              },
+            ),
+          ),
         ),
       ),
     );
@@ -113,17 +121,32 @@ class FeedView extends StatelessWidget {
     ];
   }
 
-  Widget mainContent(List<Post> posts) {
-    return ConstrainedBox(
-      constraints: const BoxConstraints(
-        maxWidth: 500.0,
-      ),
-      child: ListView.builder(
-        itemCount: posts.length,
-        itemBuilder: (context, index) {
-          return PostPage(posts[index]);
-        }
-      ),
-    );
+  Widget mainContent(BuildContext context, List<Post> posts) {
+    return posts.isEmpty 
+        ? Container(
+          width: double.maxFinite,
+          color: AppStyle.surfaceColor,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                "assets/images/fitness.png",
+                cacheWidth: 96,
+                cacheHeight: 96,
+                filterQuality: FilterQuality.high,
+                isAntiAlias: true,
+                fit: BoxFit.contain,
+              ),
+              Text(
+                "Let's follow people to see their fitness progress", 
+                style: AppStyle.caption1(),
+              ),
+            ],
+          ),
+        ) 
+        : Column(
+          children: List.generate(posts.length, (index) => 
+              PostPage(index, posts[index])),
+        );
   }
 }

@@ -6,6 +6,7 @@ class Reaction {
   String username;
   String avatarUrl;
   DateTime createdDate;
+  bool isFollowing;
 
   Reaction({
     required this.uid,
@@ -15,10 +16,11 @@ class Reaction {
     required this.lastName,
     required this.avatarUrl,
     required this.createdDate,
+    required this.isFollowing,
   });
 
   factory Reaction.empty() {
-    return Reaction(uid: "", type: 0, username: "", firstName: "", lastName: "", avatarUrl: "", createdDate: DateTime.now());
+    return Reaction(uid: "", type: 0, username: "", firstName: "", lastName: "", avatarUrl: "", createdDate: DateTime.now(), isFollowing: false);
   }
 
   Map<String, dynamic> toMap() {
@@ -36,12 +38,13 @@ class Reaction {
   factory Reaction.fromMap(Map<String, dynamic> map) {
     return Reaction(
       uid: map["uid"],
-      type: 0, 
+      type: 0,
       username: map["username"], 
       firstName: map["firstName"],
       lastName: map["lastName"],
       avatarUrl: map["avatarUrl"],
       createdDate: DateTime.now(), 
+      isFollowing: map["isFollowing"],
     );
   }
 

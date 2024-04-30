@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:v_health/core/services/shared_pref_service.dart';
 
-import '../../../data/sources/api/friend_service.dart';
-import '../../../domain/entities/friend.dart';
+import '../../../data/sources/api/people_service.dart';
+import '../../../domain/entities/people.dart';
 import '../../../domain/entities/user.dart';
 
 part 'friend_state.dart';
@@ -27,7 +27,7 @@ class FriendCubit extends Cubit<FriendState> {
   void searchingStatusOff() {
     _searchController.text = "";
     emit((state as FriendLoaded).copyWith(
-      friends: const [],
+      people: const [],
       isSearching: false,
     ));
   }
@@ -42,21 +42,21 @@ class FriendCubit extends Cubit<FriendState> {
     final curtState = state as FriendLoaded;
     keyword = keyword.trim();
     if(keyword.isEmpty) {
-      emit(curtState.copyWith(friends: const []));
+      emit(curtState.copyWith(people: const []));
       _isProcessing = false;
       return;
     }
     emit(curtState.copyWith(isProcessing: true));
-    final service = FriendService();
-    final friends = await service.fetchUsersByUsername(keyword);
+    final service = PeopleService();
+    final people = await service.fetchUsersByUsername(keyword);
     await Future.delayed(const Duration(milliseconds: 500));
-    emit((state as FriendLoaded).copyWith(friends: friends));
+    emit((state as FriendLoaded).copyWith(people: people));
     _isProcessing = false;
   }
 
-  Future<bool> followFriend(Friend friend) async {
-    final service = FriendService();
-    final isFollowing = await service.followFriend(friend.uid);
+  Future<bool> followFriend(String uid) async {
+    final service = PeopleService();
+    final isFollowing = await service.followPeople(uid);
     if(!isFollowing) {
       emit((state as FriendLoaded).copyWith(
         snackMsg: "Couldn't follow this account"
@@ -65,9 +65,9 @@ class FriendCubit extends Cubit<FriendState> {
     return isFollowing;
   }
 
-  Future<bool> unfollowFriend(Friend friend) async {
-    final service = FriendService();
-    final isUnfollowing = await service.unfollowFriend(friend.uid);
+  Future<bool> unfollowFriend(String uid) async {
+    final service = PeopleService();
+    final isUnfollowing = await service.unfollowPeople(uid);
     if(!isUnfollowing) {
       emit((state as FriendLoaded).copyWith(
         snackMsg: "Couldn't unfollow this account"

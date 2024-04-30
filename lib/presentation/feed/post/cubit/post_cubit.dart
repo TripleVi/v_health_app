@@ -1,21 +1,20 @@
-import 'dart:async';
+import "dart:async";
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:timeago/timeago.dart' as ta;
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:timeago/timeago.dart" as ta;
 
-import '../../../../core/services/location_service.dart';
-import '../../../../data/sources/api/post_service.dart';
-import '../../../../domain/entities/post.dart';
+import "../../../../data/sources/api/post_service.dart";
+import "../../../../domain/entities/post.dart";
 
-part 'post_state.dart';
+part "post_state.dart";
 
 class PostCubit extends Cubit<PostState> {
+  final int index;
   final Post post;
   var isProcessing = false;
 
-  PostCubit(this.post) : super(const PostLoading()) {
+  PostCubit(this.index, this.post) : super(const PostLoading()) {
     _processPost();
   }
 
@@ -23,17 +22,6 @@ class PostCubit extends Cubit<PostState> {
     final service = PostService();
     final map = await service.countLikes(post.id);
     final comments = await service.countComments(post.id);
-    var address = "";
-    try {
-      // final geoResponse = await LocationService.getAddressFromPosition(
-      //   latitude: post.latitude!,
-      //   longitude: post.longitude!,
-      // );
-      // address = "${geoResponse.administrativeArea}, ${geoResponse.country}";
-      address = "Hanoi, Vietnam";
-    } on PlatformException catch (e) {
-      print(e);
-    }
     final txtDate = ta.format(post.createdDate, locale: "en");
     final record = post.record;
     final rDuration = record.endDate.difference(record.startDate);
@@ -49,15 +37,14 @@ class PostCubit extends Cubit<PostState> {
     if(rDuration.inSeconds <= 59) {
       rTime = "${rDuration.inSeconds} s";
     }
-
     emit(PostLoaded(
+      index: index,
       post: post,
       isLiked: map["isLiked"],
       likes: map["likes"],
       comments: comments,
       txtDate: txtDate,
       recordTime: rTime,
-      address: address,
     ));
   }
 
@@ -77,6 +64,25 @@ class PostCubit extends Cubit<PostState> {
       emit(curtState.copyWith(isLiked: true, likes: curtState.likes+1));
     } catch (e) {
       rethrow;
+    }
+  }
+
+  void toggleReadMore() {
+    final current = state as PostLoaded;
+    emit(current.copyWith(readMore: !current.readMore));
+  }
+
+  Future<void> updatePostInfo() async {
+    final curtState = state as PostLoaded;
+    final service = PostService();
+    final map = await service.countLikes(post.id);
+    final likes = map["likes"];
+    final comments = await service.countComments(post.id);
+    if(likes != curtState.likes || comments != curtState.comments) {
+      emit(curtState.copyWith(
+        likes: likes,
+        comments: comments,
+      ));
     }
   }
 }

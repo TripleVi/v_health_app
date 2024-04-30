@@ -1,8 +1,6 @@
-import 'package:sqflite/sqflite.dart';
-
-import '../../domain/entities/report.dart';
-import '../sources/sqlite/sqlite_service.dart';
-import '../sources/table_attributes.dart';
+import "../../domain/entities/report.dart";
+import "../sources/sqlite/sqlite_service.dart";
+import "../sources/table_attributes.dart";
 
 class HourlyReportRepo {
 
@@ -38,7 +36,7 @@ class HourlyReportRepo {
   }
 
   Future<int> createReport(Report report) async {
-    Database db = await SqlService.instance.database;
+    final db = await SqlService.instance.database;
     return db.insert(HourlyReportFields.container, report.toSqlite());
   }
 }

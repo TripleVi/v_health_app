@@ -5,6 +5,7 @@ import "package:http_parser/http_parser.dart";
 import "package:mime/mime.dart" as mime;
 
 import "../../../core/services/shared_pref_service.dart";
+import "../../../domain/entities/activity_record.dart";
 import "../../../domain/entities/comment.dart";
 import "../../../domain/entities/coordinate.dart";
 import "../../../domain/entities/photo.dart";
@@ -26,19 +27,18 @@ class MapData {
 } 
 
 class PostService {
-
   Future<List<Post>> fetchPosts() async {
-    final currentUser = await SharedPrefService.getCurrentUser();
-    final response = await DioService.instance.dio.get<List<dynamic>>(
-      "/posts",
-      options: Options(
-        headers: {
-          "uid": currentUser.uid,
-          "username": currentUser.username,
-        },
-      ),
-    );
-    if(response.statusCode == 200) {
+    try {
+      final currentUser = await SharedPrefService.getCurrentUser();
+      final response = await DioService.instance.dio.get<List>(
+        "/posts",
+        options: Options(
+          headers: {
+            "uid": currentUser.uid,
+            "username": currentUser.username,
+          },
+        ),
+      );
       return response.data!.map((e) {
         final user = User.empty()
         ..uid = e["author"]["uid"]
@@ -47,11 +47,13 @@ class PostService {
         ..lastName = e["author"]["lastName"]
         ..avatarUrl = e["author"]["avatarUrl"];
         final post = Post.fromMap(e)
-        ..author = user;
+        ..author = user
+        ..record = ActivityRecord.fromMap(e["record"]);
         return post;
-      }).toList(growable: false);
+      }).toList();
+    } on DioException {
+      return const [];
     }
-    return const [];
   }
 
   Future<MapData?> fetchPostMap(String postId) async {

@@ -1,14 +1,14 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import "package:cached_network_image/cached_network_image.dart";
+import "package:flutter/cupertino.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:timeago/timeago.dart" as timeago;
 
-import '../../../../../../core/resources/style.dart';
-import '../../../../../../domain/entities/comment.dart';
-import '../../cubit/comments_cubit.dart';
-import '../../views/posting_comment.dart';
-import '../cubit/block_cubit.dart';
+import "../../../../../../core/resources/style.dart";
+import "../../../../../../domain/entities/comment.dart";
+import "../../cubit/comments_cubit.dart";
+import "../../views/posting_comment.dart";
+import "../cubit/block_cubit.dart";
 
 class CommentBlock extends StatelessWidget {
   final String postId;
@@ -25,9 +25,12 @@ class CommentBlock extends StatelessWidget {
         listener: (context, state) {
           if(state is BlockLoaded && state.snackMsg != null) {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: AppStyle.backgroundColor,
+              showCloseIcon: true,
+              closeIconColor: AppStyle.secondaryIconColor,
               content: Text(
                 state.snackMsg!,
-                style: AppStyle.bodyText(color: Colors.white),
+                style: AppStyle.bodyText(),
               ),
             ));
           }
@@ -73,9 +76,8 @@ class CommentBlock extends StatelessWidget {
                                   children: [
                                     Text(
                                       "${comment.author.username} ",
-                                      style: AppStyle.bodyText(
+                                      style: AppStyle.caption2Bold(
                                         color: AppStyle.primaryTextColor,
-                                        height: 1.0,
                                       ),
                                     ),
                                     Text(
@@ -84,26 +86,23 @@ class CommentBlock extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                const SizedBox(height: 4.0),
                                 Text(
                                   comment.content,
-                                  style: AppStyle.bodyText(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 10,
+                                  style: AppStyle.bodyText(fontSize: 13.0),
                                 ),
-                                const SizedBox(height: 8.0,),
-                                Row(
-                                  children: [
-                                    Text(
-                                      "22 likes",
+                                GestureDetector(
+                                  onTap: () => onReplyToTapped(context),
+                                  behavior: HitTestBehavior.translucent,
+                                  child: Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
+                                    child: Text(
+                                      "Reply",
                                       style: AppStyle.caption2(),
                                     ),
-                                    const SizedBox(width: 12.0),
-                                    GestureDetector(
-                                      onTap: () => onReplyToTapped(context),
-                                      child: Text(
-                                        "Reply",
-                                        style: AppStyle.caption2(),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
@@ -111,7 +110,7 @@ class CommentBlock extends StatelessWidget {
                           IconButton(
                             onPressed: () {},
                             iconSize: 20.0,
-                            color: AppStyle.primaryColor,
+                            color: AppStyle.secondaryIconColor,
                             icon: const Icon(Icons.thumb_up),
                           ),
                         ],
@@ -148,23 +147,28 @@ class CommentBlock extends StatelessWidget {
   Widget _viewMoreBtn(BuildContext context, int remaining) {
     return GestureDetector(
       onTap: context.read<BlockCubit>().viewMoreReplies,
-      child: Row(
-        children: [
-          const SizedBox(
-            width: 28.0,
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-              color: AppStyle.neutralColor400,
-              endIndent: 4.0,
+      behavior: HitTestBehavior.translucent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 28.0,
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
+                color: AppStyle.neutralColor400,
+                endIndent: 4.0,
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              "View more $remaining ${remaining == 1 ? "reply" : "replies"}"
+            Expanded(
+              child: Text(
+                "View more $remaining ${remaining == 1 ? "reply" : "replies"}",
+                style: AppStyle.caption2(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -172,23 +176,28 @@ class CommentBlock extends StatelessWidget {
   Widget _hideBtn(BuildContext context, int total) {
     return GestureDetector(
       onTap: context.read<BlockCubit>().hideAllReplies,
-      child: Row(
-        children: [
-          const SizedBox(
-            width: 28.0,
-            child: Divider(
-              height: 1.0,
-              thickness: 1.0,
-              color: AppStyle.neutralColor400,
-              endIndent: 4.0,
+      behavior: HitTestBehavior.translucent,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4.0),
+        child: Row(
+          children: [
+            const SizedBox(
+              width: 28.0,
+              child: Divider(
+                height: 1.0,
+                thickness: 1.0,
+                color: AppStyle.secondaryTextColor,
+                endIndent: 4.0,
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              "Hide ${total == 1 ? "reply" : "replies"}"
+            Expanded(
+              child: Text(
+                "Hide ${total == 1 ? "reply" : "replies"}",
+                style: AppStyle.caption2(),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -229,7 +238,7 @@ class CommentBlock extends StatelessWidget {
   Widget _buildReplyItem(BuildContext context, Comment comment) {
     const avatarSize = 40;
     return Container(
-      margin: const EdgeInsets.only(bottom: 20.0),
+      margin: const EdgeInsets.only(bottom: 12.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -260,10 +269,7 @@ class CommentBlock extends StatelessWidget {
                   children: [
                     Text(
                       "${comment.author.username} ",
-                      style: AppStyle.bodyText(
-                        color: AppStyle.primaryTextColor,
-                        height: 1.0,
-                      ),
+                      style: AppStyle.caption2Bold(color: AppStyle.primaryTextColor),
                     ),
                     Text(
                       timeago.format(comment.createdDate, locale: "en"),
@@ -271,36 +277,33 @@ class CommentBlock extends StatelessWidget {
                     ),
                   ],
                 ),
+                const SizedBox(height: 4.0),
                 RichText(
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 10,
                   text: TextSpan(
                     children: <TextSpan>[
                       TextSpan(
                         text: "@${comment.author.username} ", 
-                        style: AppStyle.bodyText(color: AppStyle.primaryColor), 
+                        style: AppStyle.bodyText(
+                          fontSize: 13.0, 
+                          color: AppStyle.primaryColor,
+                        ), 
                       ),
                       TextSpan(
                         text: comment.content,
-                        style: AppStyle.bodyText(),
+                        style: AppStyle.bodyText(fontSize: 13.0),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 8.0,),
-                Row(
-                  children: [
-                    Text(
-                      "22 likes",
-                      style: AppStyle.caption2(),
-                    ),
-                    const SizedBox(width: 12.0),
-                    GestureDetector(
-                      onTap: () => onReplyToTapped(context),
-                      child: Text(
-                        "Reply",
-                        style: AppStyle.caption2(),
-                      ),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () => onReplyToTapped(context),
+                  behavior: HitTestBehavior.translucent,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 16, 8),
+                    child: Text("Reply", style: AppStyle.caption2()),
+                  ),
                 ),
               ],
             ),
@@ -308,7 +311,7 @@ class CommentBlock extends StatelessWidget {
           IconButton(
             onPressed: () {},
             iconSize: 20.0,
-            color: AppStyle.primaryColor,
+            color: AppStyle.secondaryIconColor,
             icon: const Icon(Icons.thumb_up),
           ),
         ],
