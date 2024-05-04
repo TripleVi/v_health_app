@@ -221,6 +221,16 @@ class MyUtils {
     return null;
   }
 
+  static String? nameValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Please fill this field.";
+    }
+    final regex = RegExp(r'^[A-Za-z]+(?:\s{0,1}[A-Za-z]+)*$');
+    if(!regex.hasMatch(value)) return "Invalid name";
+    if(value.length < 3) return "Name must contain at least 3 characters."; 
+    return null;
+  }
+
   static String? usernameValidator(String? value) {
     if (value == null || value.isEmpty) {
       return "Please fill this field.";

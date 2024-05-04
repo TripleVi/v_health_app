@@ -14,7 +14,7 @@ final class SavingLoaded extends SavingState {
   final io.File map;
   final String titleHint;
   final bool isProcessing;
-  final String? errorMsg;
+  final String? snackMsg;
   final TextEditingController titleController;
   final TextEditingController contentController;
 
@@ -23,7 +23,7 @@ final class SavingLoaded extends SavingState {
     this.privacy = PostPrivacy.public,
     required this.titleHint,
     this.isProcessing = false,
-    this.errorMsg,
+    this.snackMsg,
     required this.titleController,
     required this.contentController,
   });
@@ -32,14 +32,14 @@ final class SavingLoaded extends SavingState {
     PostPrivacy? privacy,
     io.File? map,
     bool isProcessing = false,
-    String? errorMsg,
+    String? snackMsg,
   }) {
     return SavingLoaded(
       privacy: privacy ?? this.privacy,
       map: map ?? this.map,
       titleHint: titleHint,
       isProcessing: isProcessing,
-      errorMsg: errorMsg,
+      snackMsg: snackMsg,
       titleController: titleController,
       contentController: contentController,
     );

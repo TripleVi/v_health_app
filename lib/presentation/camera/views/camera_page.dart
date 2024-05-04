@@ -1,15 +1,12 @@
-import 'dart:io' as io;
+import "dart:io" as io;
 
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import "package:flutter/material.dart";
+import "package:camera/camera.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../core/resources/style.dart';
-import '../../activity_tracking/bloc/activity_tracking_bloc.dart';
-import '../../widgets/dialog.dart';
-import '../../widgets/loading_indicator.dart';
-import '../cubit/camera_cubit.dart';
+import "../../../core/resources/style.dart";
+import "../../activity_tracking/bloc/activity_tracking_bloc.dart";
+import "../cubit/camera_cubit.dart";
 
 class CameraPage extends StatelessWidget {
   const CameraPage({super.key});
@@ -31,18 +28,19 @@ class CameraView extends StatelessWidget {
       backgroundColor: Colors.black87,
       body: BlocConsumer<CameraCubit, CameraState>(
         listener: (context, state) {
-          if (state is CameraLoaded && state.errorMsg != null) {
-            MyDialog.showSingleOptionsDialog(
-              context: context, 
-              title: "Camera Services", 
-              message: state.errorMsg!,
-            );
+          if(state is CameraLoaded && state.snackMsg != null) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: AppStyle.backgroundColor,
+              showCloseIcon: true,
+              closeIconColor: AppStyle.secondaryIconColor,
+              content: Text(
+                state.snackMsg!,
+                style: AppStyle.bodyText(),
+              ),
+            ));
           }
         },
         builder: (context, state) {
-          if (state is CameraInitial) {
-            return const SizedBox(height: 32.0, child: AppLoadingIndicator());
-          }
           if (state is CameraLoaded) {
             return _buildCameraPreview(context, state);
           }
@@ -57,25 +55,21 @@ class CameraView extends StatelessWidget {
 
   Widget _buildSendBtn(BuildContext context, PhotoParams params) {
     return Container(
-      margin: const EdgeInsets.only(right: 8.0, bottom: 12.0),
-      child: TextButton(
+      margin: const EdgeInsets.only(right: 16.0, bottom: 16.0),
+      child: IconButton(
         onPressed: () {
           Navigator.pop<PhotoParams>(context, params);
-          SystemChrome.setEnabledSystemUIMode(
-            SystemUiMode.manual,
-            overlays: SystemUiOverlay.values,
-          );
+          // SystemChrome.setEnabledSystemUIMode(
+          //   SystemUiMode.manual,
+          //   overlays: SystemUiOverlay.values,
+          // );
         },
         style: TextButton.styleFrom(
           backgroundColor: AppStyle.surfaceColor,
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.all(8.0),
         ),
-        child: const Icon(
-          Icons.send_rounded,
-          size: 32.0,
-          color: AppStyle.primaryColor,
-        ),
+        iconSize: 32.0,
+        color: AppStyle.primaryColor,
+        icon: const Icon(Icons.send_rounded),
       ),
     );
   }
@@ -88,18 +82,20 @@ class CameraView extends StatelessWidget {
           height: double.infinity,
           child: CameraPreview(state.controller),
         ),
-        Align(
-          alignment: Alignment.topCenter,
+        Positioned(
+          left: 0.0,
+          right: 0.0,
+          top: 20.0,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
                 onPressed: () {
                   Navigator.pop<void>(context);
-                  SystemChrome.setEnabledSystemUIMode(
-                    SystemUiMode.manual,
-                    overlays: SystemUiOverlay.values,
-                  );
+                  // SystemChrome.setEnabledSystemUIMode(
+                  //   SystemUiMode.manual,
+                  //   overlays: SystemUiOverlay.values,
+                  // );
                 },
                 icon: const Icon(
                   Icons.arrow_back_rounded,
@@ -120,9 +116,8 @@ class CameraView extends StatelessWidget {
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: Container(
-            margin: const EdgeInsets.only(right: 30.0),
-            padding: const EdgeInsets.symmetric(vertical: 35.0),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32.0),
             child: IconButton(
               onPressed: () => context.read<CameraCubit>().captureCamera(),
               icon: const Icon(
@@ -149,8 +144,9 @@ class CameraView extends StatelessWidget {
           fit: BoxFit.fill,
           isAntiAlias: true,
         ),
-        Align(
-          alignment: Alignment.topLeft,
+        Positioned(
+          left: 0.0,
+          top: 20.0,
           child: IconButton(
             onPressed: () => context.read<CameraCubit>().deletePicture(),
             icon: const Icon(

@@ -40,12 +40,8 @@ class SavingView extends StatelessWidget {
           padding: const EdgeInsets.all(12.0),
           child: BlocConsumer<SavingCubit, SavingState>(
             listener: (blocContext, state) {
-              if (state is SavingLoaded && state.errorMsg != null) {
-                MyDialog.showSingleOptionsDialog(
-                  context: context, 
-                  title: "Post Creation", 
-                  message: state.errorMsg!,
-                );
+              if (state is SavingLoaded && state.snackMsg != null) {
+                showMessage(blocContext, state.snackMsg!);
               } else if (state is SavingSuccess) {
                 Navigator.pop<bool>(context, true);
               }
@@ -63,6 +59,15 @@ class SavingView extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void showMessage(BuildContext context, String content) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: AppStyle.backgroundColor,
+      showCloseIcon: true,
+      closeIconColor: AppStyle.secondaryIconColor,
+      content: Text(content, style: AppStyle.bodyText()),
+    ));
   }
 
   List<Widget> appBarActions(BuildContext context) {

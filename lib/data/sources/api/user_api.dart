@@ -20,15 +20,15 @@ class UserService {
   }
 
   String convertUint8ListToString(Uint8List uint8list) {
-  return String.fromCharCodes(uint8list);
-}
+    return String.fromCharCodes(uint8list);
+  }
 
-    StreamTransformer<Uint8List, String> unit8Transformer =
-        StreamTransformer.fromHandlers(
-      handleData: (data, sink) {
-        sink.add(String.fromCharCodes(data));
-      },
-    );
+    // StreamTransformer<Uint8List, String> unit8Transformer =
+    //     StreamTransformer.fromHandlers(
+    //   handleData: (data, sink) {
+    //     sink.add(String.fromCharCodes(data));
+    //   },
+    // );
 
   Future<bool> emailExists(String email) async {
     final users = await getUsers(options: {"email": email});
@@ -102,6 +102,26 @@ class UserService {
     } catch (e) {
       print('Error creating user: $e');
       return null;
+    }
+  }
+
+  Future<bool> editProfile(User user) async {
+    try {
+      final newInfo = {
+        "name": user.name,
+        "username": user.username,
+        "gender": user.gender.index,
+        "weight": user.weight,
+        "height": user.height,
+      };
+      final response = await DioService.instance.dio.put(
+        "/users/${user.uid}",
+        data: newInfo,
+      );
+      return response.statusCode! == 204;
+    } on DioException catch (e) {
+      print(e);
+      return false;
     }
   }
 

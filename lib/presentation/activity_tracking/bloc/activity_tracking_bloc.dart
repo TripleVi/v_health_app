@@ -1,5 +1,4 @@
 import "dart:async";
-import "dart:io" as io;
 import "dart:math" as math;
 
 import "package:camera/camera.dart";
@@ -156,6 +155,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         if(isPrecise) {
           _isLocationAvail = true;
           add(const LocationUpdated());
+          _onDesiredLocation();
         }
         _isProcessing = false;
       });
@@ -269,6 +269,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
   }
 
   Future<void> _onAppStateResumed() async {
+    if(state.recState.isInitial) return;
     _isProcessing = true;
     if(state.recState.isRecording) {
       backgroundService.invoke("appStateUpdated", {
@@ -496,10 +497,11 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       icon: endMarker,
     ));
     final temp = activity as WalkingActivity;
-    if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
-      emit(state.copyWith(isQualified: false));
-      return;
-    }
+    // if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
+    //   emit(state.copyWith(isQualified: false));
+    //   _isProcessing = false;
+    //   return;
+    // }
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
@@ -533,7 +535,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     Emitter<ActivityTrackingState> emit,
   ) async {
     clearSession();
-    emit(const ActivityTrackingState());
+    emit(const ActivityTrackingState(isLocationAvail: true));
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -544,17 +546,16 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     PhotoDeleted event,
     Emitter<ActivityTrackingState> emit,
   ) {
-    final photo = event.file;
     // final name = MyUtils.getFileName(photo);
-    photo.deleteSync();
-    // for(final m in _markers) {
-    //   if(m.markerId.value == name) {
-    //     _markers.remove(m);
-    //     break;
-    //   }
-    // }
+    // photo.deleteSync();
+    for(final m in _markers) {
+      if(m.markerId.value == event.file.name) {
+        _markers.remove(m);
+        break;
+      }
+    }
     for(final p in _photosParams) {
-      if(p.file.hashCode == photo.hashCode) {
+      if(p.file.hashCode == event.file.hashCode) {
         _photosParams.remove(p);
         break;
       }
@@ -623,10 +624,10 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       emit(state.copyWith());
     }else if(event.success == true) {
       clearSession();
-      emit(const ActivityTrackingState(snackMsg: "Adding post succeed"));
+      emit(const ActivityTrackingState(snackMsg: "Added post successfully!"));
     }else {
       _markers.remove(_markers.last);
-      emit(state.copyWith(snackMsg: "Adding post failed"));
+      emit(state.copyWith(snackMsg: "Added post unsuccessfully!"));
     }
   }
 
@@ -669,7 +670,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       markerId: MarkerId(params.file.name),
       position: LatLng(params.latitude, params.longitude),
       icon: BitmapDescriptor.fromBytes(markerBytes),
-      onTap: () => add(PhotoMarkerTapped(io.File(params.file.path))),
+      onTap: () => add(PhotoMarkerTapped(params.file)),
     ));
     emit(state.copyWith());
   }

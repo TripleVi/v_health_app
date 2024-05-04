@@ -1,8 +1,8 @@
-import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
+import "dart:async";
+import "dart:typed_data";
+import "dart:ui" as ui;
 
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class MarkerPainter extends CustomPainter {
   final Uint8List _imageBytes;
@@ -10,7 +10,7 @@ class MarkerPainter extends CustomPainter {
   const MarkerPainter._(this._imageBytes);
   
   static Future<Uint8List> getMarkerBytes(Uint8List imageBytes) async {
-    const ui.Size size = ui.Size(160.0, 160.0);
+    const ui.Size size = ui.Size(100.0, 100.0);
     ui.PictureRecorder recorder = ui.PictureRecorder();
     ui.Canvas canvas = ui.Canvas(recorder);
     MarkerPainter painter = MarkerPainter._(imageBytes);

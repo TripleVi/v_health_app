@@ -8,7 +8,7 @@ import "../../../core/utilities/constants.dart";
 import "../../activity_tracking/views/tracking_page.dart";
 import "../../feed/views/feed_page.dart";
 import "../../notification/view/notification_page.dart";
-import "../../profile/view/profile_page.dart";
+import "../../profile/views/profile_page.dart";
 import "../../statistics/views/statistics_page.dart";
 import "../bloc/site_bloc.dart";
 

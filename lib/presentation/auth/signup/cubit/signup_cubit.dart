@@ -50,8 +50,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     ..gender = state.gender
     ..weight = double.parse(state.weightController.text.split(" ").first)
     ..height = int.parse(state.heightController.text.split(" ").first);
-    print(user);
-    return;
+
     emit(state.copyWith(isProcessing: true));
     try {
       user.email = AuthBloc.email!;
@@ -62,8 +61,7 @@ class SignUpCubit extends Cubit<SignUpState> {
       final profile = userCredential.additionalUserInfo!.profile!;
       user
       ..uid = userCredential.user!.uid
-      ..firstName = profile["given_name"]
-      ..lastName = profile["family_name"]
+      ..name = "${profile["given_name"]} ${profile["family_name"]}"
       ..avatarUrl = profile["picture"];
       final userService = UserService();
       await userService.createUser(user);

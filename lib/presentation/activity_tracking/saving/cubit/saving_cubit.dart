@@ -109,7 +109,7 @@ class SavingCubit extends Cubit<SavingState> {
       final service = PostService();
       final createdPost = await service.createPost(newPost);
       if (createdPost == null) {
-        emit(curtState.copyWith(errorMsg: "Something went wrong. Please try again!"));
+        emit(curtState.copyWith(snackMsg: "Oops, something went wrong!"));
         return;
       }
       await service.uploadPostFiles(
@@ -121,7 +121,7 @@ class SavingCubit extends Cubit<SavingState> {
       _isProcessing = false;
     } catch (e) {
       print(e);
-      emit(curtState.copyWith(errorMsg: "Adding record failed. Please try again!"));
+      emit(curtState.copyWith(snackMsg: "Oops, something went wrong!"));
     }
   }
 

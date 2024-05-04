@@ -36,7 +36,7 @@ class LocationUpdated extends ActivityTrackingEvent {
 }
 
 class PhotoMarkerTapped extends ActivityTrackingEvent {
-  final io.File? photo;
+  final XFile photo;
   const PhotoMarkerTapped(this.photo);
 }
 
@@ -46,7 +46,7 @@ class PictureTaken extends ActivityTrackingEvent {
 }
 
 class PhotoDeleted extends ActivityTrackingEvent {
-  final io.File file;
+  final XFile file;
   const PhotoDeleted(this.file);
 }
 

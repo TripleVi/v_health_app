@@ -11,24 +11,20 @@ final class CameraInitial extends CameraState {
 
 final class CameraLoaded extends CameraState {
   final CameraController controller;
-  final bool isProcessing;
-  final String? errorMsg;
+  final String? snackMsg;
 
   const CameraLoaded({
     required this.controller, 
-    this.isProcessing = false,
-    this.errorMsg,
+    this.snackMsg,
   });
 
   CameraLoaded copyWith({
     CameraController? controller,
-    bool isProcessing = false,
-    String? errorMsg,
+    String? snackMsg,
   }) {
     return CameraLoaded(
       controller: controller ?? this.controller,
-      isProcessing: isProcessing,
-      errorMsg: errorMsg,
+      snackMsg: snackMsg,
     );
   }
 }

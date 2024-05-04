@@ -1,4 +1,4 @@
-part of 'activity_tracking_bloc.dart';
+part of "activity_tracking_bloc.dart";
 
 @immutable
 class ActivityTrackingState {
@@ -11,7 +11,7 @@ class ActivityTrackingState {
   final TrackingParams trackingParams;
   final Stream<int>? timeStream;
   final TrackingResult? result;
-  final io.File? photo;
+  final XFile? photo;
   final bool isMetricsVisible;
   final bool isQualified;
   final String? snackMsg;
@@ -42,7 +42,7 @@ class ActivityTrackingState {
     TrackingParams? trackingParams,
     Stream<int>? timeStream,
     TrackingResult? result,
-    io.File? photo,
+    XFile? photo,
     bool? isMetricsVisible,
     bool isQualified = true,
     String? snackMsg,

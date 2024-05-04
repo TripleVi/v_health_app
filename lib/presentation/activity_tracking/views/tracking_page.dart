@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:io";
 
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
@@ -103,7 +104,7 @@ class TrackingView extends StatelessWidget {
             MyDialog.showTwoOptionsDialog(
               context: context, 
               title: "Warning", 
-              message: "Your workout session is too short to save.",
+              message: "Your workout is too short to save.",
               yesButtonName: "Continue",
               noButtonName: "Stop",
             ).then((value) {
@@ -134,7 +135,7 @@ class TrackingView extends StatelessWidget {
   Widget _backBtn(BuildContext context) {
     return TextButton(
       onPressed: () => context.read<SiteBloc>().add(PreviousTapShown()),
-      child: Text("Hide", style: AppStyle.caption1(height: 1.0)),
+      child: const Text("Hide"),
     );
   }
 
@@ -320,7 +321,7 @@ class TrackingView extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
           color: AppStyle.surfaceColor,
-          borderRadius: BorderRadius.circular(100.0),
+          shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
               blurRadius: 8.0,
@@ -330,8 +331,9 @@ class TrackingView extends StatelessWidget {
         ),
         child: SvgPicture.asset(
           state.category.svgPaths,
-          width: 32.0,
-          color: AppStyle.primaryColor,
+          width: 24.0,
+          colorFilter: const ColorFilter
+              .mode(AppStyle.primaryColor, BlendMode.srcIn),
         )
       ),
     );
@@ -568,9 +570,9 @@ class TrackingView extends StatelessWidget {
     Widget child = icon == null
         ? Text(
             content!,
-            style: AppStyle.bodyText(color: foregroundColor, fontSize: 14.0),
+            style: AppStyle.caption2(color: foregroundColor),
           )
-        : Icon(icon, size: 24, color: foregroundColor);
+        : Icon(icon, size: 20, color: foregroundColor);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -578,7 +580,7 @@ class TrackingView extends StatelessWidget {
         height: size,
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: BorderRadius.circular(size * size / 2),
+          shape: BoxShape.circle,
           border: Border.all(color: AppStyle.primaryColor, width: 2.0),
           boxShadow: [
             BoxShadow(
@@ -600,19 +602,17 @@ class TrackingView extends StatelessWidget {
   }
 
   void _openImageView(BuildContext context, ActivityTrackingState state) {
-    final photo = state.photo!;
     Navigator.push<void>(context, MaterialPageRoute(
       builder: (context) => ImageView(
-        file: state.photo!,
-        onEdited: (originalBytes, editedBytes) => context
-            .read<ActivityTrackingBloc>()
-            .add(PhotoEdited(originalBytes, editedBytes)),
+        file: File(state.photo!.path),
+        onEdited: (originalBytes, editedBytes) {},
+        // onEdited: (originalBytes, editedBytes) => context
+        //     .read<ActivityTrackingBloc>()
+        //     .add(PhotoEdited(originalBytes, editedBytes)),
         onDelete: () => context
             .read<ActivityTrackingBloc>()
-            .add(PhotoDeleted(photo)),
-        onSave: () {
-          
-        },
+            .add(PhotoDeleted(state.photo!)),
+        onSave: () {},
       ),
     )).then((value) => context
         .read<ActivityTrackingBloc>()
@@ -715,41 +715,49 @@ class TrackingView extends StatelessWidget {
                 children: [
                   Text(
                     "Choose an Activity",
-                    style: AppStyle.heading1(height: 1.0),
+                    style: AppStyle.heading4(),
                   ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Close",
-                      style: TextStyle(fontSize: 18.0, color: Colors.grey),
-                    ),
+                  GestureDetector(
+                    onTap: () => Navigator.pop<void>(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: const BoxDecoration(
+                        color: AppStyle.sBtnBgColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close_rounded,
+                        size: 20.0,
+                        color: AppStyle.primaryIconColor,
+                      ),
+                    )
                   ),
                 ],
               ),
+              const SizedBox(height: 20.0),
               Expanded(
                 child: ListView(
                   children: ActivityCategory.values.map((item) {
                     return ListTile(
                       onTap: () => Navigator.pop(context, item),
-                      iconColor: Colors.grey.shade300,
-                      textColor: Colors.grey,
+                      iconColor: AppStyle.secondaryIconColor,
+                      textColor: AppStyle.secondaryTextColor,
+                      titleTextStyle: AppStyle.bodyText(),
                       selectedColor: AppStyle.primaryColor,
                       selected: state.category == item,
                       leading: SvgPicture.asset(
                         item.svgPaths,
-                        width: 32.0,
-                        color: state.category == item
-                            ? AppStyle.primaryColor
-                            : Colors.grey,
-                      ),
-                      title: Text(
-                        item.name,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          height: 1.0,
+                        width: 24.0,
+                        colorFilter: ColorFilter.mode(
+                          state.category == item 
+                              ? AppStyle.primaryColor 
+                              : AppStyle.secondaryIconColor, 
+                          BlendMode.srcIn,
                         ),
                       ),
+                      title: Text(item.name),
                       trailing: state.category == item
-                          ? const Icon(Icons.check_rounded)
+                          ? const Icon(Icons.check_rounded, size: 20.0)
                           : null,
                     );
                   }).toList(growable: false),

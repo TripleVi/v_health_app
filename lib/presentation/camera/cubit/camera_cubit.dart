@@ -1,15 +1,15 @@
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
+import "package:camera/camera.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 
-import '../../../core/services/location_service.dart';
-import '../../activity_tracking/bloc/activity_tracking_bloc.dart';
+import "../../../core/services/location_service.dart";
+import "../../activity_tracking/bloc/activity_tracking_bloc.dart";
 
-part 'camera_state.dart';
+part "camera_state.dart";
 
 class CameraCubit extends Cubit<CameraState> {
+  var isProcessing = false;
   CameraController? _cameraController;
 
   CameraCubit() : super(const CameraInitial()) {
@@ -17,11 +17,11 @@ class CameraCubit extends Cubit<CameraState> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: [SystemUiOverlay.bottom],
-    );
-
+    // SystemChrome.setEnabledSystemUIMode(
+    //   SystemUiMode.manual,
+    //   overlays: [SystemUiOverlay.bottom],
+    // );
+    
     _initializeCamera();
   }
   
@@ -41,11 +41,11 @@ class CameraCubit extends Cubit<CameraState> {
   }
 
   Future<void> captureCamera() async {
-    emit((state as CameraLoaded).copyWith(isProcessing: true));
+    if(isProcessing) return;
+    isProcessing = true;
     try {
       final file = await _cameraController!.takePicture();
-      final locationService = GetIt.instance<LocationService>();
-      final pos = await locationService.getCurrentPosition();
+      final pos = await LocationService().getCurrentPosition();
       if(pos != null) {
         final params = PhotoParams(
           file: file,
@@ -54,10 +54,12 @@ class CameraCubit extends Cubit<CameraState> {
         );
         return emit(CameraSuccess(params));
       }
-      emit((state as CameraLoaded).copyWith(errorMsg: "Cannot acquire your current position. Please try again!"));
+      emit((state as CameraLoaded).copyWith(snackMsg: "Oops, cannot get your position."));
     } catch (e) {
       print(e);
-      emit((state as CameraLoaded).copyWith(errorMsg: "Something went wrong. Please try again!"));
+      emit((state as CameraLoaded).copyWith(snackMsg: "Oops, something went wrong!"));
+    } finally {
+      isProcessing = false;
     }
   }
 
@@ -65,7 +67,7 @@ class CameraCubit extends Cubit<CameraState> {
   Future<void> close() async {
     await _cameraController?.dispose();
     await super.close();
-    SystemChrome.setPreferredOrientations([
+    await SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.portraitUp,

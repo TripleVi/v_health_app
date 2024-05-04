@@ -56,7 +56,7 @@ class _ImageViewState extends State<ImageView> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) => AlertDialog(
-        title: const Text('Delete Photo?'),
+        title: const Text('Delete photo?'),
         content: const Text('Are you sure to delete this photo?'),
         actions: <Widget>[
           TextButton(
@@ -75,14 +75,14 @@ class _ImageViewState extends State<ImageView> {
   Future<void> _optionsSection(BuildContext context) {
     return showModalBottomSheet<void>(
       constraints: const BoxConstraints(
-        minHeight: 200.0,
+        minHeight: 180.0,
         minWidth: double.infinity,
       ),
       backgroundColor: AppStyle.surfaceColor,
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(12.0),
+          top: Radius.circular(AppStyle.borderRadius),
         ),
       ),
       builder: (context) {
@@ -95,20 +95,20 @@ class _ImageViewState extends State<ImageView> {
             mainAxisSize: MainAxisSize.min,
             children: ListTile.divideTiles(
               context: context,
-              color: Colors.grey.shade400,
+              color: AppStyle.neutralColor300,
               tiles: [
                 TextButton(
                   onPressed: () {
-                    widget.onSave();
+                    // widget.onSave();
                   },
                   style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                   ),
                   child: SizedBox(
                     width: double.infinity,
-                    child: Text("Save Photo",
+                    child: Text("Save photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading2(height: 1.0),
+                      style: AppStyle.heading5(),
                     ),
                   ),
                 ),
@@ -131,9 +131,9 @@ class _ImageViewState extends State<ImageView> {
                   ),
                   child: SizedBox( 
                     width: double.infinity,
-                    child: Text("Edit Photo",
+                    child: Text("Edit photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading2(height: 1.0),
+                      style: AppStyle.heading5(),
                     ),
                   ),
                 ),
@@ -152,9 +152,9 @@ class _ImageViewState extends State<ImageView> {
                   ),
                   child: SizedBox(
                     width: double.infinity,
-                    child: Text("Delete Photo",
+                    child: Text("Delete photo",
                       textAlign: TextAlign.center,
-                      style: AppStyle.heading2(height: 1.0),
+                      style: AppStyle.heading5(),
                     ),
                   ),
                 ),
@@ -207,28 +207,29 @@ class _ImageViewState extends State<ImageView> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          ElevatedButton(
-                            onPressed: () => Navigator.pop<void>(context),
-                            style: ElevatedButton.styleFrom(
-                              shape: const CircleBorder(),
-                              minimumSize: Size.zero,
-                              backgroundColor: Colors.white,
-                              shadowColor: Colors.white,
-                              foregroundColor: Colors.white,
-                              surfaceTintColor: Colors.white,
-                              padding: const EdgeInsets.all(2.0),
-                            ),
-                            child: const Icon(Icons.close_rounded,
-                              color: AppStyle.neutralColor400,
-                              size: 32.0,
-                            ),
+                          GestureDetector(
+                            onTap: () => Navigator.pop<void>(context),
+                            child: Container(
+                              margin: const EdgeInsets.fromLTRB(8, 8, 0, 0),
+                              padding: const EdgeInsets.all(8.0),
+                              decoration: const BoxDecoration(
+                                color: AppStyle.sBtnBgColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.close_rounded,
+                                size: 20.0,
+                                color: AppStyle.primaryIconColor,
+                              ),
+                            )
                           ),
                           IconButton(
                             onPressed: () {
                               _optionsSection(context);
                             },
                             iconSize: 32.0,
-                            icon: const Icon(Icons.more_horiz_rounded, 
+                            icon: const Icon(
+                              Icons.more_horiz_rounded, 
                               color: Colors.white,
                             ),
                           ),

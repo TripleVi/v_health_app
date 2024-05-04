@@ -49,8 +49,7 @@ class FeedService {
         final user = User.empty()
         ..uid = e["author"]["uid"]
         ..username = e["author"]["username"]
-        ..firstName = e["author"]["firstName"]
-        ..lastName = e["author"]["lastName"]
+        ..name = e["author"]["name"]
         ..avatarUrl = e["author"]["avatarUrl"];
         final post = Post.fromMap(e)
         ..author = user

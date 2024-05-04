@@ -328,9 +328,4 @@ class _LocationWidgetState extends State<LocationWidget> with WidgetsBindingObse
 class Routes {
   static const home = "/home";
   static const auth = "/auth";
-  static const registration = "/register";
-  static const recovery = "/recovery";
-  static const userDetails = "/details";
-  static const dailyStats = "/statistics";
-  static const tracking = "/tracking";
 }
