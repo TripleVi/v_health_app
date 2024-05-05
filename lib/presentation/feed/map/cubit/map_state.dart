@@ -1,14 +1,18 @@
-part of 'map_cubit.dart';
+part of "map_cubit.dart";
 
 @immutable
-final class MapState {
+sealed class MapState {}
+
+final class MapStateLoading extends MapState {}
+
+final class MapStateLoaded extends MapState {
   final Set<Polyline> polylines;
   final Set<Marker> markers;
   final List<Photo> photos;
   final Photo? photoTapped;
   final bool markersVisible;
 
-  const MapState({
+  MapStateLoaded({
     this.polylines = const {},
     this.markers = const {},
     this.photos = const [],
@@ -23,7 +27,7 @@ final class MapState {
     Photo? photoTapped,
     bool? markersVisible,
   }) {
-    return MapState(
+    return MapStateLoaded(
       polylines: polylines ?? this.polylines,
       markers: markers ?? this.markers,
       photos: photos ?? this.photos,
@@ -32,3 +36,5 @@ final class MapState {
     );
   }
 }
+
+final class MapStateError extends MapState {}

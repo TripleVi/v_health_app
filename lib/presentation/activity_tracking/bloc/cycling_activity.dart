@@ -77,13 +77,13 @@ class CyclingActivity extends FitnessActivity {
           }
           math.max(maxSpeed, speed);
           time += duration;
-          workoutData.add(WorkoutData(
-            speed: speed,
-            distance: distance + totalDistance,
-            steps: 0,
-            calories: totalCalories + calculateCalories(time, user.weight),
-            time: duration + activeTime,
-          ));
+          // workoutData.add(WorkoutData(
+          //   speed: speed,
+          //   distance: distance + totalDistance,
+          //   steps: 0,
+          //   calories: totalCalories + calculateCalories(time, user.weight),
+          //   time: duration + activeTime,
+          // ));
         }
         avgSpeed = (avgSpeed + distance / time) / 2;
         totalDistance += distance;

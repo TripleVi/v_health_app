@@ -1,17 +1,17 @@
-import 'package:bottom_sheet/bottom_sheet.dart' as bs;
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import "package:bottom_sheet/bottom_sheet.dart" as bs;
+import "package:cached_network_image/cached_network_image.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:google_maps_flutter/google_maps_flutter.dart";
 
 
-import '../../../../core/resources/style.dart';
-import '../../../../domain/entities/photo.dart';
-import '../../../../domain/entities/post.dart';
-import '../../../widgets/image_page.dart';
-import '../../../widgets/app_bar.dart';
-import '../../../widgets/back_btn.dart';
-import '../cubit/map_cubit.dart';
+import "../../../../core/resources/style.dart";
+import "../../../../domain/entities/photo.dart";
+import "../../../../domain/entities/post.dart";
+import "../../../widgets/image_page.dart";
+import "../../../widgets/app_bar.dart";
+import "../../../widgets/loading_indicator.dart";
+import "../cubit/map_cubit.dart";
 
 class MapPage extends StatelessWidget {
   const MapPage({super.key});
@@ -32,22 +32,43 @@ class MapView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar.get(
-        title: "Route Taken",
-        leading: backBtn(() => Navigator.pop<void>(context)),
-      ),
+      appBar: CustomAppBar.get(title: "Route taken"),
+      backgroundColor: AppStyle.backgroundColor,
       body: BlocConsumer<MapCubit, MapState>(
         listener: (context, state) {
-          if(state.photoTapped != null) {
+          if(state is MapStateLoaded && state.photoTapped != null) {
             _openImageView(context, state.photoTapped!);
           }
         },
-        builder: _mainSection,
+        builder: (context, state) {
+          if(state is MapStateLoading) {
+            return const AppLoadingIndicator();
+          }
+          if(state is MapStateError) {
+            return Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.warning_rounded, 
+                    size: 68.0, 
+                    color: AppStyle.primaryColor,
+                  ),
+                  Text("Oops, something went wrong!", style: AppStyle.caption1()),
+                ],
+              ),
+            );
+          }
+          if(state is MapStateLoaded) {
+            return _mainSection(context, state);
+          }
+          return const SizedBox();
+        },
       ) ,
     );
   }
 
-  Widget _mainSection(BuildContext context, MapState state) {
+  Widget _mainSection(BuildContext context, MapStateLoaded state) {
     return Stack(
       children: [
         _googleMapWidget(
@@ -95,7 +116,7 @@ class MapView extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppStyle.surfaceColor,
-        borderRadius: BorderRadius.circular(100.0),
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
@@ -105,18 +126,18 @@ class MapView extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: context.read<MapCubit>().viewRouteTaken,
-        iconSize: 32.0,
+        iconSize: 24.0,
         color: AppStyle.primaryColor,
         icon: const Icon(Icons.my_location_rounded),
       ),
     );
   }
 
-  Widget _photoVisibilityBtn(BuildContext context, MapState state) {
+  Widget _photoVisibilityBtn(BuildContext context, MapStateLoaded state) {
     return Container(
       decoration: BoxDecoration(
         color: AppStyle.surfaceColor,
-        borderRadius: BorderRadius.circular(100.0),
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
@@ -126,7 +147,7 @@ class MapView extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: context.read<MapCubit>().toggleMarkersVisible,
-        iconSize: 32.0,
+        iconSize: 24.0,
         color: AppStyle.primaryColor,
         icon: state.markersVisible 
             ? const Icon(Icons.visibility_rounded)
@@ -135,11 +156,11 @@ class MapView extends StatelessWidget {
     );
   }
 
-  Widget _photoGalleryBtn(BuildContext context, MapState state) {
+  Widget _photoGalleryBtn(BuildContext context, MapStateLoaded state) {
     return Container(
       decoration: BoxDecoration(
         color: AppStyle.surfaceColor,
-        borderRadius: BorderRadius.circular(100.0),
+        shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
             blurRadius: 8.0,
@@ -149,14 +170,14 @@ class MapView extends StatelessWidget {
       ),
       child: IconButton(
         onPressed: () => _showPhotos(context, state),
-        iconSize: 32.0,
+        iconSize: 24.0,
         color: AppStyle.primaryColor,
         icon: const Icon(Icons.photo_library_outlined),
       ),
     );
   }
 
-  void _showPhotos(BuildContext mapContext, MapState state) async {
+  void _showPhotos(BuildContext mapContext, MapStateLoaded state) async {
     await bs.showFlexibleBottomSheet<void>(
       minHeight: 0,
       initHeight: 0.5,
@@ -180,10 +201,11 @@ class MapView extends StatelessWidget {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
-                color: Colors.black.withOpacity(0.3),
-                child: const Icon(Icons.grid_on_outlined, 
-                  size: 32.0, 
-                  color: Colors.white,
+                color: AppStyle.surfaceColor,
+                child: const Icon(
+                  Icons.grid_on_outlined, 
+                  size: 24.0, 
+                  color: AppStyle.secondaryIconColor,
                 ),
               ),
               SizedBox(
@@ -241,15 +263,15 @@ class MapView extends StatelessWidget {
           child: GestureDetector(
             onTap: () => mapContext.read<MapCubit>().showPhotoLocation(photo),
             child: Container(
-              padding: const EdgeInsets.all(2.0),
-              decoration: BoxDecoration(
-                color: Colors.grey,
-                borderRadius: BorderRadius.circular(100.0),
+              padding: const EdgeInsets.all(4.0),
+              decoration: const BoxDecoration(
+                color: AppStyle.pBtnTextColor,
+                shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.location_on,
-                color: Colors.white,
-                size: 20.0,
+                color: AppStyle.pBtnBgColor,
+                size: 18.0,
               ),
             ),
           ),
@@ -263,13 +285,11 @@ class MapView extends StatelessWidget {
       builder: (context) => ImageView(
         url: photo.photoUrl,
         onEdited: (originalFile, editedBytes) {},
-        onDelete: () {},
+        onDelete: () {
+          // context.read<MapCubit>().deletePhoto();
+        },
         onSave: () {},
       ),
     ));
-    // .then((value) => context
-    //     .read<ActivityTrackingBloc>()
-    //     .add(const RefreshTracking())
-    // );
   }
 }

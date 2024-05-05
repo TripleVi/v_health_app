@@ -1,43 +1,43 @@
-import 'dart:async';
-import 'dart:math' as math;
+import "dart:async";
+import "dart:math" as math;
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:google_maps_flutter/google_maps_flutter.dart";
 
-import '../../../../core/resources/style.dart';
-import '../../../../data/sources/api/post_service.dart';
-import '../../../../domain/entities/photo.dart';
-import '../../../../domain/entities/post.dart';
-import '../../../widgets/marker_painter.dart';
+import "../../../../data/sources/api/post_service.dart";
+import "../../../../domain/entities/photo.dart";
+import "../../../../domain/entities/post.dart";
+import "../../../widgets/marker_painter.dart";
 
 part 'map_state.dart';
 
 class MapCubit extends Cubit<MapState> {
   final Post post;
   final _mapController = Completer<GoogleMapController>();
-  final _polylines = <Polyline>{};
   final _markers = <Marker>{};
   final _photos = <Photo>[];
   late final LatLngBounds _boundingBox;
 
-  MapCubit(this.post) : super(const MapState()) {
+  MapCubit(this.post) : super(MapStateLoading()) {
     _processMap();
   }
 
   Future<void> _processMap() async {
     final service = PostService();
-    final mapData = await service.fetchPostMap(post.id);
-    if(mapData == null) return;
-    _photos.addAll(mapData.photos);
+    final details = await service.fetchPostDetails(post.id);
+    if(details == null) {
+      return emit(MapStateError());
+    }
+    _photos.addAll(details.record.photos);
 
     double topMost = -double.maxFinite;
     double rightMost = -double.maxFinite;
     double bottomMost = double.maxFinite;
     double leftMost = double.maxFinite;
 
-    final geoPoints = mapData.coordinates.map((c) {
+    final geoPoints = details.record.coordinates.map((c) {
       topMost = math.max(topMost, c.latitude);
       rightMost = math.max(rightMost, c.longitude);
       bottomMost = math.min(bottomMost, c.latitude);
@@ -45,18 +45,19 @@ class MapCubit extends Cubit<MapState> {
       return LatLng(c.latitude, c.longitude);
     }).toList(growable: false);
 
-    _polylines.add(Polyline(
+    final polylines = <Polyline>{};
+    polylines.add(Polyline(
       polylineId: const PolylineId("route"),
       points: geoPoints,
       width: 4,
-      color: AppStyle.primaryColor,
+      color: Colors.blue,
     ));
-
-    emit(MapState(
-      polylines: _polylines,
+    emit(MapStateLoaded(
+      polylines: polylines,
       markers: _markers,
       photos: _photos,
     ));
+
     final controller = await _mapController.future;
     await Future.delayed(const Duration(seconds: 1));
     _boundingBox = LatLngBounds(
@@ -65,12 +66,38 @@ class MapCubit extends Cubit<MapState> {
     );
     controller.animateCamera(CameraUpdate.newLatLngBounds(_boundingBox, 80.0));
 
+    final startMarker = await _setStartMarker();
+    _markers.add(Marker(
+      markerId: const MarkerId("start_point"),
+      position: LatLng(geoPoints.first.latitude, geoPoints.first.longitude),
+      icon: startMarker,
+    ));
     final futures = <Future<void>>[];
-    for(var p in mapData.photos) {
+    for(var p in _photos) {
       futures.add(_buildMarker(p));
     }
     await Future.wait<void>(futures);
-    emit(state.copyWith());
+    final endMarker = await _setEndMarker();
+    _markers.add(Marker(
+      markerId: const MarkerId("end_point"),
+      position: LatLng(geoPoints.last.latitude, geoPoints.last.longitude),
+      icon: endMarker,
+    ));
+    emit((state as MapStateLoaded).copyWith());
+  }
+
+  Future<BitmapDescriptor> _setStartMarker() async {
+    return BitmapDescriptor.fromAssetImage(
+      ImageConfiguration.empty, 
+      "assets/images/start_marker.png",
+    );
+  }
+
+  Future<BitmapDescriptor> _setEndMarker() async {
+    return BitmapDescriptor.fromAssetImage(
+      ImageConfiguration.empty, 
+      "assets/images/flag.png",
+    );
   }
 
   void onMapCreated(GoogleMapController controller) {
@@ -85,7 +112,7 @@ class MapCubit extends Cubit<MapState> {
       markerId: MarkerId(photo.id),
       position: LatLng(photo.latitude, photo.longitude),
       icon: BitmapDescriptor.fromBytes(markerBytes),
-      onTap: () => emit(state.copyWith(photoTapped: photo)),
+      onTap: () => emit((state as MapStateLoaded).copyWith(photoTapped: photo)),
     ));
   }
 
@@ -95,13 +122,14 @@ class MapCubit extends Cubit<MapState> {
   }
 
   void toggleMarkersVisible() {
-    if(state.markersVisible) {
-      return emit(state.copyWith(
-        markers: const {},
+    final curtState = state as MapStateLoaded;
+    if(curtState.markersVisible) {
+      return emit(curtState.copyWith(
+        markers: {_markers.first, _markers.last},
         markersVisible: false,
       ));
     }
-    emit(state.copyWith(
+    emit(curtState.copyWith(
       markers: _markers,
       markersVisible: true,
     ));

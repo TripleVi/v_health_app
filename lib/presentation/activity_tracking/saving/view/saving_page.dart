@@ -307,7 +307,10 @@ class SavingView extends StatelessWidget {
           ),
         ),
         state.isProcessing 
-            ? const AppProcessingIndicator() 
+            ? const Padding(
+              padding: EdgeInsets.only(bottom: 132.0),
+              child: AppProcessingIndicator(),
+            ) 
             : const SizedBox(),
       ],
     );

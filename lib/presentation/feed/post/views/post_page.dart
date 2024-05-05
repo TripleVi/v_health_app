@@ -259,7 +259,7 @@ class PostView extends StatelessWidget {
             overflow: state.readMore ? null : TextOverflow.ellipsis,
           ),
         ),
-        state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
+        state.post.content.isNotEmpty ? state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
           onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
           onTap: context.read<PostCubit>().toggleReadMore,
           behavior: HitTestBehavior.translucent,
@@ -267,7 +267,7 @@ class PostView extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(0, 0, 12.0, 12.0),
             child: Text("Read more", style: AppStyle.caption2Bold()),
           ),
-        ),
+        ) : const SizedBox(),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

@@ -40,7 +40,7 @@ class User {
   }
 
   factory User.fromMap(Map<String, dynamic> map) {
-    return User(uid: map["uid"], username: map["username"], password: map["password"] ?? "", email: map["email"], name: map["name"], dateOfBirth: map["dateOfBirth"], gender: UserGender.values[map["gender"]], weight: map["weight"]*1.0, height: map["height"]["low"], avatarUrl: map["avatarUrl"]);
+    return User(uid: map["uid"], username: map["username"], password: map["password"] ?? "", email: map["email"], name: map["name"], dateOfBirth: map["dateOfBirth"], gender: UserGender.values[map["gender"]], weight: map["weight"]*1.0, height: map["height"], avatarUrl: map["avatarUrl"]);
   }
 
   Map<String, dynamic> toMap() {

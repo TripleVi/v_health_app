@@ -450,10 +450,7 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
         markers: _markers,
         timeStream: _timeStreamController.stream,
         recState: RecordingState.recording,
-        trackingParams: TrackingParams(
-          selectedTarget: state.trackingParams.selectedTarget,
-          targetValue: event.targetValue,
-        ),
+        trackingParams: trackingParams,
       ));
     }
     _isProcessing = false;
@@ -497,11 +494,11 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       icon: endMarker,
     ));
     final temp = activity as WalkingActivity;
-    // if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
-    //   emit(state.copyWith(isQualified: false));
-    //   _isProcessing = false;
-    //   return;
-    // }
+    if(temp.activeTime <= 60 || temp.totalDistance <= 5.0) {
+      emit(state.copyWith(isQualified: false));
+      _isProcessing = false;
+      return;
+    }
     final record = ActivityRecord.empty()
     ..category = state.category
     ..startDate = activity!.startDate
@@ -512,8 +509,8 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     ..calories = temp.totalCalories
     ..data = temp.workoutData;
 
-    final repo = WorkoutDao();
-    record.data = await repo.getManyAccelData();
+    // final repo = WorkoutDao();
+    // record.data = await repo.getManyAccelData();
 
     emit(state.copyWith(
       result: TrackingResult(
@@ -546,8 +543,6 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     PhotoDeleted event,
     Emitter<ActivityTrackingState> emit,
   ) {
-    // final name = MyUtils.getFileName(photo);
-    // photo.deleteSync();
     for(final m in _markers) {
       if(m.markerId.value == event.file.name) {
         _markers.remove(m);
@@ -624,7 +619,10 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
       emit(state.copyWith());
     }else if(event.success == true) {
       clearSession();
-      emit(const ActivityTrackingState(snackMsg: "Added post successfully!"));
+      emit(const ActivityTrackingState(
+        isLocationAvail: true,
+        snackMsg: "Added post successfully!",
+      ));
     }else {
       _markers.remove(_markers.last);
       emit(state.copyWith(snackMsg: "Added post unsuccessfully!"));

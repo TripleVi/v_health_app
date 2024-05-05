@@ -10,7 +10,6 @@ class ActivityRecord {
   int activeTime;
   double distance;
   double avgSpeed;
-  double avgPace;
   double maxSpeed;
   int steps;
   double calories;
@@ -26,7 +25,6 @@ class ActivityRecord {
     required this.distance,
     required this.avgSpeed,
     required this.maxSpeed,
-    required this.avgPace,
     required this.steps,
     required this.calories,
     this.coordinates = const [],
@@ -36,7 +34,7 @@ class ActivityRecord {
 
   factory ActivityRecord.empty() {
     final date = DateTime.now();
-    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, activeTime: 0, distance: 0, avgSpeed: 0, maxSpeed: 0, avgPace: 0, steps: 0, calories: 0);
+    return ActivityRecord(category: ActivityCategory.walking, startDate: date, endDate: date, activeTime: 0, distance: 0, avgSpeed: 0, maxSpeed: 0, steps: 0, calories: 0);
   }
 
   factory ActivityRecord.fromMap(Map<String, dynamic> map) {
@@ -48,7 +46,6 @@ class ActivityRecord {
       distance: map["distance"]*1.0,
       avgSpeed: map["avgSpeed"]*1.0,
       maxSpeed: map["maxSpeed"]*1.0,
-      avgPace: map["avgPace"]*1.0,
       steps: map["steps"],
       calories: map["calories"]*1.0,
     );
@@ -63,7 +60,6 @@ class ActivityRecord {
       "distance": distance,
       "avgSpeed": avgSpeed,
       "maxSpeed": maxSpeed,
-      "avgPace": avgPace,
       "steps": steps,
       "calories": calories,
     };

@@ -58,9 +58,6 @@ class WalkingActivity extends FitnessActivity {
         maxSpeed = math.max(maxSpeed, e["speed"]*1.0);
         workoutData.add(WorkoutData(
           speed: e["speed"]*1.0,
-          distance: totalDistance,
-          steps: totalSteps,
-          calories: totalCalories,
           time: activeTime+duration,
         ));
       }

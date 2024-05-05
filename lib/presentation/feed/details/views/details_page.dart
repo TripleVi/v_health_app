@@ -324,6 +324,7 @@ class DetailsView extends StatelessWidget {
         margin: const EdgeInsets.all(0.0),
         plotAreaBorderWidth: 0.0,
         primaryXAxis: NumericAxis(
+          decimalPlaces: 0,
           desiredIntervals: 4,
           majorTickLines: const MajorTickLines(
               color: AppStyle.secondaryTextColor),

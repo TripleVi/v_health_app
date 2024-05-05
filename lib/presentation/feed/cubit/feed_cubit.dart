@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../data/sources/api/feed_service.dart";
+import "../../../data/sources/api/post_service.dart";
 import "../../../domain/entities/post.dart";
 
 part "feed_state.dart";
@@ -16,13 +17,18 @@ class FeedCubit extends Cubit<FeedState> {
   }
 
   Future<void> fetchData() async {
-    final service = FeedService();
-    final postIds = await service.fetchNewsFeed([]);
-    final posts = await service.fetchPostsByIds(postIds);
+    final postService = PostService();
+    final posts = await postService.fetchPosts();
     emit(FeedLoaded(posts));
+
+    // final service = FeedService();
+    // final postIds = await service.fetchNewsFeed([]);
+    // final posts = await service.fetchPostsByIds(postIds);
   }
 
   Future<void> pullToRefresh() async {
+    fetchData();
+    return;
     final service = FeedService();
     final current = state as FeedLoaded;
     final ids = <String>[];

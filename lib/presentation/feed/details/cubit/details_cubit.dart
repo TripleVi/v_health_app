@@ -30,13 +30,16 @@ class DetailsCubit extends Cubit<DetailsState> {
     times.add(times.last+1);
     speeds.add(0.0);
     paces.add(0.0);
+    final avgSpeed = speeds.sum/(speeds.length-2);
+    print(times.length);
+    print(times);
     emit(DetailsLoaded(
       post: post,
       times: times,
       speeds: speeds,
-      avgSpeed: speeds.sum/(speeds.length-2),
+      avgSpeed: avgSpeed,
       paces: paces,
-      avgPace: paces.sum/(paces.length-2)
+      avgPace: 1/avgSpeed,
     ));
   }
 }

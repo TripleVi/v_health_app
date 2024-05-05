@@ -52,7 +52,7 @@ class SavingCubit extends Cubit<SavingState> {
       zoomLevel = math.log(newWorldWidth / 256) / math.log(2);
     }
     await mapController
-        .moveCamera(CameraUpdate.zoomTo(math.min(zoomLevel-2, 15)));
+        .moveCamera(CameraUpdate.zoomTo(math.min(zoomLevel-2, 16)));
     await Future.delayed(const Duration(seconds: 3));
   }
 

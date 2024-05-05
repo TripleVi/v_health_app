@@ -55,27 +55,6 @@ class PostService {
     }
   }
 
-  Future<MapData?> fetchPostMap(String postId) async {
-    final currentUser = await SharedPrefService.getCurrentUser();
-    final response = await DioService.instance.dio.get<Map<String, dynamic>>(
-      "/posts/$postId/map",
-      options: Options(
-        headers: {
-          "uid": currentUser.uid,
-          "username": currentUser.username,
-        },
-      ),
-    );
-    if(response.statusCode != 200) return null;
-    final coordinates = (response.data!["coordinates"] as List)
-        .map((e) => Coordinate.fromMap(e))
-        .toList(growable: false);
-    final photos = (response.data!["photos"] as List)
-        .map((e) => Photo.fromMap(e))
-        .toList(growable: false);
-    return MapData(coordinates: coordinates, photos: photos);
-  }
-
   Future<Post?> fetchPostDetails(String postId) async {
     try {
       final currentUser = await SharedPrefService.getCurrentUser();
@@ -89,14 +68,10 @@ class PostService {
         ),
       );
       final post = Post.empty();
-      if(response.data!["coordinates"] != null) {
-        post.record.coordinates = (response.data!["coordinates"] as List)
-            .map((e) => Coordinate.fromMap(e)).toList();
-      }
-      if(response.data!["photos"] != null) {
-        post.record.photos = (response.data!["photos"] as List)
-            .map((e) => Photo.fromMap(e)).toList();
-      }
+      post.record.coordinates = (response.data!["coordinates"] as List)
+          .map((e) => Coordinate.fromMap(e)).toList();
+      post.record.photos = (response.data!["photos"] as List)
+          .map((e) => Photo.fromMap(e)).toList();
       post.record.data = (response.data!["data"] as List)
           .map((e) => WorkoutData.fromMap(e)).toList();
       return post;
