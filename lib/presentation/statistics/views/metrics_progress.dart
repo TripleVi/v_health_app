@@ -47,22 +47,22 @@ class MetricsProgress {
     );
   }
 
-  Widget get small {
+  Widget small([bool animation = true]) {
     return CircularPercentIndicator(
       radius: 12.5,
-      animation: false,
+      animation: animation,
       animationDuration: 1200,
       lineWidth: 2.5,
       percent: stepPercent,
       center: CircularPercentIndicator(
         radius: 9,
-        animation: false,
+        animation: animation,
         animationDuration: 1200,
         lineWidth: 2.5,
         percent: durationPercent,
         center: CircularPercentIndicator(
           radius: 5.5,
-          animation: false,
+          animation: animation,
           animationDuration: 1200,
           lineWidth: 2.5,
           percent: caloriePercent,

@@ -40,6 +40,7 @@ const createHourlyReportTable =
     "${HourlyReportFields.hour} INTEGER NOT NULL, "
     "${HourlyReportFields.steps} INTEGER NOT NULL, "
     "${HourlyReportFields.distance} REAL NOT NULL, "
+    "${DailyReportFields.activeTime} INTEGER NOT NULL, "
     "${HourlyReportFields.calories} REAL NOT NULL, "
     "${HourlyReportFields.dayId} INTEGER NOT NULL REFERENCES ${DailyReportFields.container}(${DailyReportFields.id}) ON UPDATE CASCADE)";
 

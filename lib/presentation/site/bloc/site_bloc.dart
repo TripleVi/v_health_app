@@ -22,6 +22,10 @@ class SiteBloc extends Bloc<SiteEvent, SiteState> {
     doSomething();
   }
 
+  TabType currentTab() {
+    return state.currentTab;
+  }
+
   Future<void> doSomething() async {
     final repo = DailyGoalRepo();
     final goal = await repo.fetchLatestGoal();

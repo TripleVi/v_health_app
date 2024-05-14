@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../core/resources/style.dart";
+import "../../../domain/entities/user.dart";
 import "../../friend/views/friend_page.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
@@ -10,14 +11,18 @@ import "../cubit/profile_cubit.dart";
 import "../details/views/profile_details_page.dart";
 import "../details/views/profile_form_page.dart";
 import "../settings/views/settings_page.dart";
+import "activity_page.dart";
+import "follower_page.dart";
+import "following_page.dart";
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final user = ModalRoute.of(context)?.settings.arguments;
     return BlocProvider<ProfileCubit>(
-      create: (context) => ProfileCubit(),
+      create: (context) => ProfileCubit(user: user == null ? null : user as User),
       child: Navigator(
         onGenerateRoute: (settings) {
           if(settings.name == "/profile") {
@@ -47,6 +52,30 @@ class ProfilePage extends StatelessWidget {
           if(settings.name == "/search") {
             return MaterialPageRoute<void>(
               builder: (context) => const FriendPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/following") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const FollowingPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/followers") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const FollowerPage(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/activities") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const ActivityContainer(),
+              settings: settings,
+            );
+          }
+          if(settings.name == "/other") {
+            return MaterialPageRoute<void>(
+              builder: (context) => const ProfilePage(),
               settings: settings,
             );
           }
@@ -142,30 +171,42 @@ class ProfileView extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${state.followings}", style: AppStyle.heading5()),
-                        Text("following", style: AppStyle.caption2()),
-                      ],
+                    child: GestureDetector(
+                      onTap: () => Navigator.pushNamed<void>(context, "/following", arguments: state.user.uid),
+                      behavior: HitTestBehavior.translucent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${state.followings}", style: AppStyle.heading5()),
+                          Text("following", style: AppStyle.caption2()),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("${state.followers}", style: AppStyle.heading5()),
-                        Text("followers", style: AppStyle.caption2()),
-                      ],
+                    child: GestureDetector(
+                      onTap: () => Navigator.pushNamed<void>(context, "/followers", arguments: state.user.uid),
+                      behavior: HitTestBehavior.translucent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${state.followers}", style: AppStyle.heading5()),
+                          Text("followers", style: AppStyle.caption2()),
+                        ],
+                      ),
                     ),
                   ),
                   Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text("10", style: AppStyle.heading5()),
-                        Text("posts", style: AppStyle.caption2()),
-                      ],
+                    child: GestureDetector(
+                      onTap: () => Navigator.pushNamed<void>(context, "/activities", arguments: state.user.uid),
+                      behavior: HitTestBehavior.translucent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("${state.posts}", style: AppStyle.heading5()),
+                          Text("posts", style: AppStyle.caption2()),
+                        ],
+                      ),
                     ),
                   ),
                 ],

@@ -91,6 +91,10 @@ class BlockCubit extends Cubit<BlockState> {
         postId: _postId,
         path: "${_parent.id}/",
       );
+      // Revise
+      for (var d in data) {
+        d.replyTo = _parent;
+      }
       _comments.addAll(data);
     }else {
       final data = await service.fetchComments(
@@ -98,6 +102,10 @@ class BlockCubit extends Cubit<BlockState> {
         path: "${_parent.id}/",
         lessThanDate: _comments.last.createdDate,
       );
+      // Revise
+      for (var d in data) {
+        d.replyTo = _parent;
+      }
       _comments.addAll(data);
     }
     final comments = List<Comment>.from(_comments);

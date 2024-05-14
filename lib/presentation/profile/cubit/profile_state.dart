@@ -17,10 +17,12 @@ class ProfileLoaded extends ProfileState {
   final User user;
   final int followers;
   final int followings;
+  final int posts;
 
   ProfileLoaded({
     required this.user,
     required this.followings,
     required this.followers,
+    required this.posts,
   });
 }

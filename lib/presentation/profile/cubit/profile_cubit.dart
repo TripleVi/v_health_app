@@ -3,43 +3,57 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../core/services/shared_pref_service.dart";
 import "../../../data/sources/api/people_service.dart";
+import "../../../data/sources/api/post_service.dart";
+import "../../../data/sources/api/user_api.dart";
 import "../../../domain/entities/user.dart";
 
 part "profile_state.dart";
 
 class ProfileCubit extends Cubit<ProfileState> {
-  ProfileCubit() : super(ProfileInitial()) {
+  User? user;
+
+  ProfileCubit({this.user}) : super(ProfileInitial()) {
     fetchUser();
   }
 
   Future<void> fetchUser() async {
-    final user = await SharedPrefService.getCurrentUser();
-    emit(ProfileLoading(user));
+    if(user == null) {
+      user = await SharedPrefService.getCurrentUser();
+    }else {
+      final service = UserService();
+      user = await service.getUserById(user!.uid);
+    }
+    emit(ProfileLoading(user!));
     fetchData();
   }
 
   Future<void> fetchData() async {
-    final service = PeopleService();
-    final user = (state as ProfileLoading).user;
-    final followers = await service.countFollowers(user.uid);
-    final followings = await service.countFollowings(user.uid);
+    final userService = PeopleService();
+    final postService = PostService();
+    final followers = await userService.countFollowers(user!.uid);
+    final followings = await userService.countFollowings(user!.uid);
+    final posts = await postService.countPosts();
     emit(ProfileLoaded(
-      user: user, 
+      user: user!, 
       followings: followings, 
       followers: followers,
+      posts: posts,
     ));
   }
 
   Future<void> pullToRefresh() async {
     final service = PeopleService();
+    final postService = PostService();
     final user = await SharedPrefService.getCurrentUser();
     final followers = await service.countFollowers(user.uid);
     final followings = await service.countFollowings(user.uid);
+    final posts = await postService.countPosts();
     await Future<void>.delayed(const Duration(seconds: 1));
     emit(ProfileLoaded(
       user: user, 
       followings: followings, 
       followers: followers,
+      posts: posts,
     ));
   }
 }

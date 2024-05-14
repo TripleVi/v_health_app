@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+import '../../../domain/entities/people.dart';
 import '../../../domain/entities/user.dart';
 import 'dio_service.dart';
 
@@ -66,6 +67,52 @@ class UserService {
       rethrow;
     }
     return user;
+  }
+
+  Future<List<People>> getFollowing(String uid) async {
+    try {
+      final response = await DioService.instance.dio.get<List>(
+        "/users/$uid/following",
+      );
+      return response.data!.map((e) {
+        final user = People.empty()
+        ..uid = e["uid"]
+        ..username = e["username"]
+        ..name = e["name"]
+        ..avatarUrl = e["avatarUrl"]
+        ..isFollowing = true;
+        return user;
+      }).toList();
+    } on DioException catch (e) {
+      print(e);
+      if(e.response!.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
+  }
+
+  Future<List<People>> getFollowers(String uid) async {
+    try {
+      final response = await DioService.instance.dio.get<List>(
+        "/users/$uid/followers",
+      );
+      return response.data!.map((e) {
+        final people = People.empty()
+        ..uid = e["uid"]
+        ..username = e["username"]
+        ..name = e["name"]
+        ..avatarUrl = e["avatarUrl"]
+        ..isFollowing = e["isFollowing"];
+        return people;
+      }).toList();
+    } on DioException catch (e) {
+      print(e);
+      if(e.response!.statusCode == 404) {
+        return [];
+      }
+      rethrow;
+    }
   }
 
   void getUser2(String id) async {

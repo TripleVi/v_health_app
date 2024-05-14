@@ -714,7 +714,7 @@ class TrackingView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Choose an Activity",
+                    "Choose an activity",
                     style: AppStyle.heading4(),
                   ),
                   GestureDetector(

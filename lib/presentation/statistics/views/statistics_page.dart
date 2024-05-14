@@ -19,7 +19,7 @@ class StatisticsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<StatisticsCubit>(
-      create: (context) => StatisticsCubit(),
+      create: (context) => StatisticsCubit(context),
       child: Navigator(
         onGenerateRoute: (settings) {
           if(settings.name == "/statistics") {
@@ -68,6 +68,10 @@ class StatisticsView extends StatelessWidget {
                   todayGoalWidget(state),
                   const SizedBox(height: 12.0),
                   sevenDaysGoalsWidget(context, state),
+                  const SizedBox(height: 12.0),
+                  activitiesWidget(context, state),
+                  const SizedBox(height: 12.0),
+                  activeTimeWidget(context, state),
                 ],
               ),
             );
@@ -121,10 +125,10 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("${state.stepValue}", style: AppStyle.heading4()),
+                      Text("${state.today.steps}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
                       Text(
-                        state.stepValue > 1 ? "steps" : "step", 
+                        state.today.steps > 1 ? "steps" : "step", 
                         style: AppStyle.caption1(),
                       ),
                     ],
@@ -159,10 +163,10 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("${state.minuteValue}", style: AppStyle.heading4()),
+                      Text("${state.today.activeTime < 60 ? state.today.activeTime : state.today.activeTime ~/ 60}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
                       Text(
-                        state.minuteValue > 1 ? "minutes" : "minute", 
+                        state.today.activeTime < 60 ? "seconds" : state.today.activeTime > 1 ? "minutes" : "minute", 
                         style: AppStyle.caption1(),
                       ),
                     ],
@@ -197,7 +201,7 @@ class StatisticsView extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.baseline,
                     children: [
-                      Text("${state.calorieValue}", style: AppStyle.heading4()),
+                      Text("${state.today.calories.ceil()}", style: AppStyle.heading4()),
                       const SizedBox(width: 2.0),
                       Text("kcal", style: AppStyle.caption1()),
                     ],
@@ -207,9 +211,9 @@ class StatisticsView extends StatelessWidget {
             ],
           ),
           MetricsProgress(
-            stepPercent: math.min(state.stepValue/state.stepTarget, 1),
-            durationPercent: math.min(state.minuteValue/state.minuteTarget, 1),
-            caloriePercent: math.min(state.calorieValue/state.calorieTarget, 1),
+            stepPercent: math.min(state.today.steps/state.today.goal.steps, 1),
+            durationPercent: math.min(state.today.activeTime/state.today.goal.activeTime, 1),
+            caloriePercent: math.min(state.today.calories/state.today.goal.calories, 1),
           ).big,
         ],
       ),
@@ -232,7 +236,7 @@ class StatisticsView extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Your Daily Goals", style: AppStyle.heading4()),
+                Text("Your daily goals", style: AppStyle.heading4()),
                 const Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 20.0,
@@ -250,7 +254,7 @@ class StatisticsView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      "3/7", 
+                      "${state.goalsAchieved}/7", 
                       style: AppStyle.heading4(color: AppStyle.primaryColor),
                     ),
                     Text(
@@ -273,7 +277,7 @@ class StatisticsView extends StatelessWidget {
                           stepPercent: math.min(report.steps/report.goal.steps, 1),
                           durationPercent: math.min(report.activeTime/report.goal.activeTime, 1),
                           caloriePercent: math.min(report.calories/report.goal.calories, 1),
-                        ).small,
+                        ).small(),
                         const SizedBox(height: 4.0),
                         Text(
                           MyUtils.getDateFirstLetter(report.date), 
@@ -287,6 +291,124 @@ class StatisticsView extends StatelessWidget {
                 )
               ],
             )
+          ],
+        )
+      ),
+    );
+  }
+
+  Widget activitiesWidget(BuildContext context, StatisticsLoaded state) {
+    return GestureDetector(
+      // onTap: () => Navigator.pushNamed<void>(context, "/dailyActivities"),
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: AppStyle.surfaceColor,
+          borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppStyle.sBtnBgColor
+                        ),
+                        child: const Icon(
+                          Icons.directions_walk_rounded,
+                          size: 24.0,
+                          color: AppStyle.sBtnTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text("Waling", style: AppStyle.caption1()),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppStyle.sBtnBgColor
+                        ),
+                        child: const Icon(
+                          Icons.directions_run_rounded,
+                          size: 24.0,
+                          color: AppStyle.sBtnTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text("Running", style: AppStyle.caption1()),
+                    ],
+                  ),
+                ),
+                GestureDetector(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12.0),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppStyle.sBtnBgColor
+                        ),
+                        child: const Icon(
+                          Icons.directions_bike_rounded,
+                          size: 24.0,
+                          color: AppStyle.sBtnTextColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8.0),
+                      Text("Cycling", style: AppStyle.caption1()),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        )
+      ),
+    );
+  }
+
+  Widget activeTimeWidget(BuildContext context, StatisticsLoaded state) {
+    return GestureDetector(
+      // onTap: () => Navigator.pushNamed<void>(context, "/dailyActivities"),
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: AppStyle.surfaceColor,
+          borderRadius: BorderRadius.circular(AppStyle.borderRadius),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Workout time this week", style: AppStyle.heading4()),
+            const SizedBox(height: 12.0),
+            Row(
+              children: [
+                const Icon(
+                  Icons.access_time_filled,
+                  size: 28.0,
+                  color: AppStyle.timeColor,
+                ),
+                const SizedBox(width: 4.0),
+                Text("00:00:00", style: AppStyle.heading5()),
+              ],
+            ),
           ],
         )
       ),

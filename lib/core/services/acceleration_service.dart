@@ -89,12 +89,16 @@ class AccelerationService {
       ..hour = utcHour
       ..steps = steps
       ..distance = distance
-      ..calories = calories.round()
+      ..activeTime = activeTime
+      ..calories = calories
       ..day.id = dReport.id;
       await hourlyRepo.createReport(newReport);
     }else {
-      hReport.distance += distance;
-      hReport.steps += steps;
+      hReport
+      ..steps += steps
+      ..calories += calories
+      ..distance += distance
+      ..activeTime += activeTime;
       await hourlyRepo.updateReport(hReport);
     }
   }

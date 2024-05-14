@@ -151,6 +151,13 @@ class MyUtils {
     });
   }
 
+  static List<double> generateDoubleList(int length, int max) {
+    return List.generate(length, (index) {
+      final rng = math.Random();
+      return rng.nextInt(max)*1.0;
+    });
+  }
+
   static int generateInt(int max, [int min = 0]) {
     final rng = math.Random();
     return rng.nextInt(max) + min;

@@ -27,15 +27,15 @@ class MapData {
 } 
 
 class PostService {
-  Future<List<Post>> fetchPosts() async {
+  Future<List<Post>> fetchPosts(String uid) async {
     try {
-      final currentUser = await SharedPrefService.getCurrentUser();
+      // final currentUser = await SharedPrefService.getCurrentUser();
       final response = await DioService.instance.dio.get<List>(
         "/posts",
         options: Options(
           headers: {
-            "uid": currentUser.uid,
-            "username": currentUser.username,
+            "uid": uid,
+            "username": "",
           },
         ),
       );
@@ -102,6 +102,20 @@ class PostService {
       print(e);
       return null;
     }
+  }
+
+  Future<int> countPosts() async {
+    final currentUser = await SharedPrefService.getCurrentUser();
+    final response = await DioService.instance.dio.get<Map>(
+      "/posts/count",
+      options: Options(
+        headers: {
+          "uid": currentUser.uid,
+          "username": currentUser.username,
+        },
+      ),
+    );
+    return response.data!["total"];
   }
 
   Future<void> uploadPostFiles({

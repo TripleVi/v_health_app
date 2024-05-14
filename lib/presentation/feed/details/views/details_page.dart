@@ -144,7 +144,7 @@ class DetailsView extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Workout details", style: AppStyle.heading4()),
+          Text("Overview", style: AppStyle.heading4()),
           const SizedBox(height: 12.0),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,

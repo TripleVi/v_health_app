@@ -8,7 +8,6 @@ import "package:flutter_bloc/flutter_bloc.dart";
 import "package:geolocator/geolocator.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:permission_handler/permission_handler.dart";
-import "package:v_health/data/sources/sqlite/dao/workout_dao.dart";
 
 import "../../../core/enum/activity_category.dart";
 import "../../../core/enum/activity_tracking.dart";
@@ -506,11 +505,9 @@ class ActivityTrackingBloc extends Bloc<ActivityTrackingEvent, ActivityTrackingS
     ..distance = temp.totalDistance
     ..avgSpeed = temp.avgSpeed
     ..maxSpeed = temp.maxSpeed
+    ..steps = temp.totalSteps
     ..calories = temp.totalCalories
     ..data = temp.workoutData;
-
-    // final repo = WorkoutDao();
-    // record.data = await repo.getManyAccelData();
 
     emit(state.copyWith(
       result: TrackingResult(

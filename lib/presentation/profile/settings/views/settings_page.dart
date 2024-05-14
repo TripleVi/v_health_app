@@ -44,9 +44,10 @@ class SettingsView extends StatelessWidget {
                     children: [
                       ListTile(
                         onTap: () {
-                          context.read<SettingsCubit>().logout();
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil<void>("/auth", (route) => false);
+                          context.read<SettingsCubit>().logout().then((_) {
+                            Navigator.of(context, rootNavigator: true)
+                                .pushNamedAndRemoveUntil<void>("/auth", (route) => false);
+                          });
                         },
                         iconColor: AppStyle.secondaryIconColor,
                         textColor: Colors.red.shade400,

@@ -31,8 +31,6 @@ class DetailsCubit extends Cubit<DetailsState> {
     speeds.add(0.0);
     paces.add(0.0);
     final avgSpeed = speeds.sum/(speeds.length-2);
-    print(times.length);
-    print(times);
     emit(DetailsLoaded(
       post: post,
       times: times,

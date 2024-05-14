@@ -7,6 +7,7 @@ class HourlyReportFields {
   static const hour = "hour";
   static const steps = "steps";
   static const distance = "distance";
+  static const activeTime = "active_time";
   static const calories = "calories";
   static const dayId = "day_id";
 

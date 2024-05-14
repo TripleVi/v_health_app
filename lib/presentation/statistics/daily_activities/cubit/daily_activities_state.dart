@@ -14,7 +14,6 @@ final class DailyActivitiesLoaded extends DailyActivitiesState {
   final int maxStepsAxis;
   final int maxActiveTimeAxis;
   final int maxCaloriesAxis;
-  final List<WorkoutData> data;
 
   DailyActivitiesLoaded({
     required this.report,
@@ -25,7 +24,6 @@ final class DailyActivitiesLoaded extends DailyActivitiesState {
     required this.maxStepsAxis,
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,
-    required this.data,
   });
 }
 
@@ -43,6 +41,7 @@ final class WeeklyActivitiesLoaded extends DailyActivitiesState {
   final List<int> dailySteps;
   final List<int> dailyActiveTime;
   final List<int> dailyCalories;
+  final List<int> daysAchievedGoals;
   final int maxStepsAxis;
   final int maxActiveTimeAxis;
   final int maxCaloriesAxis;
@@ -61,6 +60,7 @@ final class WeeklyActivitiesLoaded extends DailyActivitiesState {
     required this.dailySteps,
     required this.dailyActiveTime,
     required this.dailyCalories,
+    required this.daysAchievedGoals,
     required this.maxStepsAxis,
     required this.maxActiveTimeAxis,
     required this.maxCaloriesAxis,

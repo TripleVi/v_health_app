@@ -185,7 +185,7 @@ class _PeopleCardState extends State<PeopleCard> {
         style: AppStyle.heading5(),
       ),
       subtitle: Text(
-        "${friend.lastName} ${friend.firstName}",
+        friend.name,
         style: AppStyle.caption1(),
       ),
       trailing: friend.isFollowing ? _unfollowBtn() : _followBtn(),

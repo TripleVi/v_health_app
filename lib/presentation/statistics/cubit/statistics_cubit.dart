@@ -1,39 +1,66 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:v_health/core/enum/bottom_navbar.dart";
 
 import "../../../core/utilities/utils.dart";
 import "../../../data/repositories/daily_report_repo.dart";
 import "../../../domain/entities/daily_report.dart";
+import "../../site/bloc/site_bloc.dart";
 
 part "statistics_state.dart";
 
 class StatisticsCubit extends Cubit<StatisticsState> {
-  StatisticsCubit() : super(StatisticsLoading()) {
+  final BuildContext context;
+  Timer? timer;
+
+  StatisticsCubit(this.context) : super(StatisticsLoading()) {
     _fetchData();
+    initTimer();
   }
 
   Future<void> _fetchData() async {
     final repo = DailyReportRepo();
-    final report = await repo.fetchTodayReport();
     final reports = await repo.fetchRecentReports(DateTime.now(), 7);
-    final dailySteps = MyUtils.generateIntList(7, 8000);
-    final dailyActiveTime = MyUtils.generateIntList(7, 400);
-    final dailyCalories = MyUtils.generateIntList(7, 800);
-    for (var i = 0; i < 7; i++) {
-      reports[i].steps = dailySteps[i];
-      reports[i].activeTime = dailyActiveTime[i];
-      // reports[i].calories = dailyCalories[i];
-    }
+    var achieved = 0;
+    for (var i = 0; i < 6; i++) {
+      reports[i].steps = MyUtils.generateInt(8000);
+      reports[i].activeTime = MyUtils.generateInt(100);
+      reports[i].calories = MyUtils.generateInt(600)*1.0;
 
+      if(reports[i].steps >= reports[i].goal.steps 
+          && reports[i].activeTime >= reports[i].goal.activeTime 
+          && reports[i].calories >= reports[i].goal.calories) {
+        achieved++;
+      }
+    }
     emit(StatisticsLoaded(
-      stepValue: 2000,
-      stepTarget: report.goal.steps,
-      minuteValue: 40,
-      minuteTarget: report.goal.activeTime,
-      // calorieValue: report.calories ~/ 1000,
-      calorieValue: 150,
-      calorieTarget: report.goal.calories,
+      today: reports.last,
       recentReports: reports,
+      goalsAchieved: achieved,
     ));
+  }
+
+  void initTimer() {
+    timer = Timer.periodic(const Duration(seconds: 16), (_) async {
+      final tap = context.read<SiteBloc>().currentTab();
+      if(tap.isStatistics) {
+        final repo = DailyReportRepo();
+        final curtState = state as StatisticsLoaded;
+        final newR = await repo.fetchTodayReport();
+        final oldR = curtState.today;
+        if(newR.steps > oldR.steps) {
+          curtState.recentReports.last = newR;
+          emit(curtState.copyWith(today: newR));
+        }
+      }
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    super.close();
+    timer?.cancel();
   }
 }

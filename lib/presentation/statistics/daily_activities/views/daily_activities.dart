@@ -6,7 +6,6 @@ import "package:flutter_svg/flutter_svg.dart";
 import "package:matrix2d/matrix2d.dart";
 import "package:syncfusion_flutter_charts/charts.dart";
 import "package:syncfusion_flutter_datepicker/datepicker.dart";
-import "package:v_health/domain/entities/workout_data.dart";
 
 import "../../../../core/enum/metrics.dart";
 import "../../../../core/resources/style.dart";
@@ -104,16 +103,18 @@ class DailyActivitiesView extends StatelessWidget {
                       }else if(state is MonthlyActivitiesLoaded) {
                         openDurationPicker(
                           context: context, 
-                          view: DateRangePickerView.month, 
+                          initialDate: state.startOfMonth,
+                          view: DateRangePickerView.year, 
                           onDurationSelected: context
                               .read<DailyActivitiesCubit>().onMonthSelected,
                         );
                       }else if(state is YearlyActivitiesLoaded) {
                         openDurationPicker(
                           context: context, 
-                          view: DateRangePickerView.year, 
+                          initialDate: DateTime(state.year),
+                          view: DateRangePickerView.decade, 
                           onDurationSelected: context
-                              .read<DailyActivitiesCubit>().onMonthSelected,
+                              .read<DailyActivitiesCubit>().onYearSelected,
                         );
                       }
                     },
@@ -186,6 +187,7 @@ class DailyActivitiesView extends StatelessWidget {
 
   Future<void> openDurationPicker({
     required BuildContext context,
+    required DateTime initialDate,
     required DateRangePickerView view,
     required Future<void> Function(DateTime? startDate) onDurationSelected,
   }) {
@@ -222,7 +224,7 @@ class DailyActivitiesView extends StatelessWidget {
             child: SfDateRangePicker(
               backgroundColor: AppStyle.surfaceColor,
               todayHighlightColor: AppStyle.primaryColor,
-              initialDisplayDate: DateTime.now(),
+              initialDisplayDate: initialDate,
               maxDate: DateTime.now(),
               onViewChanged: (viewChangedArgs) {
                 if(viewChangedArgs.view != view) {
@@ -655,7 +657,7 @@ class DailyActivitiesView extends StatelessWidget {
                 Text("${state.dailyCalories[index]} kcal", style: AppStyle.caption1()),
               ],
             ),
-            trailing: index % 2 == 0 ? const Icon(
+            trailing: state.daysAchievedGoals[index] == 1 ? const Icon(
               Icons.done_outline_rounded, 
               size: 20.0, 
               color: AppStyle.primaryColor,
@@ -1028,9 +1030,9 @@ class DailyActivitiesView extends StatelessWidget {
         primaryYAxis: NumericAxis(
           opposedPosition: true,
           decimalPlaces: 0,
-          minimum: 0.0,
-          maximum: maxYAxis*1.0,
-          desiredIntervals: 2,
+          // minimum: 0.0,
+          // maximum: maxYAxis*1.0,
+          // desiredIntervals: 2,
           majorTickLines: const MajorTickLines(width: 0.0, size: 0.0),
           axisLine: const AxisLine(width: 0.0),
           labelStyle: AppStyle.caption2(),

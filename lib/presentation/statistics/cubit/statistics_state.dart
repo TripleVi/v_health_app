@@ -6,41 +6,25 @@ sealed class StatisticsState {}
 final class StatisticsLoading extends StatisticsState {}
 
 final class StatisticsLoaded extends StatisticsState {
-  final int stepValue;
-  final int stepTarget;
-  final int minuteValue;
-  final int minuteTarget;
-  final int calorieValue;
-  final int calorieTarget;
+  final DailyReport today;
   final List<DailyReport> recentReports;
+  final int goalsAchieved;
 
   StatisticsLoaded({
-    required this.stepValue,
-    required this.stepTarget,
-    required this.minuteValue,
-    required this.minuteTarget,
-    required this.calorieValue,
-    required this.calorieTarget,
+    required this.today,
     this.recentReports = const [],
+    required this.goalsAchieved,
   });
 
   StatisticsLoaded copyWith({
-    int? stepValue,
-    int? stepTarget,
-    int? minuteValue,
-    int? minuteTarget,
-    int? calorieValue,
-    int? calorieTarget,
+    DailyReport? today,
     List<DailyReport>? recentReports,
+    int? goalsAchieved,
   }) {
     return StatisticsLoaded(
-      stepValue: stepValue ?? this.stepValue,
-      stepTarget: stepTarget ?? this.stepTarget,
-      minuteValue: minuteValue ?? this.minuteValue,
-      minuteTarget: minuteTarget ?? this.minuteTarget,
-      calorieValue: calorieValue ?? this.calorieValue,
-      calorieTarget: calorieTarget ?? this.calorieTarget,
+      today: today ?? this.today,
       recentReports: recentReports ?? this.recentReports,
+      goalsAchieved: goalsAchieved ?? this.goalsAchieved,
     );
   } 
 }

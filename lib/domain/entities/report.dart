@@ -6,7 +6,8 @@ class Report {
   int hour;
   int steps;
   double distance;
-  int calories;
+  int activeTime;
+  double calories;
   DailyReport day;
 
   Report({
@@ -14,13 +15,14 @@ class Report {
     required this.hour, 
     required this.steps, 
     required this.distance,
+    required this.activeTime,
     required this.calories,
     DailyReport? day,
   })
   : day = day ?? DailyReport.empty();
 
   factory Report.empty() {
-    return Report(id: -1, hour: 0, steps: 0, distance: 0.0, calories: 0);
+    return Report(id: -1, hour: 0, steps: 0, distance: 0.0, activeTime: 0, calories: 0);
   }
 
   factory Report.fromHour(int hour) {
@@ -37,6 +39,7 @@ class Report {
       hour: map[HourlyReportFields.hour], 
       steps: map[HourlyReportFields.steps], 
       distance: map[HourlyReportFields.distance], 
+      activeTime: map[HourlyReportFields.activeTime],
       calories: map[HourlyReportFields.calories],
       day: day,
     );
@@ -47,6 +50,7 @@ class Report {
       HourlyReportFields.hour: hour, 
       HourlyReportFields.steps: steps, 
       HourlyReportFields.distance: distance,
+      HourlyReportFields.activeTime: activeTime,
       HourlyReportFields.calories: calories,
       HourlyReportFields.dayId: day.id,
     };
@@ -54,6 +58,6 @@ class Report {
 
   @override
   String toString() {
-    return "{id: $id, hour: $hour, steps: $steps, distance: $distance, calories: $calories, dayId: ${day.id}}";
+    return "{id: $id, hour: $hour, steps: $steps, distance: $distance, activeTime: $activeTime, calories: $calories, dayId: ${day.id}}";
   }
 }

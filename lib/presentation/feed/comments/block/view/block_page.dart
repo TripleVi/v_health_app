@@ -284,7 +284,7 @@ class CommentBlock extends StatelessWidget {
                   text: TextSpan(
                     children: <TextSpan>[
                       TextSpan(
-                        text: "@${comment.author.username} ", 
+                        text: "@${comment.replyTo?.author.username} ", 
                         style: AppStyle.bodyText(
                           fontSize: 13.0, 
                           color: AppStyle.primaryColor,

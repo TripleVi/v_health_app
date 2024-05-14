@@ -16,9 +16,9 @@ extension PostPrivacyExtension on PostPrivacy {
       case PostPrivacy.public:
         return "Everyone";
       case PostPrivacy.friend:
-        return "Friends";
+        return "Followers";
       case PostPrivacy.private:
-        return "Only me";
+        return "Only you";
       default:
         return "";
     }
@@ -39,11 +39,11 @@ extension PostPrivacyExtension on PostPrivacy {
   String get description {
     switch (this) {
       case PostPrivacy.public:
-        return "Anyone on Fitpal can view this activity";
+        return "Anyone on vHealth can view this activity.";
       case PostPrivacy.friend:
-        return "Your friends on Fitpal";
+        return "Your followers on vHealth.";
       case PostPrivacy.private:
-        return "Only you can view it. However, it is still counted toward your challenges and progress.";
+        return "Only you can view it.";
       default:
         return "";
     }

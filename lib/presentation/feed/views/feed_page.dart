@@ -123,25 +123,31 @@ class FeedView extends StatelessWidget {
 
   Widget mainContent(BuildContext context, List<Post> posts) {
     return posts.isEmpty 
-        ? Container(
-          width: double.maxFinite,
-          color: AppStyle.surfaceColor,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                "assets/images/fitness.png",
-                cacheWidth: 96,
-                cacheHeight: 96,
-                filterQuality: FilterQuality.high,
-                isAntiAlias: true,
-                fit: BoxFit.contain,
-              ),
-              Text(
-                "Let's follow people to see their fitness progress", 
-                style: AppStyle.caption1(),
-              ),
-            ],
+        ? GestureDetector(
+          onTap: () {
+            context.read<FeedCubit>().test();
+          },
+          behavior: HitTestBehavior.translucent,
+          child: Container(
+            width: double.maxFinite,
+            color: AppStyle.surfaceColor,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  "assets/images/fitness.png",
+                  cacheWidth: 96,
+                  cacheHeight: 96,
+                  filterQuality: FilterQuality.high,
+                  isAntiAlias: true,
+                  fit: BoxFit.contain,
+                ),
+                Text(
+                  "Let's follow people to see their fitness progress", 
+                  style: AppStyle.caption1(),
+                ),
+              ],
+            ),
           ),
         ) 
         : Column(

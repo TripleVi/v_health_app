@@ -17,18 +17,27 @@ class FeedCubit extends Cubit<FeedState> {
   }
 
   Future<void> fetchData() async {
-    final postService = PostService();
-    final posts = await postService.fetchPosts();
-    emit(FeedLoaded(posts));
+    // final postService = PostService();
+    // final posts = await postService.fetchPosts();
+    // emit(FeedLoaded(posts));
 
-    // final service = FeedService();
-    // final postIds = await service.fetchNewsFeed([]);
-    // final posts = await service.fetchPostsByIds(postIds);
+    final service = FeedService();
+    final postIds = await service.fetchNewsFeed([]);
+    final posts = await service.fetchPostsByIds(postIds);
+    emit(FeedLoaded(posts));
+  }
+
+  Future<void> test() async {
+    
+    emit(FeedLoading());
+    final postService = PostService();
+    final posts = await postService.fetchPosts("ZgGHGfcI73QoDEKpCBjA5ioGrlp2");
+    emit(FeedLoaded(posts));
   }
 
   Future<void> pullToRefresh() async {
-    fetchData();
-    return;
+    // fetchData();
+    // return;
     final service = FeedService();
     final current = state as FeedLoaded;
     final ids = <String>[];

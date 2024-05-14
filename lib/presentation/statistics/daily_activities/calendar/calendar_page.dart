@@ -83,7 +83,7 @@ class CalendarView extends StatelessWidget {
                             .min(report.activeTime/report.goal.activeTime, 1),
                         caloriePercent: math
                             .min(report.calories/report.goal.calories, 1),
-                      ).small,
+                      ).small(false),
                       Text("${cellDetails.date.day}", style: AppStyle.caption1()),
                     ],
                   );
@@ -158,7 +158,7 @@ class CalendarHeaderState extends State<CalendarHeader> {
                   Text(title, style: AppStyle.heading4()),
                   const SizedBox(height: 4.0),
                   Text(
-                    "Goals achieved $goalsAchieved/$daysInMonth days", 
+                    "$goalsAchieved/$daysInMonth goals achieved", 
                     style: AppStyle.bodyText(),
                   ),
                 ],

@@ -1,77 +1,84 @@
 import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
-import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../../core/resources/style.dart";
-import "../../../../domain/entities/reaction.dart";
 import "../../../../domain/entities/user.dart";
-import "../../../widgets/app_bar.dart";
-import "../../../widgets/loading_indicator.dart";
-import "../cubit/likes_cubit.dart";
+import "../../../data/sources/api/people_service.dart";
+import "../../../data/sources/api/user_api.dart";
+import "../../../domain/entities/people.dart";
+import "../../widgets/app_bar.dart";
+import "../../widgets/loading_indicator.dart";
 
-class LikesPage extends StatelessWidget {
-  const LikesPage({super.key});
+class FollowerPage extends StatelessWidget {
+  const FollowerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final postId = ModalRoute.of(context)!.settings.arguments as String;
-    return BlocProvider<LikesCubit>(
-      create: (context) => LikesCubit(postId),
-      child: const LikesView(),
-    );
+    final uid = ModalRoute.of(context)!.settings.arguments as String;
+    return FollowerView(uid: uid);
   }
 }
 
-class LikesView extends StatelessWidget {
-  const LikesView({super.key});
+class FollowerView extends StatefulWidget {
+  final String uid;
+  const FollowerView({super.key, required this.uid});
+
+  @override
+  State<FollowerView> createState() => _FollowerViewState();
+}
+
+class _FollowerViewState extends State<FollowerView> {
+  var loading = true;
+  final followers = <People>[];
+  late final User user;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    final service = UserService();
+    user = (await service.getUserById(widget.uid))!;
+    final result = await service.getFollowers(user.uid);
+    setState(() {
+      followers.addAll(result);
+      loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar.get(title: "Likes"),
+      appBar: CustomAppBar.get(title: "Followers"),
       backgroundColor: AppStyle.surfaceColor,
       body: Center(
         child: Container(
           height: double.infinity,
           constraints: const BoxConstraints(maxWidth: 520.0),
           padding: const EdgeInsets.all(12.0),
-          child: BlocBuilder<LikesCubit, LikesState>(
-            builder: (context, state) {
-              if(state is LikesLoading) {
-                return const AppLoadingIndicator();
-              }
-              if(state is LikesLoaded) {
-                return _mainSection(context, state);
-              }
-              return const SizedBox();
-            },
-          ),
+          child: loading 
+              ? const AppLoadingIndicator() 
+              : followers.isEmpty ? const SizedBox() : _mainSection(context),
         ),
       ),
     );
   }
 
-  Widget _mainSection(BuildContext context, LikesLoaded state) {
+  Widget _mainSection(BuildContext context) {
     return ListView.builder(
-      itemCount: state.reactions.length,
+      itemCount: followers.length,
       itemBuilder: (context, index) {
-        return PeopleCard(
-          user: state.user,
-          reaction: state.reactions[index],
-        );
+        return PeopleCard(followers[index]);
       },
     );
   }
 }
 
 class PeopleCard extends StatefulWidget {
-  final User user;
-  final Reaction reaction;
-  const PeopleCard({
-    super.key,
-    required this.user,
-    required this.reaction,
-  });
+  final People people;
+  const PeopleCard(this.people, {super.key});
 
   @override
   State<PeopleCard> createState() => _PeopleCardState();
@@ -83,6 +90,7 @@ class _PeopleCardState extends State<PeopleCard> {
   @override
   Widget build(BuildContext context) {
     const avatarSize = 40;
+    final friend = widget.people;
     return ListTile(
       onTap: () {
         
@@ -101,22 +109,20 @@ class _PeopleCardState extends State<PeopleCard> {
           fit: BoxFit.contain,
         ).image,
         foregroundImage: CachedNetworkImageProvider(
-          widget.reaction.avatarUrl, 
+          friend.avatarUrl, 
           maxWidth: avatarSize, 
           maxHeight: avatarSize,
         ),
       ),
       title: Text(
-        widget.reaction.username,
+        friend.username,
         style: AppStyle.heading5(),
       ),
       subtitle: Text(
-        widget.reaction.name,
+        friend.name,
         style: AppStyle.caption1(),
       ),
-      trailing: widget.reaction.uid == widget.user.uid 
-          ? null
-          : widget.reaction.isFollowing ? _unfollowBtn() : _followBtn()
+      trailing: friend.isFollowing ? _unfollowBtn() : _followBtn(),
     );
   }
 
@@ -127,11 +133,10 @@ class _PeopleCardState extends State<PeopleCard> {
         setState(() {
           _isProcessing = true;
         });
-        final success = await context
-            .read<LikesCubit>().followPeople(widget.reaction.uid);
+        final success = await followFriend(widget.people.uid);
         await Future.delayed(const Duration(milliseconds: 300));
         if(success) {
-          widget.reaction.isFollowing = true;
+          widget.people.isFollowing = true;
         }else {
           showErrorMsg();
         }
@@ -152,6 +157,15 @@ class _PeopleCardState extends State<PeopleCard> {
     );
   }
 
+  Future<bool> followFriend(String uid) async {
+    final service = PeopleService();
+    final isFollowing = await service.followPeople(uid);
+    if(!isFollowing) {
+      showErrorMsg();
+    }
+    return isFollowing;
+  }
+
   Widget _unfollowBtn() {
     return TextButton(
       onPressed: () async {
@@ -159,11 +173,10 @@ class _PeopleCardState extends State<PeopleCard> {
         setState(() {
           _isProcessing = true;
         });
-        final success = await context
-            .read<LikesCubit>().unfollowFriend(widget.reaction.uid);
+        final success = await unfollowFriend(widget.people.uid);
         await Future.delayed(const Duration(milliseconds: 300));
         if(success) {
-          widget.reaction.isFollowing = false;
+          widget.people.isFollowing = false;
         }else {
           showErrorMsg();
         }
@@ -185,6 +198,15 @@ class _PeopleCardState extends State<PeopleCard> {
           )
           : const Text("Unfollow"),
     );
+  }
+
+  Future<bool> unfollowFriend(String uid) async {
+    final service = PeopleService();
+    final isUnfollowing = await service.unfollowPeople(uid);
+    if(!isUnfollowing) {
+      showErrorMsg();
+    }
+    return isUnfollowing;
   }
 
   void showErrorMsg() {

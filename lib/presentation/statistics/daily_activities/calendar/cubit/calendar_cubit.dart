@@ -39,7 +39,7 @@ class CalendarCubit extends Cubit<CalendarState> {
     for (var r in reports) {
       steps += r.steps;
       minutes += r.activeTime;
-      calories += calories;
+      calories += r.calories.floor();
       if(r.steps >= r.goal.steps 
           && r.activeTime >= r.goal.activeTime 
           && r.calories >= r.goal.calories) {
@@ -63,12 +63,11 @@ class CalendarCubit extends Cubit<CalendarState> {
       final reports = await repo.fetchReportsByMonth(date);
       //! mockup data
       for (var i = 0; i < reports.length; i++) {
-        final monthlySteps = MyUtils.generateIntList(reports.length, 8000);
-        final monthlyActiveTime = MyUtils.generateIntList(reports.length, 400);
-        final monthlyCalories = MyUtils.generateIntList(reports.length, 800);
-        reports[i].steps = monthlySteps[i];
-        reports[i].activeTime = monthlyActiveTime[i];
-        // reports[i].calories = monthlyCalories[i];
+        if(reports[i].date.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+          reports[i].steps = MyUtils.generateInt(5000);
+          reports[i].activeTime = MyUtils.generateInt(80);
+          reports[i].calories = MyUtils.generateInt(400)*1.0;
+        }
       }
       monthlyReports.add(reports);
     }

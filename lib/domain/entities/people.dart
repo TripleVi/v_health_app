@@ -1,8 +1,7 @@
 class People {
   String uid;
   String username;
-  String firstName;
-  String lastName;
+  String name;
   String avatarUrl;
   bool isFollowing;
   int mutual;
@@ -10,15 +9,18 @@ class People {
   People({
     required this.uid, 
     required this.username,
-    required this.firstName, 
-    required this.lastName, 
+    required this.name,
     required this.avatarUrl,
     required this.isFollowing,
     required this.mutual,
   });
 
+  factory People.empty() {
+    return People(uid: "", username: "", name: "", avatarUrl: "", isFollowing: false, mutual: 0);
+  }
+
   factory People.fromMap(Map<String, dynamic> map) {
-    return People(uid: map["uid"], username: map["username"], firstName: map["firstName"], lastName: map["lastName"], avatarUrl: map["avatarUrl"], isFollowing: map["isFollowing"], mutual: map["mutual"]);
+    return People(uid: map["uid"], username: map["username"], name: map["name"], avatarUrl: map["avatarUrl"], isFollowing: map["isFollowing"], mutual: map["mutual"]);
   }
 
   Map<String, dynamic> toMap() {
@@ -29,6 +31,6 @@ class People {
 
   @override
   String toString() {
-    return "{uid: $uid, username: $username, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl, isFollowing: $isFollowing, mutual: $mutual}";
+    return "{uid: $uid, username: $username, name: $name, avatarUrl: $avatarUrl, isFollowing: $isFollowing, mutual: $mutual}";
   }
 }

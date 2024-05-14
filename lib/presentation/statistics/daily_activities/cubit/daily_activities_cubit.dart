@@ -7,10 +7,7 @@ import "package:matrix2d/matrix2d.dart";
 import "../../../../core/utilities/utils.dart";
 import "../../../../data/repositories/daily_report_repo.dart";
 import "../../../../data/repositories/hourly_report_repo.dart";
-import "../../../../data/sources/sqlite/dao/workout_dao.dart";
 import "../../../../domain/entities/daily_report.dart";
-import "../../../../domain/entities/report.dart";
-import "../../../../domain/entities/workout_data.dart";
 
 part "daily_activities_state.dart";
 
@@ -32,23 +29,23 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
 
   Future<void> _fetchHourlyData(DateTime date) async {
     final dRepo = DailyReportRepo();
-    // final hRepo = HourlyReportRepo();
+    final hRepo = HourlyReportRepo();
     final report = await dRepo.fetchDailyReport(date);
-    // final hourlyReports = await hRepo.fetchReportsByDate(report.id);
-    // final hourlySteps = hourlyReports.map((e) => e.steps).toList();
-    final hourlySteps = MyUtils.generateIntList(24, 400);
-    final hourlyActiveTime = MyUtils.generateIntList(24, 20);
-    final hourlyCalories = MyUtils.generateIntList(24, 25);
+    final hourlyReports = await hRepo.fetchReportsByDate(report.id);
+    var hourlySteps = hourlyReports.map((e) => e.steps).toList();
+    var hourlyActiveTime = hourlyReports.map((e) => e.activeTime).toList();
+    var hourlyCalories = hourlyReports.map((e) => e.calories.floor()).toList();
+    if(!DateUtils.isSameDay(date, DateTime.now())) {
+      hourlySteps = MyUtils.generateIntList(24, 400);
+      hourlyActiveTime = MyUtils.generateIntList(24, 5);
+      hourlyCalories = MyUtils.generateIntList(24, 20);
+    }
     final maxSteps = hourlySteps.max().first;
     final maxDuration = hourlyActiveTime.max().first;
     final maxCalories = hourlyCalories.max().first;
     report.steps = hourlySteps.sum;
     report.activeTime = hourlyActiveTime.sum;
     report.calories = hourlyCalories.sum*1.0;
-
-    final repo = WorkoutDao();
-    final data = await repo.getManyAccelData();
-    print(data.last);
 
     emit(DailyActivitiesLoaded(
       report: report,
@@ -58,7 +55,6 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
       maxStepsAxis: MyUtils.roundToNearestHundred(maxSteps),
       maxActiveTimeAxis: MyUtils.roundToNearestHundred(maxDuration),
       maxCaloriesAxis: MyUtils.roundToNearestHundred(maxCalories),
-      data: data,
     ));
   }
 
@@ -72,12 +68,21 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
   }
 
   Future<void> onMonthSelected(DateTime? startDate) async {
-    // if(isProcessing) return;
-    // isProcessing = true;
-    final currentDate = (state as MonthlyActivitiesLoaded).startOfMonth;
-    if(startDate == null || DateUtils.isSameMonth(currentDate, startDate)) return;
+    if(isProcessing) return;
+    isProcessing = true;
+    final currentMonth = (state as MonthlyActivitiesLoaded).startOfMonth;
+    if(startDate == null || DateUtils.isSameMonth(currentMonth, startDate)) return;
     await fetchDataByMonth(startDate);
-    // isProcessing = false;
+    isProcessing = false;
+  }
+
+  Future<void> onYearSelected(DateTime? startDate) async {
+    if(isProcessing) return;
+    isProcessing = true;
+    final currentYear = (state as YearlyActivitiesLoaded).year;
+    if(startDate == null || currentYear == startDate.year) return;
+    await fetchDataByYear(startDate.year);
+    isProcessing = false;
   }
 
   void viewByDay() {
@@ -173,6 +178,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     final reports = await dRepo.fetchReportsByWeek(startOfWeek);
     var totalStepsTarget = 0, totalActiveTimeTarget = 0, totalCaloriesTarget = 0;
     var goalsAchieved = 0;
+    final daysAchievedGoals = List.filled(7, 0);
     List<int> 
         dailySteps = [], dailyActiveTime = [], dailyCalories = [];
     for (var r in reports) {
@@ -181,22 +187,27 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
       totalCaloriesTarget += r.goal.calories;
       dailySteps.add(r.steps);
       dailyActiveTime.add(r.activeTime);
-      // dailyCalories.add(r.calories);
+      dailyCalories.add(r.calories.floor());
     }
     //! Mockup data
-    dailySteps = MyUtils.generateIntList(7, 8000);
-    dailyActiveTime = MyUtils.generateIntList(7, 400);
-    dailyCalories = MyUtils.generateIntList(7, 800);
-    final int maxSteps = dailySteps.max().first;
-    final int maxDuration = dailyActiveTime.max().first;
-    final int maxCalories = dailyCalories.max().first;
-    for (var i = 0; i < 7; i++) {
+    for (var i = 0; i < reports.length; i++) {
+      if(reports[i].date.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+        dailySteps[i] = MyUtils.generateInt(5000);
+        dailyActiveTime[i] = MyUtils.generateInt(80);
+        dailyCalories[i] = MyUtils.generateInt(400);
+      }
       if(dailySteps[i] >= reports[i].goal.steps 
           && dailyActiveTime[i] >= reports[i].goal.activeTime 
           && dailyCalories[i] >= reports[i].goal.calories) {
         goalsAchieved++;
+        daysAchievedGoals[i] = 1;
       }
     }
+    
+    final int maxSteps = dailySteps.max().first;
+    final int maxDuration = dailyActiveTime.max().first;
+    final int maxCalories = dailyCalories.max().first;
+
     emit(WeeklyActivitiesLoaded(
       startOfWeek: startOfWeek,
       endOfWeek: endOfWeek,
@@ -210,6 +221,7 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
       dailySteps: dailySteps,
       dailyActiveTime: dailyActiveTime,
       dailyCalories: dailyCalories,
+      daysAchievedGoals: daysAchievedGoals,
       maxStepsAxis: math.max(reports.last.goal.steps+1000, (maxSteps~/10)*10+1000),
       maxActiveTimeAxis: math.max(reports.last.goal.activeTime+60, (maxDuration~/10)*10+1000),
       maxCaloriesAxis: math.max(reports.last.goal.calories+1000, (maxCalories~/10)*10+1000),
@@ -228,22 +240,24 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     for (var r in reports) {
       dailySteps.add(r.steps);
       dailyActiveTime.add(r.activeTime);
-      // dailyCalories.add(r.calories);
+      dailyCalories.add(r.calories.floor());
     }
     //! Mockup data
-    dailySteps = MyUtils.generateIntList(reports.length, 8000);
-    dailyActiveTime = MyUtils.generateIntList(reports.length, 400);
-    dailyCalories = MyUtils.generateIntList(reports.length, 800);
-    final int maxSteps = dailySteps.max().first;
-    final int maxDuration = dailyActiveTime.max().first;
-    final int maxCalories = dailyCalories.max().first;
-    for (var i = 0; i < dailySteps.length; i++) {
+    for (var i = 0; i < reports.length; i++) {
+      if(reports[i].date.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+        dailySteps[i] = MyUtils.generateInt(4000);
+        dailyActiveTime[i] = MyUtils.generateInt(80);
+        dailyCalories[i] = MyUtils.generateInt(400);
+      }
       if(dailySteps[i] >= reports[i].goal.steps 
           && dailyActiveTime[i] >= reports[i].goal.activeTime 
           && dailyCalories[i] >= reports[i].goal.calories) {
         goalsAchieved++;
       }
     }
+    final int maxSteps = dailySteps.max().first;
+    final int maxDuration = dailyActiveTime.max().first;
+    final int maxCalories = dailyCalories.max().first;
     emit(MonthlyActivitiesLoaded(
       startOfMonth: startOfMonth,
       endOfMonth: endOfMonth,
@@ -267,24 +281,25 @@ class DailyActivitiesCubit extends Cubit<DailyActivitiesState> {
     List<int> 
         monthlySteps = [], monthlyActiveTime = [], monthlyCalories = [];
     for (var m in reports) {
-      int steps = 0, minutes = 0, calories = 0;
+      int steps = 0, activeTime = 0, calories = 0;
       for (var d in m) {
         //! Mockup data
-        d.steps = MyUtils.generateInt(8000);
-        d.activeTime = MyUtils.generateInt(400);
-        // d.calories = MyUtils.generateInt(800);
-        
+        if(d.date.isBefore(DateUtils.dateOnly(DateTime.now()))) {
+          d.steps = MyUtils.generateInt(4000);
+          d.activeTime = MyUtils.generateInt(80);
+          d.calories = MyUtils.generateInt(400)*1.0;
+        }
         steps += d.steps;
-        minutes += d.activeTime;
-        // calories += d.calories;
+        activeTime += d.activeTime;
+        calories += d.calories.floor();
         if(d.steps >= d.goal.steps 
-          && d.activeTime >= d.goal.activeTime 
-          && d.calories >= d.goal.calories) {
+            && d.activeTime >= d.goal.activeTime 
+            && d.calories >= d.goal.calories) {
           goalsAchieved++;
         }
       }
       monthlySteps.add(steps);
-      monthlyActiveTime.add(minutes);
+      monthlyActiveTime.add(activeTime);
       monthlyCalories.add(calories);
     }
     final int maxSteps = monthlySteps.max().first;
