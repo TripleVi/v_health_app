@@ -64,6 +64,8 @@ class FeedCubit extends Cubit<FeedState> {
   }
 
   void viewPost(int index) {
+    print("hello world");
+    return;
     endIndex = math.max(endIndex, index);
   }
 }

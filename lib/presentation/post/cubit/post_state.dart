@@ -10,7 +10,7 @@ final class PostLoading extends PostState {
 }
 
 final class PostLoaded extends PostState {
-  final int index;
+  final int? index;
   final Post post;
   final bool isLiked;
   final int likes;

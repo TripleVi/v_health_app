@@ -8,25 +8,24 @@ import "package:google_maps_flutter/google_maps_flutter.dart";
 
 import "../../../../data/sources/api/post_service.dart";
 import "../../../../domain/entities/photo.dart";
-import "../../../../domain/entities/post.dart";
 import "../../../widgets/marker_painter.dart";
 
 part 'map_state.dart';
 
 class MapCubit extends Cubit<MapState> {
-  final Post post;
+  final String postId;
   final _mapController = Completer<GoogleMapController>();
   final _markers = <Marker>{};
   final _photos = <Photo>[];
   late final LatLngBounds _boundingBox;
 
-  MapCubit(this.post) : super(MapStateLoading()) {
+  MapCubit(this.postId) : super(MapStateLoading()) {
     _processMap();
   }
 
   Future<void> _processMap() async {
     final service = PostService();
-    final details = await service.fetchPostDetails(post.id);
+    final details = await service.fetchPostDetails(postId);
     if(details == null) {
       return emit(MapStateError());
     }

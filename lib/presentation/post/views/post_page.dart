@@ -8,11 +8,16 @@ import "../../../core/utilities/utils.dart";
 import "../../../domain/entities/post.dart";
 import "../../site/bloc/site_bloc.dart";
 import "../../feed/cubit/feed_cubit.dart";
+import "../comments/views/comments_page.dart";
 import "../cubit/post_cubit.dart";
+import "../details/views/details_page.dart";
+import "../likes/views/likes_page.dart";
+import "../map/views/map_page.dart";
 
 class PostPage extends StatelessWidget {
-  final int index;
+  final int? index;
   final Post post;
+
   const PostPage(this.index, this.post, {super.key});
 
   @override
@@ -73,16 +78,17 @@ class PostView extends StatelessWidget {
 
   Widget mainContent(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+      onTapDown: (_) {
+        if(state.index == null) return;
+        context.read<FeedCubit>().viewPost(state.index!);
+      },
       behavior: HitTestBehavior.translucent,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
-            onTap: () {
-              Navigator.pushNamed(context, "/detailsPage", arguments: state.post);
-            },
+            onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
+            onTap: () => _goToDetailsPage(context, state.post),
             behavior: HitTestBehavior.translucent,
             child: Padding(
               padding: const EdgeInsets
@@ -106,12 +112,8 @@ class PostView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   state.likes == 0 ? const SizedBox() : GestureDetector(
-                    onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
-                    onTap: () {
-                      Navigator
-                          .pushNamed(context, "/likesPage", arguments: state.post.id)
-                          .then((_) => context.read<PostCubit>().updatePostInfo());
-                    },
+                    onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
+                    onTap: () => _goToLikesPage(context, state.post.id),
                     behavior: HitTestBehavior.translucent,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -134,12 +136,8 @@ class PostView extends StatelessWidget {
                     ),
                   ),
                   state.comments == 0 ? const SizedBox() : GestureDetector(
-                    onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
-                    onTap: () {
-                      Navigator.pushNamed<void>(
-                          context, "/commentsPage", arguments: state.post.id)
-                          .then((_) => context.read<PostCubit>().updatePostInfo());
-                    },
+                    onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
+                    onTap: () => _goToCommentsPage(context, state.post.id),
                     behavior: HitTestBehavior.translucent,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -173,9 +171,37 @@ class PostView extends StatelessWidget {
     );
   }
 
+  Future<void> _goToLikesPage(BuildContext context, String postId) {
+    return Navigator.push<void>(context, MaterialPageRoute(
+      builder: (context) => const LikesPage(), 
+      settings: RouteSettings(name: "/likes", arguments: postId),
+    )).then((_) => context.read<PostCubit>().updatePostInfo());
+  }
+
+  Future<void> _goToCommentsPage(BuildContext context, String postId) {
+    return Navigator.push<void>(context, MaterialPageRoute(
+      builder: (context) => const CommentsPage(), 
+      settings: RouteSettings(name: "/comments", arguments: postId),
+    )).then((_) => context.read<PostCubit>().updatePostInfo());
+  }
+
+  Future<void> _goToMapPage(BuildContext context, String postId) {
+    return Navigator.push<void>(context, MaterialPageRoute(
+      builder: (context) => const MapPage(), 
+      settings: RouteSettings(name: "/map", arguments: postId),
+    ));
+  }
+
+  Future<void> _goToDetailsPage(BuildContext context, Post post) {
+    return Navigator.push<void>(context, MaterialPageRoute(
+      builder: (context) => const DetailsPage(), 
+      settings: RouteSettings(name: "/details", arguments: post),
+    ));
+  }
+
   Widget _likeButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+      onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
       onTap: context.read<PostCubit>().likePost,
       behavior: HitTestBehavior.translucent,
       child: Padding(
@@ -209,12 +235,8 @@ class PostView extends StatelessWidget {
 
   Widget _commentButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
-      onTap: () {
-        Navigator
-            .pushNamed(context, "/commentsPage", arguments: state.post.id)
-            .then((_) => context.read<PostCubit>().updatePostInfo());
-      },
+      onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
+      onTap: () => _goToCommentsPage(context, state.post.id),
       behavior: HitTestBehavior.translucent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -246,7 +268,7 @@ class PostView extends StatelessWidget {
         Text(state.post.title, style: AppStyle.heading5()),
         const SizedBox(height: 4.0),
         GestureDetector(
-          onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: () {
             if(state.readMore) {
               context.read<PostCubit>().toggleReadMore();
@@ -260,7 +282,7 @@ class PostView extends StatelessWidget {
           ),
         ),
         state.post.content.isNotEmpty ? state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
-          onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: context.read<PostCubit>().toggleReadMore,
           behavior: HitTestBehavior.translucent,
           child: Padding(
@@ -312,13 +334,10 @@ class PostView extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 180.0),
       child: GestureDetector(
-        onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+        onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
         onTap: () async {
           context.read<SiteBloc>().add(NavbarHidden());
-          await Navigator.pushNamed<void>(
-            context, "/mapPage", 
-            arguments: state.post,
-          );
+          await _goToMapPage(context, state.post.id);
           await Future.delayed(const Duration(milliseconds: 500))
               .then((_) => context.read<SiteBloc>().add(NavbarShown()));
         },
@@ -344,7 +363,7 @@ class PostView extends StatelessWidget {
     return Row(
       children: [
         GestureDetector(
-          onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: () async {
 
           },
@@ -373,7 +392,7 @@ class PostView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTapDown: (_) => context.read<FeedCubit>().viewPost(state.index),
+                onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
                 onTap: () {
 
                 },

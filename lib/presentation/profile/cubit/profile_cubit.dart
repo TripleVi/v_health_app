@@ -11,8 +11,9 @@ part "profile_state.dart";
 
 class ProfileCubit extends Cubit<ProfileState> {
   User? user;
+  var other = false;
 
-  ProfileCubit({this.user}) : super(ProfileInitial()) {
+  ProfileCubit(this.user) : super(ProfileInitial()) {
     fetchUser();
   }
 
@@ -22,6 +23,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     }else {
       final service = UserService();
       user = await service.getUserById(user!.uid);
+      other = true;
     }
     emit(ProfileLoading(user!));
     fetchData();
@@ -38,6 +40,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       followings: followings, 
       followers: followers,
       posts: posts,
+      other: other,
     ));
   }
 
@@ -54,6 +57,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       followings: followings, 
       followers: followers,
       posts: posts,
+      other: other,
     ));
   }
 }

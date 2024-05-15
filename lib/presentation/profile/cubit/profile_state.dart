@@ -18,11 +18,13 @@ class ProfileLoaded extends ProfileState {
   final int followers;
   final int followings;
   final int posts;
+  final bool other;
 
   ProfileLoaded({
     required this.user,
     required this.followings,
     required this.followers,
     required this.posts,
+    this.other = false,
   });
 }

@@ -10,7 +10,7 @@ import "../../../domain/entities/post.dart";
 part "post_state.dart";
 
 class PostCubit extends Cubit<PostState> {
-  final int index;
+  final int? index;
   final Post post;
   var isProcessing = false;
 

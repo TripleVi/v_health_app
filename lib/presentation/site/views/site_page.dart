@@ -62,7 +62,7 @@ class SiteView extends StatelessWidget {
     TabType.statistics: StatisticsPage(),
     TabType.tracking: TrackingPage(),
     TabType.notification: NotificationPage(),
-    TabType.profile: ProfilePage(),
+    TabType.profile: ProfileContainer(),
     // TabType.group: GroupPage(),
   };
 

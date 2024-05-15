@@ -15,74 +15,77 @@ import "activity_page.dart";
 import "follower_page.dart";
 import "following_page.dart";
 
+class ProfileContainer extends StatelessWidget {
+  const ProfileContainer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      onGenerateRoute: (settings) {
+        if(settings.name == "/profile") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const ProfilePage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/profileDetails") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const ProfileDetailsPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/profileForm") {
+          return MaterialPageRoute<bool>(
+            builder: (context) => const ProfileFormPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/settings") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const SettingsPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/search") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const FriendPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/following") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const FollowingPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/followers") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const FollowerPage(),
+            settings: settings,
+          );
+        }
+        if(settings.name == "/activities") {
+          return MaterialPageRoute<void>(
+            builder: (context) => const ActivityContainer(),
+            settings: settings,
+          );
+        }
+        return null;
+      },
+      initialRoute: "/profile",
+    );
+  }
+}
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = ModalRoute.of(context)?.settings.arguments;
+    final user = ModalRoute.of(context)?.settings.arguments as User?;
     return BlocProvider<ProfileCubit>(
-      create: (context) => ProfileCubit(user: user == null ? null : user as User),
-      child: Navigator(
-        onGenerateRoute: (settings) {
-          if(settings.name == "/profile") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const ProfileView(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/profileDetails") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const ProfileDetailsPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/profileForm") {
-            return MaterialPageRoute<bool>(
-              builder: (context) => const ProfileFormPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/settings") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const SettingsPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/search") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const FriendPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/following") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const FollowingPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/followers") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const FollowerPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/activities") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const ActivityContainer(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/other") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const ProfilePage(),
-              settings: settings,
-            );
-          }
-          return null;
-        },
-        initialRoute: "/profile",
-      ),
+      create: (context) => ProfileCubit(user),
+      child: const ProfileView(),
     );
   }
 }
@@ -110,7 +113,7 @@ class ProfileView extends StatelessWidget {
         return Scaffold(
           appBar: CustomAppBar.get(
             title: state.user.username,
-            actions: appBarActions(context),
+            actions: appBarActions(context, state),
           ),
           backgroundColor: AppStyle.backgroundColor,
           body: Container(
@@ -124,9 +127,9 @@ class ProfileView extends StatelessWidget {
     );
   }
 
-  List<Widget> appBarActions(BuildContext context) {
+  List<Widget> appBarActions(BuildContext context, ProfileLoaded state) {
     return [
-      IconButton(
+      state.other ? const SizedBox() : IconButton(
         onPressed: () => Navigator.pushNamed<void>(context, "/settings"),
         icon: const Icon(Icons.settings_outlined),
       ),
@@ -191,7 +194,10 @@ class ProfileView extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text("${state.followers}", style: AppStyle.heading5()),
-                          Text("followers", style: AppStyle.caption2()),
+                          Text(
+                            state.followers > 1 ? "followers" : "follower", 
+                            style: AppStyle.caption2(),
+                          ),
                         ],
                       ),
                     ),
@@ -204,30 +210,32 @@ class ProfileView extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text("${state.posts}", style: AppStyle.heading5()),
-                          Text("posts", style: AppStyle.caption2()),
+                          Text(state.posts > 1 ? "posts" : "post", style: AppStyle.caption2()),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _secondaryButton(
-                    content: const Text("Edit profile"),
-                    onPressed: () => Navigator.pushNamed(context, "/profileDetails"),
-                  ),
-                  _secondaryButton(
-                    content: const Text("Share profile"),
-                    onPressed: () {},
-                  ),
-                  _secondaryButton(
-                    content: const Icon(Icons.person_add_rounded, size: 24.0),
-                    onPressed: () => Navigator.pushNamed(context, "/search"),
-                  )
-                ],
+              state.other ? const SizedBox() : Padding(
+                padding: const EdgeInsets.only(top: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _secondaryButton(
+                      content: const Text("Edit profile"),
+                      onPressed: () => Navigator.pushNamed(context, "/profileDetails"),
+                    ),
+                    _secondaryButton(
+                      content: const Text("Share profile"),
+                      onPressed: () {},
+                    ),
+                    _secondaryButton(
+                      content: const Icon(Icons.person_add_rounded, size: 24.0),
+                      onPressed: () => Navigator.pushNamed(context, "/search"),
+                    )
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
             ],

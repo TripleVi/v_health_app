@@ -18,9 +18,9 @@ class MapPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final post = ModalRoute.of(context)!.settings.arguments as Post;
+    final postId = ModalRoute.of(context)!.settings.arguments as String;
     return BlocProvider<MapCubit>(
-      create: (context) => MapCubit(post),
+      create: (context) => MapCubit(postId),
       child: const MapView(),
     );
   }

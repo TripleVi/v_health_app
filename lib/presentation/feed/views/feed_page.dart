@@ -7,11 +7,7 @@ import "../../friend/views/friend_page.dart";
 import "../../site/bloc/site_bloc.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
-import "../../post/comments/views/comments_page.dart";
 import "../cubit/feed_cubit.dart";
-import "../../post/details/views/details_page.dart";
-import "../../post/likes/views/likes_page.dart";
-import "../../post/map/views/map_page.dart";
 import "../../post/views/post_page.dart";
 
 class FeedPage extends StatelessWidget {
@@ -23,37 +19,13 @@ class FeedPage extends StatelessWidget {
       create: (context) => FeedCubit(),
       child: Navigator(
         onGenerateRoute: (settings) {
-          if(settings.name == "/feed") {
+          if(settings.name == "/") {
             return MaterialPageRoute<void>(
               builder: (context) => const FeedView(),
               settings: settings,
             );
           }
-          if(settings.name == "/likesPage") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const LikesPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/commentsPage") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const CommentsPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/mapPage") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const MapPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/detailsPage") {
-            return MaterialPageRoute<void>(
-              builder: (context) => const DetailsPage(),
-              settings: settings,
-            );
-          }
-          if(settings.name == "/searchPage") {
+          if(settings.name == "/search") {
             return MaterialPageRoute<void>(
               builder: (context) => const FriendPage(),
               settings: settings,
@@ -61,7 +33,7 @@ class FeedPage extends StatelessWidget {
           }
           return null;
         },
-        initialRoute: "/feed",
+        initialRoute: "/",
       ),
     );
   }
