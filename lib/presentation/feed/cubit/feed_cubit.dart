@@ -1,3 +1,4 @@
+import "dart:convert";
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
@@ -28,7 +29,11 @@ class FeedCubit extends Cubit<FeedState> {
   }
 
   Future<void> test() async {
-    
+    // const name = "Vượng";
+    // var encoded = utf8.encode('Vượng');
+    // final result = ascii.encode("vuong");
+    // print(encoded);
+
     emit(FeedLoading());
     final postService = PostService();
     final posts = await postService.fetchPosts("ZgGHGfcI73QoDEKpCBjA5ioGrlp2");

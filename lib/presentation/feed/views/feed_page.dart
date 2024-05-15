@@ -7,12 +7,12 @@ import "../../friend/views/friend_page.dart";
 import "../../site/bloc/site_bloc.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
-import "../comments/views/comments_page.dart";
+import "../../post/comments/views/comments_page.dart";
 import "../cubit/feed_cubit.dart";
-import "../details/views/details_page.dart";
-import "../likes/views/likes_page.dart";
-import "../map/views/map_page.dart";
-import "../post/views/post_page.dart";
+import "../../post/details/views/details_page.dart";
+import "../../post/likes/views/likes_page.dart";
+import "../../post/map/views/map_page.dart";
+import "../../post/views/post_page.dart";
 
 class FeedPage extends StatelessWidget {
   const FeedPage({super.key});

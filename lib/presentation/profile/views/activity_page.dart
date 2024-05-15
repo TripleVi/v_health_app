@@ -3,7 +3,7 @@ import "package:flutter/material.dart";
 import "../../../core/resources/style.dart";
 import "../../../data/sources/api/post_service.dart";
 import "../../../domain/entities/post.dart";
-import "../../feed/post/views/post_page.dart";
+import "../../post/views/post_page.dart";
 import "../../widgets/app_bar.dart";
 import "../../widgets/loading_indicator.dart";
 

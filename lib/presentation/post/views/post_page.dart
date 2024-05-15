@@ -3,11 +3,11 @@ import "package:card_loading/card_loading.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 
-import "../../../../core/resources/style.dart";
-import "../../../../core/utilities/utils.dart";
-import "../../../../domain/entities/post.dart";
-import "../../../site/bloc/site_bloc.dart";
-import "../../cubit/feed_cubit.dart";
+import "../../../core/resources/style.dart";
+import "../../../core/utilities/utils.dart";
+import "../../../domain/entities/post.dart";
+import "../../site/bloc/site_bloc.dart";
+import "../../feed/cubit/feed_cubit.dart";
 import "../cubit/post_cubit.dart";
 
 class PostPage extends StatelessWidget {

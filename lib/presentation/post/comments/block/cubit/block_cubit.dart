@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:v_health/presentation/feed/comments/cubit/comments_cubit.dart';
+import 'package:v_health/presentation/post/comments/cubit/comments_cubit.dart';
 
 import '../../../../../data/sources/api/post_service.dart';
 import '../../../../../domain/entities/comment.dart';

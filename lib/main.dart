@@ -22,19 +22,19 @@ import "presentation/site/views/site_page.dart";
 
 @pragma("vm:entry-point")
 void onStart(ServiceInstance service) async {
-  DartPluginRegistrant.ensureInitialized();
-  var rawAccelData = <List<double>>[];
-  final stream = await SensorService().accelerometerEvents();
-  stream.listen(rawAccelData.add);
-  Timer.periodic(const Duration(seconds: Constants.inactiveInterval), (_) async {
-    final tempAccel = rawAccelData.toList();
-    rawAccelData.clear();
-    final service = AccelerationService();
-    await service.updateReports(
-      rawAccelData: tempAccel, 
-      date: DateTime.now(),
-    );
-  });
+  // DartPluginRegistrant.ensureInitialized();
+  // var rawAccelData = <List<double>>[];
+  // final stream = await SensorService().accelerometerEvents();
+  // stream.listen(rawAccelData.add);
+  // Timer.periodic(const Duration(seconds: Constants.inactiveInterval), (_) async {
+  //   final tempAccel = rawAccelData.toList();
+  //   rawAccelData.clear();
+  //   final service = AccelerationService();
+  //   await service.updateReports(
+  //     rawAccelData: tempAccel, 
+  //     date: DateTime.now(),
+  //   );
+  // });
 
   service.on("trackingSessionCreated").listen((_) {
     StreamSubscription? appStateListener;
