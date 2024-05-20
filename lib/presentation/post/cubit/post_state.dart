@@ -1,49 +1,43 @@
-part of 'post_cubit.dart';
+part of "post_cubit.dart";
 
 @immutable
-sealed class PostState {
-  const PostState();
-}
+sealed class PostState {}
 
-final class PostLoading extends PostState {
-  const PostLoading();
-}
+final class PostLoading extends PostState {}
 
 final class PostLoaded extends PostState {
-  final int? index;
-  final Post post;
-  final bool isLiked;
-  final int likes;
-  final int comments;
-  final String txtDate;
-  final String recordTime;
+  final PostData data;
+  late final String txtDate;
+  late final String recordTime;
   final bool readMore;
 
-  const PostLoaded({
-    required this.index,
-    required this.post,
-    required this.isLiked,
-    required this.likes,
-    required this.comments,
-    required this.txtDate,
-    required this.recordTime,
+  PostLoaded({
+    required this.data,
     this.readMore = false,
-  });
+  }) {
+    txtDate = ta.format(data.post.createdDate, locale: "en");
+    final record = data.post.record;
+    final rDuration = record.endDate.difference(record.startDate);
+    recordTime = "";
+    // final hours = rDuration.inHours;
+    // final minutes = rDuration.inMinutes - rDuration.inHours * 60;
+    // if(rDuration.inHours > 0) {
+    //   recordTime = "$hours h";
+    // }
+    // if(rDuration.inMinutes > 0) {
+    //   recordTime = "${recordTime.isEmpty ? "$recordTime " : ""}$minutes m";
+    // }
+    // if(rDuration.inSeconds <= 59) {
+    //   recordTime = "${rDuration.inSeconds} s";
+    // }        
+  }
 
   PostLoaded copyWith({
-    bool? isLiked,
-    int? likes,
     int? comments,
     bool? readMore,
   }) {
     return PostLoaded(
-      index: index,
-      post: post,
-      isLiked: isLiked ?? this.isLiked,
-      likes: likes ?? this.likes,
-      comments: comments ?? this.comments,
-      txtDate: txtDate, 
-      recordTime: recordTime, 
+      data: data, 
       readMore: readMore ?? this.readMore,
     );
   }

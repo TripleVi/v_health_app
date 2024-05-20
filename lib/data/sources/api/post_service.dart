@@ -16,18 +16,23 @@ import "../../../domain/entities/workout_data.dart";
 import "../../../presentation/activity_tracking/bloc/activity_tracking_bloc.dart";
 import "dio_service.dart";
 
-class MapData {
-  List<Coordinate> coordinates;
-  List<Photo> photos;
+class PostData {
+  final int index;
+  final Post post;
+  int likes;
+  int comments;
+  bool isLiked;
 
-  MapData({
-    required this.coordinates,
-    required this.photos,
-  });
-} 
+  PostData(this.index, this.post, this.likes, this.comments, this.isLiked);
+
+  @override
+  String toString() {
+    return "PostData{$post, likes: $likes, comments: $comments, isLiked: $isLiked}";
+  }
+}
 
 class PostService {
-  Future<List<Post>> fetchPosts(String uid) async {
+  Future<List<PostData>> fetchPosts(String uid) async {
     try {
       final response = await DioService.instance.dio.get<List>(
         "/posts",
@@ -37,6 +42,7 @@ class PostService {
           },
         ),
       );
+      int i = 0;
       return response.data!.map((e) {
         final user = User.empty()
         ..uid = e["author"]["uid"]
@@ -46,7 +52,7 @@ class PostService {
         final post = Post.fromMap(e)
         ..author = user
         ..record = ActivityRecord.fromMap(e["record"]);
-        return post;
+        return PostData(i++, post, e["likes"], e["comments"], e["isLiked"]);
       }).toList();
     } on DioException {
       return const [];

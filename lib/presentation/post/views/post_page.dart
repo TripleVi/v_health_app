@@ -5,9 +5,9 @@ import "package:flutter_bloc/flutter_bloc.dart";
 
 import "../../../core/resources/style.dart";
 import "../../../core/utilities/utils.dart";
+import "../../../data/sources/api/post_service.dart";
 import "../../../domain/entities/post.dart";
 import "../../site/bloc/site_bloc.dart";
-import "../../feed/cubit/feed_cubit.dart";
 import "../comments/views/comments_page.dart";
 import "../cubit/post_cubit.dart";
 import "../details/views/details_page.dart";
@@ -15,15 +15,14 @@ import "../likes/views/likes_page.dart";
 import "../map/views/map_page.dart";
 
 class PostPage extends StatelessWidget {
-  final int? index;
-  final Post post;
+  final PostData data;
 
-  const PostPage(this.index, this.post, {super.key});
+  const PostPage(this.data, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<PostCubit>(
-      create: (context) => PostCubit(index, post),
+      create: (context) => PostCubit(data),
       child: const PostView(),
     );
   }
@@ -77,11 +76,15 @@ class PostView extends StatelessWidget {
   }
 
   Widget mainContent(BuildContext context, PostLoaded state) {
+    final post = state.data.post;
+    final likes = state.data.likes;
+    final comments = state.data.comments;
+    final isLided = state.data.isLiked;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: () => _goToDetailsPage(context, state.post),
+          onTap: () => _goToDetailsPage(context, post),
           behavior: HitTestBehavior.translucent,
           child: Padding(
             padding: const EdgeInsets
@@ -101,11 +104,11 @@ class PostView extends StatelessWidget {
         Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            state.likes+state.comments == 0 ? const SizedBox() : Row(
+            likes+comments == 0 ? const SizedBox() : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                state.likes == 0 ? const SizedBox() : GestureDetector(
-                  onTap: () => _goToLikesPage(context, state.post.id),
+                likes == 0 ? const SizedBox() : GestureDetector(
+                  onTap: () => _goToLikesPage(context, post.id),
                   behavior: HitTestBehavior.translucent,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -120,27 +123,27 @@ class PostView extends StatelessWidget {
                         ),
                         const SizedBox(width: 4.0),
                         Text(
-                          "${state.likes}", 
+                          "${likes}", 
                           style: AppStyle.caption1(),
                         ),
                       ],
                     ),
                   ),
                 ),
-                state.comments == 0 ? const SizedBox() : GestureDetector(
-                  onTap: () => _goToCommentsPage(context, state.post.id),
+                comments == 0 ? const SizedBox() : GestureDetector(
+                  onTap: () => _goToCommentsPage(context, post.id),
                   behavior: HitTestBehavior.translucent,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "${state.comments} ${state.comments > 1 ? "comments" : "comment"}", 
+                      "${comments} ${comments > 1 ? "comments" : "comment"}", 
                       style: AppStyle.caption1(),
                     ),
                   ),
                 ),
               ],
             ),
-            state.comments+state.likes == 0 ? const SizedBox() : Padding(
+            comments+likes == 0 ? const SizedBox() : Padding(
               padding: const EdgeInsets
                   .symmetric(horizontal: AppStyle.horizontalPadding),
               child: Container(
@@ -198,7 +201,7 @@ class PostView extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            state.isLiked 
+            state.data.isLiked 
                 ? const Icon(
                   Icons.thumb_up, 
                   size: 20.0, 
@@ -212,7 +215,7 @@ class PostView extends StatelessWidget {
             const SizedBox(width: 8.0),
             Text(
               "Like", 
-              style: state.isLiked
+              style: state.data.isLiked
                   ? AppStyle.caption1(color: AppStyle.primaryColor)
                   : AppStyle.caption1(),
             ),
@@ -224,7 +227,7 @@ class PostView extends StatelessWidget {
 
   Widget _commentButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTap: () => _goToCommentsPage(context, state.post.id),
+      onTap: () => _goToCommentsPage(context, state.data.post.id),
       behavior: HitTestBehavior.translucent,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -245,7 +248,7 @@ class PostView extends StatelessWidget {
   }
 
   Widget _contentSection(BuildContext context, PostLoaded state) {
-    final record = state.post.record;
+    final record = state.data.post.record;
     final distanceMap = MyUtils.getFormattedDistance(record.distance);
     final caloriesMap = MyUtils.getFormattedCalories(record.calories);
     final activeTime = MyUtils.getFormattedMinutes(record.activeTime);
@@ -253,7 +256,7 @@ class PostView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(state.post.title, style: AppStyle.heading5()),
+        Text(state.data.post.title, style: AppStyle.heading5()),
         const SizedBox(height: 4.0),
         GestureDetector(
           onTap: () {
@@ -262,13 +265,13 @@ class PostView extends StatelessWidget {
             }
           },
           child: Text(
-            state.post.content, 
+            state.data.post.content, 
             style: AppStyle.bodyText(fontSize: 14.0),
             maxLines: state.readMore ? null : 2, 
             overflow: state.readMore ? null : TextOverflow.ellipsis,
           ),
         ),
-        state.post.content.isNotEmpty ? state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
+        state.data.post.content.isNotEmpty ? state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
           onTap: context.read<PostCubit>().toggleReadMore,
           behavior: HitTestBehavior.translucent,
           child: Padding(
@@ -322,12 +325,12 @@ class PostView extends StatelessWidget {
       child: GestureDetector(
         onTap: () async {
           context.read<SiteBloc>().add(NavbarHidden());
-          await _goToMapPage(context, state.post.id);
+          await _goToMapPage(context, state.data.post.id);
           await Future.delayed(const Duration(milliseconds: 500))
               .then((_) => context.read<SiteBloc>().add(NavbarShown()));
         },
         child: CachedNetworkImage(
-          imageUrl: state.post.mapUrl,
+          imageUrl: state.data.post.mapUrl,
           fit: BoxFit.contain,
           filterQuality: FilterQuality.high,
           progressIndicatorBuilder: (context, url, download) => Container(
@@ -343,7 +346,7 @@ class PostView extends StatelessWidget {
   }
 
   Row _headerSection(BuildContext context, PostLoaded state) {
-    final author = state.post.author;
+    final author = state.data.post.author;
     const avatarSize = 32;
     return Row(
       children: [
@@ -404,7 +407,7 @@ class PostView extends StatelessWidget {
                   ),
                   const SizedBox(width: 4.0),
                   Text(
-                    " ${state.post.address}", 
+                    " ${state.data.post.address}", 
                     style: AppStyle.caption2(),
                   ),
                 ],

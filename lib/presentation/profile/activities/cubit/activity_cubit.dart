@@ -17,7 +17,6 @@ class ActivityCubit extends Cubit<ActivityState> {
   Future<void> fetchData() async {
     final service = PostService();
     final posts = await service.fetchPosts(uid);
-    print(posts);
     final user = await SharedPrefService.getCurrentUser();
     emit(ActivityLoaded(posts: posts, other: uid != user.uid));
   }

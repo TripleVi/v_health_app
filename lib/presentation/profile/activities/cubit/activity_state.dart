@@ -6,7 +6,7 @@ sealed class ActivityState {}
 final class ActivityLoading extends ActivityState {}
 
 final class ActivityLoaded extends ActivityState {
-  final List<Post> posts;
+  final List<PostData> posts;
   final bool other;
 
   ActivityLoaded({

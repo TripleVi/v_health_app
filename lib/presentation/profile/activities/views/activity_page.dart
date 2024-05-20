@@ -88,8 +88,7 @@ class ActivityView extends StatelessWidget {
         //     itemBuilder: (context, index) => PostPage(index, state.posts[index]),
         //   );
           ListView(children: state.posts.map((e) {
-            print(state.posts.length);
-            return PostPage(null, e);
+            return PostPage(e);
           }).toList());
   }
 }

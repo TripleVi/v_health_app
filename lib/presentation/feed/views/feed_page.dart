@@ -122,9 +122,11 @@ class FeedView extends StatelessWidget {
             ),
           ),
         ) 
-        : Column(
-          children: List.generate(posts.length, (index) => 
-              PostPage(index, posts[index])),
-        );
+        : 
+        const SizedBox();
+        // Column(
+        //   children: List.generate(posts.length, (index) => 
+        //       PostPage(index, posts[index])),
+        // );
   }
 }
