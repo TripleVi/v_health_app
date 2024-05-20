@@ -77,97 +77,87 @@ class PostView extends StatelessWidget {
   }
 
   Widget mainContent(BuildContext context, PostLoaded state) {
-    return GestureDetector(
-      onTapDown: (_) {
-        if(state.index == null) return;
-        context.read<FeedCubit>().viewPost(state.index!);
-      },
-      behavior: HitTestBehavior.translucent,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          GestureDetector(
-            onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
-            onTap: () => _goToDetailsPage(context, state.post),
-            behavior: HitTestBehavior.translucent,
-            child: Padding(
-              padding: const EdgeInsets
-                  .symmetric(horizontal: AppStyle.horizontalPadding),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _headerSection(context, state),
-                  const SizedBox(height: 12.0),
-                  _contentSection(context, state),
-                  const SizedBox(height: 8.0),
-                ],
-              ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          onTap: () => _goToDetailsPage(context, state.post),
+          behavior: HitTestBehavior.translucent,
+          child: Padding(
+            padding: const EdgeInsets
+                .symmetric(horizontal: AppStyle.horizontalPadding),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _headerSection(context, state),
+                const SizedBox(height: 12.0),
+                _contentSection(context, state),
+                const SizedBox(height: 8.0),
+              ],
             ),
           ),
-          _mapSection(context, state),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              state.likes+state.comments == 0 ? const SizedBox() : Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  state.likes == 0 ? const SizedBox() : GestureDetector(
-                    onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
-                    onTap: () => _goToLikesPage(context, state.post.id),
-                    behavior: HitTestBehavior.translucent,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Icons.thumb_up_rounded, 
-                            size: 20.0, 
-                            color: AppStyle.primaryColor,
-                          ),
-                          const SizedBox(width: 4.0),
-                          Text(
-                            "${state.likes}", 
-                            style: AppStyle.caption1(),
-                          ),
-                        ],
-                      ),
+        ),
+        _mapSection(context, state),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            state.likes+state.comments == 0 ? const SizedBox() : Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                state.likes == 0 ? const SizedBox() : GestureDetector(
+                  onTap: () => _goToLikesPage(context, state.post.id),
+                  behavior: HitTestBehavior.translucent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.thumb_up_rounded, 
+                          size: 20.0, 
+                          color: AppStyle.primaryColor,
+                        ),
+                        const SizedBox(width: 4.0),
+                        Text(
+                          "${state.likes}", 
+                          style: AppStyle.caption1(),
+                        ),
+                      ],
                     ),
                   ),
-                  state.comments == 0 ? const SizedBox() : GestureDetector(
-                    onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
-                    onTap: () => _goToCommentsPage(context, state.post.id),
-                    behavior: HitTestBehavior.translucent,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "${state.comments} ${state.comments > 1 ? "comments" : "comment"}", 
-                        style: AppStyle.caption1(),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              state.comments+state.likes == 0 ? const SizedBox() : Padding(
-                padding: const EdgeInsets
-                    .symmetric(horizontal: AppStyle.horizontalPadding),
-                child: Container(
-                  height: 1.0,
-                  color: AppStyle.neutralColor200,
                 ),
+                state.comments == 0 ? const SizedBox() : GestureDetector(
+                  onTap: () => _goToCommentsPage(context, state.post.id),
+                  behavior: HitTestBehavior.translucent,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      "${state.comments} ${state.comments > 1 ? "comments" : "comment"}", 
+                      style: AppStyle.caption1(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            state.comments+state.likes == 0 ? const SizedBox() : Padding(
+              padding: const EdgeInsets
+                  .symmetric(horizontal: AppStyle.horizontalPadding),
+              child: Container(
+                height: 1.0,
+                color: AppStyle.neutralColor200,
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _likeButton(context, state),
-              _commentButton(context, state),
-            ],
-          ),
-        ],
-      ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _likeButton(context, state),
+            _commentButton(context, state),
+          ],
+        ),
+      ],
     );
   }
 
@@ -201,7 +191,6 @@ class PostView extends StatelessWidget {
 
   Widget _likeButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
       onTap: context.read<PostCubit>().likePost,
       behavior: HitTestBehavior.translucent,
       child: Padding(
@@ -235,7 +224,6 @@ class PostView extends StatelessWidget {
 
   Widget _commentButton(BuildContext context, PostLoaded state) {
     return GestureDetector(
-      onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
       onTap: () => _goToCommentsPage(context, state.post.id),
       behavior: HitTestBehavior.translucent,
       child: Padding(
@@ -268,7 +256,6 @@ class PostView extends StatelessWidget {
         Text(state.post.title, style: AppStyle.heading5()),
         const SizedBox(height: 4.0),
         GestureDetector(
-          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: () {
             if(state.readMore) {
               context.read<PostCubit>().toggleReadMore();
@@ -282,7 +269,6 @@ class PostView extends StatelessWidget {
           ),
         ),
         state.post.content.isNotEmpty ? state.readMore ? const SizedBox(height: 12.0) : GestureDetector(
-          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: context.read<PostCubit>().toggleReadMore,
           behavior: HitTestBehavior.translucent,
           child: Padding(
@@ -334,7 +320,6 @@ class PostView extends StatelessWidget {
     return ConstrainedBox(
       constraints: const BoxConstraints(minHeight: 180.0),
       child: GestureDetector(
-        onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
         onTap: () async {
           context.read<SiteBloc>().add(NavbarHidden());
           await _goToMapPage(context, state.post.id);
@@ -363,7 +348,6 @@ class PostView extends StatelessWidget {
     return Row(
       children: [
         GestureDetector(
-          onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
           onTap: () async {
 
           },
@@ -392,7 +376,6 @@ class PostView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               GestureDetector(
-                onTapDown: context.findAncestorWidgetOfExactType<GestureDetector>()?.onTapDown,
                 onTap: () {
 
                 },

@@ -11,7 +11,7 @@ import "../cubit/profile_cubit.dart";
 import "../details/views/profile_details_page.dart";
 import "../details/views/profile_form_page.dart";
 import "../settings/views/settings_page.dart";
-import "activity_page.dart";
+import "../activities/views/activity_page.dart";
 import "follower_page.dart";
 import "following_page.dart";
 
@@ -22,7 +22,7 @@ class ProfileContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Navigator(
       onGenerateRoute: (settings) {
-        if(settings.name == "/profile") {
+        if(settings.name == "/") {
           return MaterialPageRoute<void>(
             builder: (context) => const ProfilePage(),
             settings: settings,
@@ -66,13 +66,13 @@ class ProfileContainer extends StatelessWidget {
         }
         if(settings.name == "/activities") {
           return MaterialPageRoute<void>(
-            builder: (context) => const ActivityContainer(),
+            builder: (context) => const ActivityPage(),
             settings: settings,
           );
         }
         return null;
       },
-      initialRoute: "/profile",
+      initialRoute: "/",
     );
   }
 }

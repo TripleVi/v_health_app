@@ -95,7 +95,7 @@ class _PeopleCardState extends State<PeopleCard> {
       onTap: () {
         final user = User.empty()
         ..uid = widget.people.uid;
-        Navigator.pushNamed(context, "/profile", arguments: user);
+        Navigator.pushNamed(context, "/", arguments: user);
       },
       horizontalTitleGap: AppStyle.horizontalPadding,
       contentPadding: const EdgeInsets.symmetric(horizontal: 0.0),

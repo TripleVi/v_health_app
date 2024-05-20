@@ -29,13 +29,11 @@ class MapData {
 class PostService {
   Future<List<Post>> fetchPosts(String uid) async {
     try {
-      // final currentUser = await SharedPrefService.getCurrentUser();
       final response = await DioService.instance.dio.get<List>(
         "/posts",
         options: Options(
           headers: {
             "uid": uid,
-            "username": "",
           },
         ),
       );
