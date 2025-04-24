@@ -77,18 +77,9 @@ class ActivityView extends StatelessWidget {
               ],
             ),
           )
-        : 
-        // ListView.builder(
-        //     addAutomaticKeepAlives: ,
-        //     findChildIndexCallback: (key) {
-        //       final ValueKey valueKey = key as ValueKey<Post>;
-        //       return state.posts.indexOf(valueKey.value);
-        //     },
-        //     itemCount: state.posts.length,
-        //     itemBuilder: (context, index) => PostPage(index, state.posts[index]),
-        //   );
-          ListView(children: state.posts.map((e) {
-            return PostPage(e);
-          }).toList());
+        : ListView.builder(
+            itemCount: state.posts.length,
+            itemBuilder: (context, index) => PostPage(state.posts[index]),
+          );
   }
 }

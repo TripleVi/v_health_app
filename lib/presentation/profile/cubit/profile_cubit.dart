@@ -34,7 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     final postService = PostService();
     final followers = await userService.countFollowers(user!.uid);
     final followings = await userService.countFollowings(user!.uid);
-    final posts = await postService.countPosts();
+    final posts = await postService.countPosts(user!);
     emit(ProfileLoaded(
       user: user!, 
       followings: followings, 
@@ -50,7 +50,7 @@ class ProfileCubit extends Cubit<ProfileState> {
     final user = await SharedPrefService.getCurrentUser();
     final followers = await service.countFollowers(user.uid);
     final followings = await service.countFollowings(user.uid);
-    final posts = await postService.countPosts();
+    final posts = await postService.countPosts(user);
     await Future<void>.delayed(const Duration(seconds: 1));
     emit(ProfileLoaded(
       user: user, 

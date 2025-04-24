@@ -25,6 +25,8 @@ class FeedCubit extends Cubit<FeedState> {
     // final service = FeedService();
     // final postIds = await service.fetchNewsFeed([]);
     // final posts = await service.fetchPostsByIds(postIds);
+    emit(FeedLoading());
+    await Future.delayed(const Duration(seconds: 5));
     emit(FeedLoaded(const []));
   }
 
@@ -37,18 +39,21 @@ class FeedCubit extends Cubit<FeedState> {
     emit(FeedLoading());
     final postService = PostService();
     final posts = await postService.fetchPosts("ZgGHGfcI73QoDEKpCBjA5ioGrlp2");
-    // emit(FeedLoaded(posts));
+    emit(FeedLoaded(posts));
   }
 
   Future<void> pullToRefresh() async {
     // fetchData();
-    // return;
+    emit(FeedLoading());
+    await Future.delayed(const Duration(seconds: 5));
+    emit(FeedLoaded(const []));
+    return;
     final service = FeedService();
     final current = state as FeedLoaded;
     final ids = <String>[];
-    if(current.posts.isNotEmpty) {
+    if(current.data.isNotEmpty) {
       for (var i = 0; i <= endIndex; i++) {
-        ids.add(current.posts[i].id);
+        ids.add(current.data[i].post.id);
       }
       endIndex = 0;
     }
@@ -58,7 +63,7 @@ class FeedCubit extends Cubit<FeedState> {
       Future.delayed(const Duration(milliseconds: 100)).then((_) async {
         emit(FeedRefreshed());
         await Future.delayed(const Duration(milliseconds: 100));
-        emit(FeedLoaded(posts));
+        // emit(FeedLoaded(posts));
       });
     });
   }

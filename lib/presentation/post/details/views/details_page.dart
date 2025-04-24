@@ -9,6 +9,7 @@ import "../../../../domain/entities/post.dart";
 import "../../../site/bloc/site_bloc.dart";
 import "../../../widgets/app_bar.dart";
 import "../../../widgets/loading_indicator.dart";
+import "../../map/views/map_page.dart";
 import "../cubit/details_cubit.dart";
 
 class DetailsPage extends StatelessWidget {
@@ -99,10 +100,11 @@ class DetailsView extends StatelessWidget {
           GestureDetector(
             onTap: () async {
               context.read<SiteBloc>().add(NavbarHidden());
-              await Navigator.pushNamed<void>(
-                context, "/mapPage", 
-                arguments: state.post,
-              );
+              // await Navigator.pushNamed<void>(
+              //   context, "/map", 
+              //   arguments: state.post,
+              // );
+              await _goToMapPage(context, state.post.id);
               await Future.delayed(const Duration(milliseconds: 500))
                   .then((_) => context.read<SiteBloc>().add(NavbarShown()));
             },
@@ -124,6 +126,13 @@ class DetailsView extends StatelessWidget {
         ],
       )
     );
+  }
+
+  Future<void> _goToMapPage(BuildContext context, String postId) {
+    return Navigator.push<void>(context, MaterialPageRoute(
+      builder: (context) => const MapPage(), 
+      settings: RouteSettings(name: "/map", arguments: postId),
+    ));
   }
 
   Widget summaryWidget(BuildContext context, DetailsLoaded state) {
@@ -164,11 +173,11 @@ class DetailsView extends StatelessWidget {
                       value: distanceMap["value"]!,
                       unit: distanceMap["unit"],
                     ),
-                    const SizedBox(height: 8.0),
-                    _metricsWidget(
-                      name: "Steps",
-                      value: "${record.steps}",
-                    ),
+                    // const SizedBox(height: 8.0),
+                    // _metricsWidget(
+                    //   name: "Steps",
+                    //   value: "${record.steps}",
+                    // ),
                     const SizedBox(height: 8.0),
                     _metricsWidget(
                       name: "Avg. speed",

@@ -108,14 +108,13 @@ class PostService {
     }
   }
 
-  Future<int> countPosts() async {
-    final currentUser = await SharedPrefService.getCurrentUser();
+  Future<int> countPosts(User user) async {
     final response = await DioService.instance.dio.get<Map>(
       "/posts/count",
       options: Options(
         headers: {
-          "uid": currentUser.uid,
-          "username": currentUser.username,
+          "uid": user.uid,
+          "username": user.username,
         },
       ),
     );

@@ -74,6 +74,7 @@ class SiteView extends StatelessWidget {
       builder: (context, state) {
         const iconSize = 24;
         return Scaffold(
+          resizeToAvoidBottomInset: false,
           body: Stack(
             children: state.currentTabs.map((tab) => Offstage(
               offstage: tab != state.currentTab,

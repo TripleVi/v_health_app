@@ -55,11 +55,4 @@ class PostCubit extends Cubit<PostState> {
     //   ));
     // }
   }
-
-  @override
-  Future<void> close() async {
-    super.close();
-    print(data.post.id);
-    print("closed");
-  }
 }

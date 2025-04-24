@@ -12,8 +12,8 @@ final class FeedRefreshed extends FeedState {
 }
 
 final class FeedLoaded extends FeedState {
-  final List<Post> posts;
-  FeedLoaded(this.posts);
+  final List<PostData> data;
+  FeedLoaded(this.data);
 }
 
 final class FeedError extends FeedState {

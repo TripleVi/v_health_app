@@ -123,7 +123,7 @@ class PostView extends StatelessWidget {
                         ),
                         const SizedBox(width: 4.0),
                         Text(
-                          "${likes}", 
+                          "$likes", 
                           style: AppStyle.caption1(),
                         ),
                       ],
@@ -251,7 +251,26 @@ class PostView extends StatelessWidget {
     final record = state.data.post.record;
     final distanceMap = MyUtils.getFormattedDistance(record.distance);
     final caloriesMap = MyUtils.getFormattedCalories(record.calories);
-    final activeTime = MyUtils.getFormattedMinutes(record.activeTime);
+    final [hours, minutes, seconds] = state.time;
+    var timeWidget = Row(children: [
+      Text("$seconds", style: AppStyle.heading4()),
+      Text("s", style: AppStyle.heading5()),
+    ]);
+    if(hours > 0) {
+      timeWidget = Row(children: [
+        Text("$hours", style: AppStyle.heading4()),
+        Text("h ", style: AppStyle.heading5()),
+        Text("$minutes", style: AppStyle.heading4()),
+        Text("m", style: AppStyle.heading5()),
+      ]);
+    }else if(minutes > 0) {
+      timeWidget = Row(children: [
+        Text("$minutes", style: AppStyle.heading4()),
+        Text("m ", style: AppStyle.heading5()),
+        Text("$seconds", style: AppStyle.heading4()),
+        Text("s", style: AppStyle.heading5()),
+      ]);
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -286,31 +305,27 @@ class PostView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text("Distance", style: AppStyle.caption1()),
-                Row(
-                  children: [
-                    Text("${distanceMap["value"]!} ", style: AppStyle.heading4()),
-                    Text(distanceMap["unit"]!, style: AppStyle.heading5()),
-                  ],
-                ),
+                Row(children: [
+                  Text("${distanceMap["value"]!} ", style: AppStyle.heading4()),
+                  Text(distanceMap["unit"]!, style: AppStyle.heading5()),
+                ]),
               ],
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text("Time", style: AppStyle.caption1()),
-                Text(activeTime, style: AppStyle.heading4()),
+                timeWidget,
               ],
             ),
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text("Calories", style: AppStyle.caption1()),
-                Row(
-                  children: [
-                    Text("${caloriesMap["value"]!} ", style: AppStyle.heading4()),
-                    Text(caloriesMap["unit"]!, style: AppStyle.heading5()),
-                  ],
-                ),
+                Row(children: [
+                  Text("${caloriesMap["value"]!} ", style: AppStyle.heading4()),
+                  Text(caloriesMap["unit"]!, style: AppStyle.heading5()),
+                ]),
               ],
             )
           ],

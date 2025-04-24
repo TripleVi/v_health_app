@@ -8,7 +8,7 @@ final class PostLoading extends PostState {}
 final class PostLoaded extends PostState {
   final PostData data;
   late final String txtDate;
-  late final String recordTime;
+  late final List<int> time;
   final bool readMore;
 
   PostLoaded({
@@ -16,20 +16,12 @@ final class PostLoaded extends PostState {
     this.readMore = false,
   }) {
     txtDate = ta.format(data.post.createdDate, locale: "en");
-    final record = data.post.record;
-    final rDuration = record.endDate.difference(record.startDate);
-    recordTime = "";
-    // final hours = rDuration.inHours;
-    // final minutes = rDuration.inMinutes - rDuration.inHours * 60;
-    // if(rDuration.inHours > 0) {
-    //   recordTime = "$hours h";
-    // }
-    // if(rDuration.inMinutes > 0) {
-    //   recordTime = "${recordTime.isEmpty ? "$recordTime " : ""}$minutes m";
-    // }
-    // if(rDuration.inSeconds <= 59) {
-    //   recordTime = "${rDuration.inSeconds} s";
-    // }        
+    final rDuration = data.post.record.endDate
+        .difference(data.post.record.startDate);
+    final hours = rDuration.inHours;
+    final minutes = rDuration.inMinutes - hours * 60;
+    final seconds = rDuration.inSeconds - minutes * 60;
+    time = [hours, minutes, seconds];        
   }
 
   PostLoaded copyWith({

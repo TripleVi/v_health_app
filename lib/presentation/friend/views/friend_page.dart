@@ -29,22 +29,18 @@ class FriendView extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar.get(title: "Find people"),
       backgroundColor: AppStyle.surfaceColor,
-      body: Center(
-        child: Container(
-          height: double.infinity,
-          constraints: const BoxConstraints(maxWidth: 520.0),
-          padding: const EdgeInsets.all(12.0),
-          child: BlocBuilder<FriendCubit, FriendState>(
-            builder: (context, state) {
-              if(state is FriendLoading) {
-                return const AppLoadingIndicator();
-              }
-              if(state is FriendLoaded) {
-                return _mainSection(context, state);
-              }
-              return const SizedBox();
-            },
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: BlocBuilder<FriendCubit, FriendState>(
+          builder: (context, state) {
+            if(state is FriendLoading) {
+              return const AppLoadingIndicator();
+            }
+            if(state is FriendLoaded) {
+              return _mainSection(context, state);
+            }
+            return const SizedBox();
+          },
         ),
       )
     );
